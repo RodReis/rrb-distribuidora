@@ -1,10 +1,11 @@
+import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
 const connectionString =
   process.env.DATABASE_URL ||
-  "postgresql://metalagents:metalagents_secret@localhost:5432/metalagents";
+  "postgresql://metalagents:metalagents_secret@127.0.0.1:54320/metalagents";
 
 // For queries that run in Next.js Server Components / Actions
 const globalForDb = globalThis as unknown as {

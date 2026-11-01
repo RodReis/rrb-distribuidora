@@ -12,6 +12,7 @@
     "@auth/drizzle-adapter": "^1.11.3",
     "argon2": "^0.45.1",
     "clsx": "^2.1.1",
+    "dotenv": "^18.0.9",
     "drizzle-orm": "^0.45.4",
     "lucide-react": "^1.66.0",
     "next": "15.2.1",
