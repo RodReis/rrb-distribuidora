@@ -52,7 +52,7 @@ const ENTITIES: Record<
     template:
       "sku;erp_code;family;commercial_description;fiscal_description;norm;ncm;thickness_mm;width_mm;length_mm;diameter_mm;wall_mm;density_g_cm3;unit;replacement_cost_base;status\n" +
       ";940021-USIMINAS;Chapa Grossa;Chapa Grossa Laminada ASTM A36 12.70mm x 2400 x 6000mm;CHAPA DE ACO CARBONO LAMINADA A QUENTE;ASTM A36;72085100;12,70;2400;6000;;;7,85;kg;5,36;ativo\n" +
-      ";910408-CSN;Bobina;Bobina a Quente SAE 1008 3.00mm x 1500mm;BOBINA DE ACO LAMINADA A QUENTE;SAE 1008;72083890;3,00;1500;;;;;7,85;kg;4,71;ativo\n" +
+      ";910408-CSN;Bobina;Bobina a Quente SAE 1008 3.00mm x 1500mm;BOBINA DE ACO LAMINADA A QUENTE;SAE 1008;72083890;3,00;1500;;;;7,85;kg;4,71;ativo\n" +
       "SKU-INX-304-200;520844-APERAM;Tubo;Tubo Redondo Inox 304L OD 50.80mm x 2.00mm x 6000mm;TUBOS DE ACO INOXIDAVEL;ASTM A554;73064000;;;6000;50,80;2,00;7,93;m;24,90;ativo",
   },
   fornecedores: {
@@ -158,7 +158,11 @@ function autoGuess(header: string, fieldKey: string): boolean {
     notes: ["notes", "observacoes", "obs", "observacao"],
   };
   const alts = aliases[fieldKey] || [fieldKey];
-  return alts.some((a) => h === deaccent(a) || h.includes(deaccent(a)));
+  if (fieldKey === "commercial_description" && h.includes("fiscal")) return false;
+  return alts.some((a) => {
+    const alias = deaccent(a).replace(/[\s\-.]+/g, "_");
+    return h === alias || (alias.length >= 8 && h.includes(alias));
+  });
 }
 
 export function ImportClient() {
