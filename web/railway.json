@@ -1,12 +1,11 @@
 ﻿{
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "pnpm install --frozen-lockfile && pnpm build"
+    "builder": "RAILPACK"
   },
   "deploy": {
     "startCommand": "pnpm drizzle-kit migrate && pnpm start",
-    "restartPolicyType": "ALWAYS",
+    "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
 }
