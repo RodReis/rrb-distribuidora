@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#002113","surface-container-high":"#272a30","subtle-white":"#F1F5F9","inverse-surface":"#e1e2eb","carbon-700":"#222733","carbon-950":"#0B0D11","secondary-container":"#3a4a5f","primary-fixed":"#ffdad6","titanium-light":"#CBD5E1","inverse-on-surface":"#2d3037","on-surface":"#e1e2eb","on-secondary-fixed-variant":"#38485d","on-surface-variant":"#e6bdb8","error-container":"#93000a","surface-container-highest":"#32353b","secondary-fixed-dim":"#b7c8e1","outline-variant":"#5c403c","tertiary-fixed":"#6ffbbe","surface":"#101319","signal-buy":"#10B981","ice-white":"#F8FAFC","on-tertiary-container":"#e1ffec","surface-tint":"#ffb4ab","inverse-primary":"#bf0715","tertiary-fixed-dim":"#4edea3","surface-dim":"#101319","tertiary-container":"#008259","on-secondary":"#213145","on-primary-fixed-variant":"#93000b","on-primary":"#690005","on-secondary-container":"#a9bad3","error":"#ffb4ab","on-error":"#690005","carmine-dark":"#B91C1C","on-primary-container":"#fff6f5","on-tertiary":"#003824","on-primary-fixed":"#410002","titanium-muted":"#94A3B8","titanium-dark":"#475569","on-background":"#e1e2eb","secondary":"#b7c8e1","secondary-fixed":"#d3e4fe","signal-buy-dark":"#059669","on-error-container":"#ffdad6","surface-variant":"#32353b","surface-bright":"#363940","carmine-signal":"#EF4444","surface-container-low":"#191c22","carmine-core":"#DC2626","primary-container":"#dc2626","background":"#101319","on-secondary-fixed":"#0b1c30","surface-container":"#1d2026","primary-fixed-dim":"#ffb4ab","signal-risk":"#EF4444","titanium-steel":"#64748B","outline":"#ac8884","primary":"#ffb4ab","signal-hold-dark":"#D97706","carbon-900":"#11141A","carmine-deep":"#991B1B","surface-container-lowest":"#0b0e14","tertiary":"#4edea3","on-tertiary-fixed-variant":"#005236","signal-hold":"#F59E0B","carbon-800":"#181C24"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-md":"0.75rem","gutter-mobile":"0.5rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter":"0.75rem","space-xl":"1.5rem","margin":"1rem","margin-mobile":"0.75rem","space-lg":"1rem"},fontFamily:{"body-md":["Inter"],"headline-lg":["Inter"],"body-sm":["Inter"],"metric-display":["JetBrains Mono"],"headline-xl-mobile":["Inter"],"body-lg":["Inter"],"metric-regular":["JetBrains Mono"],"metric-compact":["JetBrains Mono"],"headline-sm":["Inter"],"headline-xl":["Inter"],"label-code":["JetBrains Mono"],"label-caps":["Inter"],"metric-display-mobile":["JetBrains Mono"],"headline-lg-mobile":["Inter"]},fontSize:{"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"30px","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"metric-display":["28px",{"lineHeight":"32px","fontWeight":"600"}],"headline-xl-mobile":["24px",{"lineHeight":"30px","fontWeight":"700"}],"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"metric-regular":["14px",{"lineHeight":"18px","fontWeight":"500"}],"metric-compact":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","fontWeight":"700"}],"label-code":["10px",{"lineHeight":"12px","fontWeight":"500"}],"label-caps":["11px",{"lineHeight":"14px","fontWeight":"600"}],"metric-display-mobile":["22px",{"lineHeight":"26px","fontWeight":"600"}],"headline-lg-mobile":["20px",{"lineHeight":"26px","fontWeight":"600"}]}}}};</script></head><body class="bg-carbon-950 font-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-14 bg-carbon-900 border-b border-carbon-700/80 z-50 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md min-w-[280px]"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 bg-carmine-core flex items-center justify-center rounded"><span class="font-label-caps text-label-caps text-ice-white font-bold tracking-tight">GF</span></div><div class="flex flex-col"><span class="font-label-caps text-label-caps font-bold tracking-wider text-ice-white leading-tight">METALAGENTS</span><span class="font-label-code text-label-code text-titanium-muted">INDUSTRIAL v4.2</span></div></div><div class="h-4 w-px bg-carbon-700 mx-space-xs"></div><div class="flex items-center gap-space-xs bg-carbon-800 border border-carbon-700/70 rounded px-space-sm py-1"><span class="material-symbols-outlined text-[16px] text-titanium-muted">factory</span><span class="font-body-sm text-body-sm text-titanium-light truncate max-w-[170px]">Matriz SP - Centro de Serviços</span><span class="material-symbols-outlined text-[16px] text-titanium-muted">expand_more</span></div></div><div class="hidden xl:flex items-center gap-space-md border-x border-carbon-700/70 px-space-md"><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">LME AL:</span><span class="font-metric-compact text-metric-compact text-signal-buy font-semibold">$2,384.50</span><span class="font-label-code text-label-code text-signal-buy">+1.2%</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">HRC BOBINA:</span><span class="font-metric-compact text-metric-compact text-carmine-signal font-semibold">R$ 4.710/t</span><span class="font-label-code text-label-code text-carmine-signal">-0.6%</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">PTAX USD:</span><span class="font-metric-compact text-metric-compact text-titanium-light font-semibold">R$ 5.482</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs bg-carbon-950 px-2 py-0.5 rounded border border-carbon-700/40"><span class="inline-block w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span><span class="font-label-code text-label-code text-titanium-muted">18ms</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-carbon-800/80 border border-carbon-700/50 rounded px-space-sm py-1"><span class="material-symbols-outlined text-[15px] text-tertiary">verified_user</span><span class="font-label-code text-label-code text-titanium-muted">Multi-Tenant RLS Ativo • ISO 27001</span></div><button class="p-1.5 text-titanium-muted hover:text-on-surface hover:bg-carbon-800 rounded border border-transparent hover:border-carbon-700 transition-colors" title="Alternar Tema" type="button"><span class="material-symbols-outlined text-[18px]">dark_mode</span></button><div class="h-5 w-px bg-carbon-700"></div><div class="flex items-center gap-space-sm"><div class="text-right hidden sm:block"><div class="font-body-sm text-body-sm font-semibold text-ice-white leading-tight">Rodrigo Reis</div><div class="font-label-code text-label-code text-titanium-muted leading-tight">Diretor Geral</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-carbon-700" src="https://lh3.googleusercontent.com/aida/AEtjO1V1cwbYSPNqZfF5ecGadys3lTVm0MoJ0snee_sVv4jpeg00ubHrbyWt_8gGH-WhjC32J8cJ_7IqgfnNVdyvcgu2bigvdFwWn9q3M27iEIwTDp_2HTDx7c55Ki1tzM-hUdLyrlaJjEj9_Yp_nY2cRSLrPG_KT2J6qpm0XRiFnWpxzvG0q3eZSQ1sVD7swMBRMs47Qt_-chqSThRpido0neguei-yf6vR07ZH9oxvbklDrT_CSNLtKAwHDQ"/></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 bg-carbon-900 border-r border-carbon-700/80 z-40 flex flex-col justify-between"><div class="py-space-sm overflow-y-auto"><div class="px-space-md py-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase tracking-widest font-semibold">Módulos Operacionais</span></div><nav class="flex flex-col space-y-0.5 px-space-xs mt-1" data-active-classes="bg-carbon-800 text-ice-white border-l-2 border-carmine-core"><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="visao-geral" href="#"><span class="material-symbols-outlined text-[19px]">terminal</span><span class="font-body-sm text-body-sm">Visão Geral</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="inteligencia-mercado" href="#"><span class="material-symbols-outlined text-[19px]">candlestick_chart</span><span class="font-body-sm text-body-sm">Inteligência &amp; LME</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="estoque-retalhos" href="#"><span class="material-symbols-outlined text-[19px]">inventory_2</span><span class="font-body-sm text-body-sm">Estoque &amp; Retalhos</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="compras-rfq" href="#"><span class="material-symbols-outlined text-[19px]">shopping_cart_checkout</span><span class="font-body-sm text-body-sm">Compras &amp; RFQ Auto</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="vendas-orcamento" href="#"><span class="material-symbols-outlined text-[19px]">request_quote</span><span class="font-body-sm text-body-sm">Vendas &amp; Orçamento</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="producao-nesting" href="#"><span class="material-symbols-outlined text-[19px]">precision_manufacturing</span><span class="font-body-sm text-body-sm">Produção &amp; Nesting</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="qualidade-certificados" href="#"><span class="material-symbols-outlined text-[19px]">assignment_turned_in</span><span class="font-body-sm text-body-sm">Qualidade &amp; Certificados</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="financeiro-risco" href="#"><span class="material-symbols-outlined text-[19px]">query_stats</span><span class="font-body-sm text-body-sm">Financeiro &amp; Risco</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="auditoria-ia" href="#"><span class="material-symbols-outlined text-[19px]">security</span><span class="font-body-sm text-body-sm">Auditoria &amp; IA Governance</span></a></nav></div><div class="p-space-md border-t border-carbon-700/80 bg-carbon-950/60"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-titanium-muted uppercase">Terminal Core</span><span class="font-label-code text-label-code text-signal-buy font-semibold">CONNECTED</span></div><div class="mt-1 flex items-center justify-between text-titanium-dark"><span class="font-label-code text-label-code">Kernel 09.4b</span><span class="font-label-code text-label-code">Billet #4140</span></div></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-3.5rem)] pt-14 pb-10 px-space-lg bg-carbon-950"><div class="flex flex-col w-full">
+<!-- Interactive Active Sidebar Highlighter Script -->
+<script>
+    (function() {
+      const activeLink = document.querySelector('nav a[data-path="estoque-retalhos"]');
+      if (activeLink) {
+        document.querySelectorAll('nav a').forEach(el => {
+          el.classList.remove('bg-carbon-800', 'text-ice-white', 'border-l-2', 'border-carmine-core');
+        });
+        activeLink.classList.add('bg-carbon-800', 'text-ice-white', 'border-l-2', 'border-carmine-core');
+      }
+    })();
+  </script>
+<!-- MODULE TOP HEADER & ACTION CONTROL BAR -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-lg mb-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm mb-1">
+<span class="font-label-code text-label-code bg-carbon-800 text-carmine-signal px-2 py-0.5 rounded uppercase font-semibold">
+          INVENTORY AGENT // MOTOR DE PREVISÃO DE DEMANDA &amp; RASTREABILIDADE 2D/3D
+        </span>
+<span class="flex items-center gap-1 font-label-code text-label-code text-signal-buy bg-carbon-900 px-2 py-0.5 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span>
+          RF-04 ATIVO
+        </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-ice-white tracking-tight flex items-center gap-2">
+<span>Estoque Preventivo &amp; Gestão Inteligente de Retalhos</span>
+</h1>
+<div class="flex flex-wrap items-center gap-space-md mt-1 font-label-code text-label-code text-titanium-muted">
+<span class="flex items-center gap-1 text-titanium-light">
+<span class="material-symbols-outlined text-[14px] text-tertiary">radar</span>
+          Varredura de Galpão: <span class="text-tertiary font-semibold">Ativa (LIDAR + RFID)</span>
+</span>
+<span class="text-carbon-700">•</span>
+<span>Giro Médio (DIO): <strong class="text-ice-white font-metric-compact text-metric-compact">41 dias</strong></span>
+<span class="text-carbon-700">•</span>
+<span>Retalhos Rastreados: <strong class="text-signal-buy font-metric-compact text-metric-compact">342 itens (68.4 t)</strong></span>
+<span class="text-carbon-700">•</span>
+<span>Lead Time Médio Fornecedores: <strong class="text-titanium-light">14.2 dias</strong></span>
+</div>
+</div>
+<!-- QUICK ACTIONS CTA -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<button class="flex items-center gap-1.5 bg-carmine-core hover:bg-carmine-signal text-ice-white px-space-md py-2 rounded font-label-caps text-label-caps transition-all shadow-md active:bg-carmine-deep">
+<span class="material-symbols-outlined text-[16px]">qr_code_scanner</span>
+<span>NOVO APONTAMENTO [QR SCAN]</span>
+<span class="bg-carbon-950/40 text-titanium-light px-1 py-0.2 rounded font-label-code text-label-code ml-1">F1</span>
+</button>
+<button class="flex items-center gap-1.5 bg-carbon-800 hover:bg-carbon-700 text-ice-white px-space-md py-2 rounded font-label-caps text-label-caps transition-colors">
+<span class="material-symbols-outlined text-[16px] text-signal-hold">model_training</span>
+<span>SIMULAR REPOSIÇÃO PREVENTIVA</span>
+</button>
+<button class="flex items-center gap-1.5 bg-carbon-800 hover:bg-carbon-700 text-titanium-light hover:text-ice-white px-space-sm py-2 rounded font-label-caps text-label-caps transition-colors" title="Exportar para SPED Fiscal">
+<span class="material-symbols-outlined text-[16px] text-titanium-muted">ios_share</span>
+<span>SPED / INV CÍCLICO</span>
+</button>
+<button class="flex items-center gap-1.5 bg-carbon-800 hover:bg-carbon-700 text-titanium-light hover:text-ice-white px-space-sm py-2 rounded font-label-caps text-label-caps transition-colors" title="Gerar Lote de Etiquetas Zebra">
+<span class="material-symbols-outlined text-[16px] text-titanium-muted">print</span>
+<span>ETIQUETAS PÁTIO</span>
+</button>
+</div>
+</div>
+<!-- SECTION 2: KPIS PREVENTIVOS & RENDIMENTO -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-sm mb-space-lg">
+<!-- Card 1: Ruptura Iminente -->
+<div class="bg-carbon-900 p-space-md rounded flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="absolute -right-3 -top-3 w-16 h-16 bg-carmine-core/10 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-carmine-signal uppercase tracking-wider font-semibold">Índice de Ruptura Iminente</span>
+<span class="material-symbols-outlined text-[18px] text-carmine-core">warning</span>
+</div>
+<div class="my-space-xs">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-carmine-signal font-bold">4 SKUs</span>
+<span class="font-label-code text-label-code text-titanium-muted">Críticos</span>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light mt-0.5">Cobertura &lt; Lead Time Fornecedor</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md px-space-md py-1.5">
+<span class="font-label-code text-label-code text-titanium-muted">Déficit Potencial: R$ 380k</span>
+<span class="font-label-code text-label-code text-carmine-signal font-semibold">AÇÃO IMEDIATA</span>
+</div>
+</div>
+<!-- Card 2: Retalhos Reclassificados -->
+<div class="bg-carbon-900 p-space-md rounded flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="absolute -right-3 -top-3 w-16 h-16 bg-signal-buy/10 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-signal-buy uppercase tracking-wider font-semibold">Retalhos Reclassificados (Mês)</span>
+<span class="material-symbols-outlined text-[18px] text-signal-buy">recycling</span>
+</div>
+<div class="my-space-xs">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-signal-buy font-bold">42.8 t</span>
+<span class="font-label-code text-label-code text-signal-buy">+18% vs mês ant.</span>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light mt-0.5">Salvas de sucata primária p/ OPs ativas</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md px-space-md py-1.5">
+<span class="font-label-code text-label-code text-titanium-muted">Valor Recuperado:</span>
+<span class="font-metric-regular text-metric-regular text-ice-white font-semibold">R$ 248.500,00</span>
+</div>
+</div>
+<!-- Card 3: Capital Parado Envelhecido -->
+<div class="bg-carbon-900 p-space-md rounded flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-signal-hold uppercase tracking-wider font-semibold">Capital Parado (&gt; 180 dias)</span>
+<span class="material-symbols-outlined text-[18px] text-signal-hold">hourglass_top</span>
+</div>
+<div class="my-space-xs">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-signal-hold font-bold">R$ 94.200</span>
+<span class="font-label-code text-label-code text-titanium-muted">18.2 t</span>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light mt-0.5">Sobras em risco de oxidação severa</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md px-space-md py-1.5">
+<span class="font-label-code text-label-code text-signal-buy">Redução de -24% pós IA</span>
+<span class="font-label-code text-label-code text-titanium-light underline cursor-pointer hover:text-ice-white">Liquidar em OP</span>
+</div>
+</div>
+<!-- Card 4: Acuracidade Cíclico -->
+<div class="bg-carbon-900 p-space-md rounded flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-titanium-light uppercase tracking-wider font-semibold">Acuracidade Inventário Cíclico</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">verified</span>
+</div>
+<div class="my-space-xs">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-ice-white font-bold">99.4%</span>
+<span class="font-label-code text-label-code text-signal-buy">ALTO RIGOR</span>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light mt-0.5">Auditoria algorítmica sem parada fabril</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md px-space-md py-1.5">
+<span class="font-label-code text-label-code text-titanium-muted">Último Ciclo Auditado:</span>
+<span class="font-label-code text-label-code text-titanium-light">Hoje, 06:00 BRT</span>
+</div>
+</div>
+</div>
+<!-- SECTION 5: MOTOR DE MATCHING AUTOMÁTICO (HERO INTELIGENTE) -->
+<div class="bg-carbon-900 rounded p-space-md mb-space-lg shadow-md relative overflow-hidden">
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-md pb-space-sm mb-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded bg-tertiary-container flex items-center justify-center text-ice-white">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-ice-white">Motor de Matching Automático: Retalho vs Pedidos de Venda</h2>
+<span class="bg-tertiary/20 text-tertiary font-label-code text-label-code px-2 py-0.5 rounded font-semibold uppercase">RF-04 &amp; Nesting Engine</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted">Algoritmo intercepta pedidos comerciais (WhatsApp / TOTVS) e bloqueia consumo de chapas novas inteiras quando há retalho compatível no pátio.</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-code text-label-code text-titanium-muted">Matching IA Taxa Sucesso:</span>
+<span class="font-metric-regular text-metric-regular text-signal-buy font-bold">88.6%</span>
+</div>
+</div>
+<!-- Active Match Showcase Banner -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md bg-carbon-950 p-space-md rounded items-center">
+<div class="lg:col-span-4 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="bg-carbon-800 text-titanium-light px-2 py-0.5 rounded font-label-code text-label-code">NOVO MATCH ENCONTRADO</span>
+<span class="text-signal-buy font-label-code text-label-code font-bold">ECONOMIA DIRETA</span>
+</div>
+<div class="font-body-lg text-body-lg text-ice-white font-semibold">
+          Pedido de Venda #PV-4491
+        </div>
+<div class="font-body-sm text-body-sm text-titanium-muted">
+          Cliente: <span class="text-ice-white">Metalúrgica Alvorada</span> | Item: 38 Flanges 400x500 mm em A36 1/2" (12.7mm).
+        </div>
+</div>
+<div class="lg:col-span-5 flex flex-col sm:flex-row items-center gap-space-md bg-carbon-900/90 p-space-sm rounded">
+<div class="flex flex-col text-center sm:text-left">
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Solução Convencional Evitada:</span>
+<span class="font-body-sm text-body-sm text-carmine-signal line-through">1 Chapa Virgem 6.000 x 2.400 mm</span>
+<span class="font-label-code text-label-code text-titanium-muted">Custo Chapa Nova: R$ 8.920,00</span>
+</div>
+<div class="text-signal-buy">
+<span class="material-symbols-outlined text-[24px]">trending_flat</span>
+</div>
+<div class="flex flex-col text-center sm:text-left">
+<span class="font-label-code text-label-code text-signal-buy uppercase font-semibold">Solução MetalAgents Alocada:</span>
+<span class="font-body-sm text-body-sm text-ice-white font-semibold">Retalhos #RET-8941 + #RET-8920</span>
+<span class="font-label-code text-label-code text-tertiary">Aproveitamento Mecânico: 94.2%</span>
+</div>
+</div>
+<div class="lg:col-span-3 flex flex-col items-end justify-center gap-1.5">
+<div class="text-right">
+<span class="font-label-code text-label-code text-titanium-muted">Custo Preservado em Estoque:</span>
+<div class="font-metric-display text-metric-display text-signal-buy font-bold leading-tight">R$ 4.290,00</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="bg-tertiary-container hover:bg-signal-buy-dark text-ice-white px-3 py-1.5 rounded font-label-caps text-label-caps transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+            APROVAR MATCHING
+          </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1.5 rounded font-label-caps text-label-caps">
+            VER NESTING
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 3: MATRIZ DE RISCO DE RUPTURA & PREVISÃO DE DEMANDA (TABLE + FORECAST CHART) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md mb-space-lg">
+<!-- Tabela Densa de SKUs Prioritários -->
+<div class="xl:col-span-8 bg-carbon-900 rounded p-space-md flex flex-col justify-between">
+<div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 bg-carmine-core rounded-full"></div>
+<h2 class="font-headline-sm text-headline-sm text-ice-white">Matriz Preditiva de Ruptura de Estoque (Lead Time vs Cobertura)</h2>
+</div>
+<div class="flex items-center gap-space-xs font-label-code text-label-code">
+<span class="text-titanium-muted">Filtro:</span>
+<span class="bg-carbon-800 text-ice-white px-2 py-0.5 rounded cursor-pointer">Críticos (4)</span>
+<span class="text-titanium-muted hover:text-ice-white px-1 cursor-pointer">Todos os SKUs</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-carbon-950 font-label-caps text-label-caps text-titanium-muted uppercase">
+<th class="py-2 px-space-sm font-semibold">SKU / Especificação Técnica</th>
+<th class="py-2 px-space-sm font-semibold text-right">Estoque</th>
+<th class="py-2 px-space-sm font-semibold text-right">Consumo Médio</th>
+<th class="py-2 px-space-sm font-semibold text-center">Cobertura</th>
+<th class="py-2 px-space-sm font-semibold text-center">Lead Time</th>
+<th class="py-2 px-space-sm font-semibold">Status Preditivo</th>
+<th class="py-2 px-space-sm font-semibold text-right">Ação IA Sugerida</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-body-sm font-body-sm">
+<!-- Item 1: Crítico -->
+<tr class="bg-carbon-900 hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-space-sm">
+<div class="font-semibold text-ice-white">Chapa Grossa A36 1/2" (12.70mm)</div>
+<div class="font-label-code text-label-code text-titanium-muted">COD: CG-A36-1270 // Gerdau Ouro Branco</div>
+</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-ice-white">18.5 t</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-titanium-light">2.2 t/dia</td>
+<td class="py-2.5 px-space-sm text-center">
+<span class="font-metric-regular text-metric-regular text-carmine-signal font-semibold">8 dias</span>
+</td>
+<td class="py-2.5 px-space-sm text-center font-metric-regular text-metric-regular text-titanium-light">14 dias</td>
+<td class="py-2.5 px-space-sm">
+<span class="inline-flex items-center gap-1 bg-carmine-core/20 text-carmine-signal px-2 py-0.5 rounded font-label-code text-label-code font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-carmine-signal animate-ping"></span>
+                    RUPTURA IMINENTE (-6d)
+                  </span>
+</td>
+<td class="py-2.5 px-space-sm text-right">
+<button class="bg-carmine-core hover:bg-carmine-signal text-ice-white px-2 py-1 rounded font-label-code text-label-code font-semibold transition-colors">
+                    Gerar PO 45t Gerdau
+                  </button>
+</td>
+</tr>
+<!-- Item 2: Ponto de Pedido -->
+<tr class="bg-carbon-950/40 hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-space-sm">
+<div class="font-semibold text-ice-white">Bobina a Quente SAE 1008 2.00mm</div>
+<div class="font-label-code text-label-code text-titanium-muted">COD: BQ-1008-200 // CSN Volta Redonda</div>
+</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-ice-white">42.0 t</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-titanium-light">3.8 t/dia</td>
+<td class="py-2.5 px-space-sm text-center">
+<span class="font-metric-regular text-metric-regular text-signal-hold font-semibold">11 dias</span>
+</td>
+<td class="py-2.5 px-space-sm text-center font-metric-regular text-metric-regular text-titanium-light">12 dias</td>
+<td class="py-2.5 px-space-sm">
+<span class="bg-signal-hold/20 text-signal-hold px-2 py-0.5 rounded font-label-code text-label-code font-semibold">
+                    PONTO DE PEDIDO (-1d)
+                  </span>
+</td>
+<td class="py-2.5 px-space-sm text-right">
+<span class="font-label-code text-label-code text-tertiary">RFQ disparado (5 usinas)</span>
+</td>
+</tr>
+<!-- Item 3: Alerta Emergencial -->
+<tr class="bg-carbon-900 hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-space-sm">
+<div class="font-semibold text-ice-white">Chapa Fina a Frio 1.20mm (FF)</div>
+<div class="font-label-code text-label-code text-titanium-muted">COD: CF-1006-120 // Usiminas Ipatinga</div>
+</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-ice-white">8.2 t</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-titanium-light">1.4 t/dia</td>
+<td class="py-2.5 px-space-sm text-center">
+<span class="font-metric-regular text-metric-regular text-carmine-signal font-semibold">6 dias</span>
+</td>
+<td class="py-2.5 px-space-sm text-center font-metric-regular text-metric-regular text-titanium-light">18 dias</td>
+<td class="py-2.5 px-space-sm">
+<span class="bg-carmine-core/20 text-carmine-signal px-2 py-0.5 rounded font-label-code text-label-code font-bold">
+                    ALERTA CRÍTICO (-12d)
+                  </span>
+</td>
+<td class="py-2.5 px-space-sm text-right">
+<button class="bg-carmine-dark hover:bg-carmine-core text-ice-white px-2 py-1 rounded font-label-code text-label-code transition-colors">
+                    Emitir Pedido Emergencial
+                  </button>
+</td>
+</tr>
+<!-- Item 4: Cobertura Segura -->
+<tr class="bg-carbon-950/40 hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-space-sm">
+<div class="font-semibold text-ice-white">Tubo Redondo Inox 304 2" x 2.00mm</div>
+<div class="font-label-code text-label-code text-titanium-muted">COD: TB-304-200 // Aperam Timóteo</div>
+</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-ice-white">120 barras</td>
+<td class="py-2.5 px-space-sm text-right font-metric-regular text-metric-regular text-titanium-light">4.3 bar/dia</td>
+<td class="py-2.5 px-space-sm text-center">
+<span class="font-metric-regular text-metric-regular text-signal-buy font-semibold">28 dias</span>
+</td>
+<td class="py-2.5 px-space-sm text-center font-metric-regular text-metric-regular text-titanium-light">15 dias</td>
+<td class="py-2.5 px-space-sm">
+<span class="bg-signal-buy/20 text-signal-buy px-2 py-0.5 rounded font-label-code text-label-code font-semibold">
+                    COBERTURA SEGURA (+13d)
+                  </span>
+</td>
+<td class="py-2.5 px-space-sm text-right">
+<span class="font-label-code text-label-code text-titanium-muted">Monitorar consumo</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm text-titanium-muted font-label-code text-label-code bg-carbon-950/60 p-2 rounded">
+<span>*Algoritmo Prophet (Meta) recalculado a cada 15 min integrando ordens de produção em carteira e histórico de 36 meses.</span>
+<span class="text-tertiary">Lead Time Dinâmico Ativo</span>
+</div>
+</div>
+<!-- Mini Gráfico de Previsão de Demanda Prophet -->
+<div class="xl:col-span-4 bg-carbon-900 rounded p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-caps text-label-caps text-titanium-light font-semibold uppercase">PROJEÇÃO PROPHET (45 DIAS)</span>
+<span class="font-label-code text-label-code text-signal-buy bg-carbon-950 px-1.5 py-0.5 rounded">CI: 95%</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-ice-white">Chapa Grossa A36 1/2"</div>
+<p class="font-body-sm text-body-sm text-titanium-muted mt-0.5">Demanda diária esperada vs estoque projetado até colapso em D+8.</p>
+<!-- Inline SVG Chart -->
+<div class="w-full mt-space-md bg-carbon-950 p-space-sm rounded">
+<svg class="w-full h-32 overflow-visible" viewbox="0 0 320 130">
+<defs>
+<lineargradient id="ruptureZone" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#DC2626" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#DC2626" stop-opacity="0.0"></stop>
+</lineargradient>
+<lineargradient id="safeZone" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#10B981" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#10B981" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="#222733" stroke-dasharray="2 2" stroke-width="1" x1="10" x2="310" y1="10" y2="10"></line>
+<line stroke="#222733" stroke-dasharray="2 2" stroke-width="1" x1="10" x2="310" y1="50" y2="50"></line>
+<line stroke="#222733" stroke-dasharray="2 2" stroke-width="1" x1="10" x2="310" y1="90" y2="90"></line>
+<line stroke="#222733" stroke-width="1" x1="10" x2="310" y1="120" y2="120"></line>
+<!-- Rupture Threshold Line -->
+<line stroke="#DC2626" stroke-dasharray="3 3" stroke-width="1.5" x1="10" x2="310" y1="75" y2="75"></line>
+<text fill="#DC2626" font-family="JetBrains Mono" font-size="8" font-weight="600" x="230" y="71">ESTOQUE CRÍTICO</text>
+<!-- Projected Stock Depletion Path (Green to Red) -->
+<path d="M 15 25 L 55 35 L 95 48 L 135 62 L 175 75 L 215 92 L 255 106 L 295 118" fill="none" stroke="#DC2626" stroke-width="2.5"></path>
+<!-- Point of Rupture Beacon -->
+<circle cx="175" cy="75" fill="#DC2626" r="4.5"></circle>
+<circle cx="175" cy="75" fill="#DC2626" fill-opacity="0.3" r="8"></circle>
+<text fill="#F8FAFC" font-family="JetBrains Mono" font-size="9" font-weight="600" x="160" y="94">D+8</text>
+<!-- Confidence Interval Shadow (Prophet) -->
+<path d="M 135 55 L 175 66 L 215 80 L 255 93 L 295 102 L 295 125 L 255 119 L 215 108 L 175 88 L 135 70 Z" fill="#DC2626" fill-opacity="0.12"></path>
+<!-- X Axis Labels -->
+<text fill="#94A3B8" font-family="JetBrains Mono" font-size="8" x="15" y="128">Hoje</text>
+<text fill="#94A3B8" font-family="JetBrains Mono" font-size="8" x="100" y="128">+15d</text>
+<text fill="#94A3B8" font-family="JetBrains Mono" font-size="8" x="195" y="128">+30d</text>
+<text fill="#94A3B8" font-family="JetBrains Mono" font-size="8" x="280" y="128">+45d</text>
+</svg>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs flex flex-col gap-1.5 font-label-code text-label-code text-titanium-muted">
+<div class="flex items-center justify-between">
+<span>Estoque em D+8 (Projetado):</span>
+<span class="text-carmine-signal font-semibold">0.9 t (Abaixo do Mínimo)</span>
+</div>
+<div class="flex items-center justify-between">
+<span>Ponto Crítico sem Pedido:</span>
+<span class="text-carmine-signal font-bold">14/Nov/2025</span>
+</div>
+<div class="flex items-center justify-between text-titanium-light pt-1">
+<span>Lead Time Gerdau Ouro Branco:</span>
+<span class="font-metric-compact text-metric-compact text-ice-white">14 dias úteis</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 4: CATÁLOGO DIGITAL DE RETALHOS & SOBRAS RASTREADAS (CARDS COM RENDERING TÉCNICO & QR CODE) -->
+<div class="flex flex-col mb-space-lg">
+<!-- Filter Control Bar -->
+<div class="bg-carbon-900 p-space-md rounded mb-space-sm flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-tertiary">inventory_2</span>
+<h2 class="font-headline-sm text-headline-sm text-ice-white">Catálogo Técnico de Retalhos Sobressalentes (Offcuts 2D/3D)</h2>
+<span class="bg-carbon-800 text-titanium-light px-2 py-0.5 rounded font-label-code text-label-code">342 ITENS</span>
+</div>
+<!-- Quick Filter Pills -->
+<div class="flex flex-wrap items-center gap-space-xs font-label-caps text-label-caps">
+<span class="text-titanium-muted font-label-code text-label-code mr-1">Ligas:</span>
+<button class="bg-carmine-core text-ice-white px-2 py-1 rounded">Todas</button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1 rounded">A36</button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1 rounded">SAE 1020</button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1 rounded">Inox 304/L</button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1 rounded">Alumínio 5052</button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1 rounded">Galvanizado Z275</button>
+</div>
+<!-- Location Dropdown & Search -->
+<div class="flex items-center gap-space-xs">
+<div class="relative">
+<input class="bg-carbon-950 text-ice-white font-body-sm text-body-sm px-space-sm py-1.5 pl-8 rounded w-56 focus:outline-none placeholder-titanium-dark" placeholder="Filtrar por Heat / OP / Dimensão..." type="text"/>
+<span class="material-symbols-outlined text-[16px] text-titanium-dark absolute left-2 top-2">search</span>
+</div>
+<select class="bg-carbon-950 text-titanium-light font-label-code text-label-code px-2 py-1.5 rounded focus:outline-none">
+<option>Todos Galpões</option>
+<option>Galpão Central - Box B</option>
+<option>Rua C - Prateleiras</option>
+<option>Pátio Slitter</option>
+</select>
+</div>
+</div>
+<!-- Retalhos Grid (Technical Industrial Cards) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-sm">
+<!-- RETALHO 1 -->
+<div class="bg-carbon-900 rounded p-space-md flex flex-col justify-between relative shadow-sm">
+<div>
+<!-- Header Card -->
+<div class="flex items-start justify-between pb-space-xs mb-space-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-code text-label-code font-bold text-ice-white bg-carbon-800 px-1.5 py-0.5 rounded">#RET-8941</span>
+<span class="bg-signal-buy/20 text-signal-buy font-label-code text-label-code px-1.5 py-0.5 rounded">ALOCADO EM OP</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-bold text-ice-white mt-1">Chapa Grossa A36</h3>
+</div>
+<!-- Technical Geometry Visualization -->
+<div class="w-12 h-10 bg-carbon-950 rounded flex items-center justify-center p-1">
+<svg class="w-full h-full" viewbox="0 0 40 30">
+<rect fill="#181C24" height="26" stroke="#DC2626" stroke-width="1.5" width="36" x="2" y="2"></rect>
+<line stroke="#DC2626" stroke-dasharray="1 1" stroke-width="0.5" x1="2" x2="38" y1="2" y2="28"></line>
+</svg>
+</div>
+</div>
+<!-- Dimension Specs Table -->
+<div class="grid grid-cols-2 gap-space-xs bg-carbon-950 p-space-sm rounded my-space-xs font-label-code text-label-code">
+<div>
+<span class="text-titanium-muted">Dimensões:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">1.250 x 2.400 mm</div>
+</div>
+<div>
+<span class="text-titanium-muted">Espessura:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">12.7 mm (1/2")</div>
+</div>
+<div>
+<span class="text-titanium-muted">Peso Líquido:</span>
+<div class="text-signal-buy font-metric-compact text-metric-compact font-bold">298.5 kg</div>
+</div>
+<div>
+<span class="text-titanium-muted">Corrida Usina:</span>
+<div class="text-titanium-light">#C-99412B</div>
+</div>
+</div>
+<!-- Traceability & QR Code Section -->
+<div class="flex items-center gap-space-sm py-space-xs">
+<!-- Simulated QR Code SVG -->
+<div class="w-12 h-12 bg-ice-white p-1 rounded flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-carbon-950" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z"></path>
+</svg>
+</div>
+<div class="flex flex-col font-label-code text-label-code overflow-hidden">
+<span class="text-titanium-muted">Origem: <strong class="text-titanium-light">OP #7890 (Plasma 01)</strong></span>
+<span class="text-titanium-muted">Local: <strong class="text-ice-white">Galpão Central - Box B-04</strong></span>
+<span class="text-signal-buy font-semibold truncate">Alocado p/ OP #8102 (Eco: R$ 1.840)</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center gap-1 pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md p-space-sm">
+<button class="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-label-code text-label-code flex items-center justify-center gap-1 transition-colors" title="Imprimir Etiqueta Argox/Zebra">
+<span class="material-symbols-outlined text-[13px]">print</span> Etiqueta
+          </button>
+<button class="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-label-code text-label-code flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[13px]">grid_goldenratio</span> Nesting
+          </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2 py-1 rounded font-label-code text-label-code" title="Baixar Mill Cert Válido">
+<span class="material-symbols-outlined text-[13px]">verified_user</span>
+</button>
+</div>
+</div>
+<!-- RETALHO 2 -->
+<div class="bg-carbon-900 rounded p-space-md flex flex-col justify-between relative shadow-sm">
+<div>
+<!-- Header Card -->
+<div class="flex items-start justify-between pb-space-xs mb-space-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-code text-label-code font-bold text-ice-white bg-carbon-800 px-1.5 py-0.5 rounded">#RET-8942</span>
+<span class="bg-tertiary/20 text-tertiary font-label-code text-label-code px-1.5 py-0.5 rounded">DISPONÍVEL</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-bold text-ice-white mt-1">Inox 304L Escovado</h3>
+</div>
+<!-- Technical Geometry Visualization -->
+<div class="w-12 h-10 bg-carbon-950 rounded flex items-center justify-center p-1">
+<svg class="w-full h-full" viewbox="0 0 40 30">
+<rect fill="#181C24" height="22" stroke="#4edea3" stroke-width="1.5" width="32" x="4" y="4"></rect>
+</svg>
+</div>
+</div>
+<!-- Dimension Specs Table -->
+<div class="grid grid-cols-2 gap-space-xs bg-carbon-950 p-space-sm rounded my-space-xs font-label-code text-label-code">
+<div>
+<span class="text-titanium-muted">Dimensões:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">850 x 1.600 mm</div>
+</div>
+<div>
+<span class="text-titanium-muted">Espessura:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">3.00 mm (#11)</div>
+</div>
+<div>
+<span class="text-titanium-muted">Peso Líquido:</span>
+<div class="text-signal-buy font-metric-compact text-metric-compact font-bold">32.4 kg</div>
+</div>
+<div>
+<span class="text-titanium-muted">Corrida Usina:</span>
+<div class="text-titanium-light">#INX-5510</div>
+</div>
+</div>
+<!-- Traceability & QR Code Section -->
+<div class="flex items-center gap-space-sm py-space-xs">
+<div class="w-12 h-12 bg-ice-white p-1 rounded flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-carbon-950" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z"></path>
+</svg>
+</div>
+<div class="flex flex-col font-label-code text-label-code overflow-hidden">
+<span class="text-titanium-muted">Origem: <strong class="text-titanium-light">OP #7741 (Laser Fibra)</strong></span>
+<span class="text-titanium-muted">Local: <strong class="text-ice-white">Rua A - Prateleira P-04</strong></span>
+<span class="text-tertiary font-semibold truncate">Livre p/ Matching em Vendas</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center gap-1 pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md p-space-sm">
+<button class="flex-1 bg-carmine-core hover:bg-carmine-signal text-ice-white py-1 rounded font-label-code text-label-code font-semibold flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[13px]">attach_file</span> Vincular Orçamento
+          </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white p-1 rounded font-label-code text-label-code">
+<span class="material-symbols-outlined text-[13px]">print</span>
+</button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2 py-1 rounded font-label-code text-label-code">
+<span class="material-symbols-outlined text-[13px]">verified_user</span>
+</button>
+</div>
+</div>
+<!-- RETALHO 3 -->
+<div class="bg-carbon-900 rounded p-space-md flex flex-col justify-between relative shadow-sm">
+<div>
+<!-- Header Card -->
+<div class="flex items-start justify-between pb-space-xs mb-space-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-code text-label-code font-bold text-ice-white bg-carbon-800 px-1.5 py-0.5 rounded">#RET-8943</span>
+<span class="bg-tertiary/20 text-tertiary font-label-code text-label-code px-1.5 py-0.5 rounded">DISPONÍVEL</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-bold text-ice-white mt-1">Alumínio Naval 5052-H32</h3>
+</div>
+<!-- Technical Geometry Visualization -->
+<div class="w-12 h-10 bg-carbon-950 rounded flex items-center justify-center p-1">
+<svg class="w-full h-full" viewbox="0 0 40 30">
+<rect fill="#181C24" height="14" stroke="#64748B" stroke-width="1.5" width="36" x="2" y="8"></rect>
+</svg>
+</div>
+</div>
+<!-- Dimension Specs Table -->
+<div class="grid grid-cols-2 gap-space-xs bg-carbon-950 p-space-sm rounded my-space-xs font-label-code text-label-code">
+<div>
+<span class="text-titanium-muted">Dimensões:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">600 x 3.000 mm</div>
+</div>
+<div>
+<span class="text-titanium-muted">Espessura:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">4.75 mm (3/16")</div>
+</div>
+<div>
+<span class="text-titanium-muted">Peso Líquido:</span>
+<div class="text-signal-buy font-metric-compact text-metric-compact font-bold">23.1 kg</div>
+</div>
+<div>
+<span class="text-titanium-muted">Corrida Usina:</span>
+<div class="text-titanium-light">#AL-8821</div>
+</div>
+</div>
+<!-- Traceability & QR Code Section -->
+<div class="flex items-center gap-space-sm py-space-xs">
+<div class="w-12 h-12 bg-ice-white p-1 rounded flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-carbon-950" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z"></path>
+</svg>
+</div>
+<div class="flex flex-col font-label-code text-label-code overflow-hidden">
+<span class="text-titanium-muted">Origem: <strong class="text-titanium-light">OP #8012 (Guilhotina CNC)</strong></span>
+<span class="text-titanium-muted">Local: <strong class="text-ice-white">Rua C - Prateleira 02</strong></span>
+<span class="text-titanium-muted truncate">Apto p/ dobra caldeiraria</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center gap-1 pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md p-space-sm">
+<button class="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-label-code text-label-code flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[13px]">print</span> Etiqueta
+          </button>
+<button class="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-label-code text-label-code flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[13px]">cut</span> Cortar
+          </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2 py-1 rounded font-label-code text-label-code">
+<span class="material-symbols-outlined text-[13px]">verified_user</span>
+</button>
+</div>
+</div>
+<!-- RETALHO 4 (SLITTER COIL TAIL) -->
+<div class="bg-carbon-900 rounded p-space-md flex flex-col justify-between relative shadow-sm">
+<div>
+<!-- Header Card -->
+<div class="flex items-start justify-between pb-space-xs mb-space-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-code text-label-code font-bold text-ice-white bg-carbon-800 px-1.5 py-0.5 rounded">#RET-8944</span>
+<span class="bg-signal-hold/20 text-signal-hold font-label-code text-label-code px-1.5 py-0.5 rounded">PONTA DE BOBINA</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-bold text-ice-white mt-1">Galvanizada Z275 (Slitter)</h3>
+</div>
+<!-- Technical Geometry Visualization -->
+<div class="w-12 h-10 bg-carbon-950 rounded flex items-center justify-center p-1">
+<svg class="w-full h-full" viewbox="0 0 40 30">
+<circle cx="20" cy="15" fill="none" r="10" stroke="#F59E0B" stroke-width="2"></circle>
+<circle cx="20" cy="15" fill="#181C24" r="4" stroke="#F59E0B" stroke-width="1"></circle>
+</svg>
+</div>
+</div>
+<!-- Dimension Specs Table -->
+<div class="grid grid-cols-2 gap-space-xs bg-carbon-950 p-space-sm rounded my-space-xs font-label-code text-label-code">
+<div>
+<span class="text-titanium-muted">Largura Slitter:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">450 mm</div>
+</div>
+<div>
+<span class="text-titanium-muted">Comprimento:</span>
+<div class="text-ice-white font-metric-compact text-metric-compact font-bold">180 metros</div>
+</div>
+<div>
+<span class="text-titanium-muted">Peso da Bobina:</span>
+<div class="text-signal-buy font-metric-compact text-metric-compact font-bold">1.120 kg</div>
+</div>
+<div>
+<span class="text-titanium-muted">Corrida Usina:</span>
+<div class="text-titanium-light">#CSN-2024-G</div>
+</div>
+</div>
+<!-- Traceability & QR Code Section -->
+<div class="flex items-center gap-space-sm py-space-xs">
+<div class="w-12 h-12 bg-ice-white p-1 rounded flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-carbon-950" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z"></path>
+</svg>
+</div>
+<div class="flex flex-col font-label-code text-label-code overflow-hidden">
+<span class="text-titanium-muted">Origem: <strong class="text-titanium-light">Linha Slitter 02</strong></span>
+<span class="text-titanium-muted">Local: <strong class="text-ice-white">Pátio Slitter - Baia 06</strong></span>
+<span class="text-signal-hold font-semibold truncate">Recomendado: Perfiladeira U</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center gap-1 pt-space-xs bg-carbon-950/60 -mx-space-md -mb-space-md p-space-sm">
+<button class="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-label-code text-label-code flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[13px]">print</span> Etiqueta
+          </button>
+<button class="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-label-code text-label-code flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[13px]">play_circle</span> Perfil U
+          </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2 py-1 rounded font-label-code text-label-code">
+<span class="material-symbols-outlined text-[13px]">verified_user</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 6: RADAR DE ENVELHECIMENTO & OXIDAÇÃO (PREVENÇÃO DE SUCATEAMENTO) -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm mb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-signal-hold">thermostat</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-ice-white">Radar de Envelhecimento, Oxidação &amp; Risco de Sucateamento</h3>
+<p class="font-body-sm text-body-sm text-titanium-muted">Monitoramento de retalhos parados por janela temporal para evitar perda mecânica por oxidação e custo de armazenagem.</p>
+</div>
+</div>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-3 py-1.5 rounded font-label-caps text-label-caps flex items-center gap-1 self-start sm:self-auto transition-colors">
+<span class="material-symbols-outlined text-[16px] text-carmine-signal">local_fire_department</span>
+        CRIAR CAMPANHA PROMOCIONAL DE QUEIMA
+      </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Janela 90 a 180 dias -->
+<div class="bg-carbon-950 p-space-md rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-titanium-light uppercase font-semibold">90 a 180 Dias de Galpão</span>
+<span class="bg-carbon-800 text-titanium-light px-2 py-0.5 rounded font-label-code text-label-code">ESTÁVEL</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-ice-white font-bold">14.8 t</span>
+<span class="font-label-code text-label-code text-titanium-muted">R$ 69.560,00</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted mt-1">Superfície íntegra sem corrosão vermelha. Aço carbono e tubos em prateleira coberta.</p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span>Ação Recomendada:</span>
+<span class="text-tertiary">Priorizar no Nesting Auto</span>
+</div>
+</div>
+<!-- Janela 180 a 360 dias -->
+<div class="bg-carbon-950 p-space-md rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-signal-hold uppercase font-semibold">180 a 360 Dias de Galpão</span>
+<span class="bg-signal-hold/20 text-signal-hold px-2 py-0.5 rounded font-label-code text-label-code">ATENÇÃO / OXIDAÇÃO LEVE</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-signal-hold font-bold">11.4 t</span>
+<span class="font-label-code text-label-code text-titanium-muted">R$ 58.140,00</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted mt-1">Oxidação superficial (flash rust) tolerável. Necessita jato granalha ou corte prioritário.</p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between font-label-code text-label-code">
+<span class="text-titanium-muted">Ação IA:</span>
+<span class="text-signal-hold underline cursor-pointer">Disparar Oferta WhatsApp B2B (-15%)</span>
+</div>
+</div>
+<!-- Janela > 360 dias -->
+<div class="bg-carbon-950 p-space-md rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-carmine-signal uppercase font-semibold">&gt; 360 Dias (Risco de Sucata)</span>
+<span class="bg-carmine-core/20 text-carmine-signal px-2 py-0.5 rounded font-label-code text-label-code font-bold">QUARNTENA</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-carmine-signal font-bold">6.8 t</span>
+<span class="font-label-code text-label-code text-titanium-muted">R$ 36.060,00</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted mt-1">Risco de perda dimensional ou descascamento de carepa. Alto custo de pátio.</p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between font-label-code text-label-code">
+<span class="text-titanium-muted">Decisão:</span>
+<span class="text-carmine-signal font-semibold underline cursor-pointer">Liquidar Gerdau Sucata (R$ 1.250/t)</span>
+</div>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full h-8 bg-carbon-900 border-t border-carbon-700/80 px-space-lg flex items-center justify-between text-titanium-muted font-label-code text-label-code"><div class="flex items-center gap-space-md"><span>METALAGENTS KERNEL v4.19.8-LTS</span><span class="text-carbon-700">|</span><span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>ERP TOTVS/SAP SYNC: ATIVO (0.3s atrás)</span><span class="text-carbon-700">|</span><span>HOST: GRU-PRD-MET-01</span></div><div class="flex items-center gap-space-md"><span>CRYPTO: AES-256-GCM</span><span>© 2025 GF INDUSTRIAL ANALYTICS</span></div></footer></div></body></html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#002113","surface-container-high":"#272a30","subtle-white":"#F1F5F9","inverse-surface":"#e1e2eb","carbon-700":"#222733","carbon-950":"#0B0D11","secondary-container":"#3a4a5f","primary-fixed":"#ffdad6","titanium-light":"#CBD5E1","inverse-on-surface":"#2d3037","on-surface":"#e1e2eb","on-secondary-fixed-variant":"#38485d","on-surface-variant":"#e6bdb8","error-container":"#93000a","surface-container-highest":"#32353b","secondary-fixed-dim":"#b7c8e1","outline-variant":"#5c403c","tertiary-fixed":"#6ffbbe","surface":"#101319","signal-buy":"#10B981","ice-white":"#F8FAFC","on-tertiary-container":"#e1ffec","surface-tint":"#ffb4ab","inverse-primary":"#bf0715","tertiary-fixed-dim":"#4edea3","surface-dim":"#101319","tertiary-container":"#008259","on-secondary":"#213145","on-primary-fixed-variant":"#93000b","on-primary":"#690005","on-secondary-container":"#a9bad3","error":"#ffb4ab","on-error":"#690005","carmine-dark":"#B91C1C","on-primary-container":"#fff6f5","on-tertiary":"#003824","on-primary-fixed":"#410002","titanium-muted":"#94A3B8","titanium-dark":"#475569","on-background":"#e1e2eb","secondary":"#b7c8e1","secondary-fixed":"#d3e4fe","signal-buy-dark":"#059669","on-error-container":"#ffdad6","surface-variant":"#32353b","surface-bright":"#363940","carmine-signal":"#EF4444","surface-container-low":"#191c22","carmine-core":"#DC2626","primary-container":"#dc2626","background":"#101319","on-secondary-fixed":"#0b1c30","surface-container":"#1d2026","primary-fixed-dim":"#ffb4ab","signal-risk":"#EF4444","titanium-steel":"#64748B","outline":"#ac8884","primary":"#ffb4ab","signal-hold-dark":"#D97706","carbon-900":"#11141A","carmine-deep":"#991B1B","surface-container-lowest":"#0b0e14","tertiary":"#4edea3","on-tertiary-fixed-variant":"#005236","signal-hold":"#F59E0B","carbon-800":"#181C24"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-md":"0.75rem","gutter-mobile":"0.5rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter":"0.75rem","space-xl":"1.5rem","margin":"1rem","margin-mobile":"0.75rem","space-lg":"1rem"},fontFamily:{"body-md":["Inter"],"headline-lg":["Inter"],"body-sm":["Inter"],"metric-display":["JetBrains Mono"],"headline-xl-mobile":["Inter"],"body-lg":["Inter"],"metric-regular":["JetBrains Mono"],"metric-compact":["JetBrains Mono"],"headline-sm":["Inter"],"headline-xl":["Inter"],"label-code":["JetBrains Mono"],"label-caps":["Inter"],"metric-display-mobile":["JetBrains Mono"],"headline-lg-mobile":["Inter"]},fontSize:{"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"30px","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"metric-display":["28px",{"lineHeight":"32px","fontWeight":"600"}],"headline-xl-mobile":["24px",{"lineHeight":"30px","fontWeight":"700"}],"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"metric-regular":["14px",{"lineHeight":"18px","fontWeight":"500"}],"metric-compact":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","fontWeight":"700"}],"label-code":["10px",{"lineHeight":"12px","fontWeight":"500"}],"label-caps":["11px",{"lineHeight":"14px","fontWeight":"600"}],"metric-display-mobile":["22px",{"lineHeight":"26px","fontWeight":"600"}],"headline-lg-mobile":["20px",{"lineHeight":"26px","fontWeight":"600"}]}}}};</script></head><body class="bg-carbon-950 font-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-14 bg-carbon-900 border-b border-carbon-700/80 z-50 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md min-w-[280px]"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 bg-carmine-core flex items-center justify-center rounded"><span class="font-label-caps text-label-caps text-ice-white font-bold tracking-tight">GF</span></div><div class="flex flex-col"><span class="font-label-caps text-label-caps font-bold tracking-wider text-ice-white leading-tight">METALAGENTS</span><span class="font-label-code text-label-code text-titanium-muted">INDUSTRIAL v4.2</span></div></div><div class="h-4 w-px bg-carbon-700 mx-space-xs"></div><div class="flex items-center gap-space-xs bg-carbon-800 border border-carbon-700/70 rounded px-space-sm py-1"><span class="material-symbols-outlined text-[16px] text-titanium-muted">factory</span><span class="font-body-sm text-body-sm text-titanium-light truncate max-w-[170px]">Matriz SP - Centro de Serviços</span><span class="material-symbols-outlined text-[16px] text-titanium-muted">expand_more</span></div></div><div class="hidden xl:flex items-center gap-space-md border-x border-carbon-700/70 px-space-md"><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">LME AL:</span><span class="font-metric-compact text-metric-compact text-signal-buy font-semibold">$2,384.50</span><span class="font-label-code text-label-code text-signal-buy">+1.2%</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">HRC BOBINA:</span><span class="font-metric-compact text-metric-compact text-carmine-signal font-semibold">R$ 4.710/t</span><span class="font-label-code text-label-code text-carmine-signal">-0.6%</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">PTAX USD:</span><span class="font-metric-compact text-metric-compact text-titanium-light font-semibold">R$ 5.482</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs bg-carbon-950 px-2 py-0.5 rounded border border-carbon-700/40"><span class="inline-block w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span><span class="font-label-code text-label-code text-titanium-muted">18ms</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-carbon-800/80 border border-carbon-700/50 rounded px-space-sm py-1"><span class="material-symbols-outlined text-[15px] text-tertiary">verified_user</span><span class="font-label-code text-label-code text-titanium-muted">Multi-Tenant RLS Ativo • ISO 27001</span></div><button class="p-1.5 text-titanium-muted hover:text-on-surface hover:bg-carbon-800 rounded border border-transparent hover:border-carbon-700 transition-colors" title="Alternar Tema" type="button"><span class="material-symbols-outlined text-[18px]">dark_mode</span></button><div class="h-5 w-px bg-carbon-700"></div><div class="flex items-center gap-space-sm"><div class="text-right hidden sm:block"><div class="font-body-sm text-body-sm font-semibold text-ice-white leading-tight">Rodrigo Reis</div><div class="font-label-code text-label-code text-titanium-muted leading-tight">Diretor Geral</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-carbon-700" src="https://lh3.googleusercontent.com/aida/AEtjO1V1cwbYSPNqZfF5ecGadys3lTVm0MoJ0snee_sVv4jpeg00ubHrbyWt_8gGH-WhjC32J8cJ_7IqgfnNVdyvcgu2bigvdFwWn9q3M27iEIwTDp_2HTDx7c55Ki1tzM-hUdLyrlaJjEj9_Yp_nY2cRSLrPG_KT2J6qpm0XRiFnWpxzvG0q3eZSQ1sVD7swMBRMs47Qt_-chqSThRpido0neguei-yf6vR07ZH9oxvbklDrT_CSNLtKAwHDQ"/></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 bg-carbon-900 border-r border-carbon-700/80 z-40 flex flex-col justify-between"><div class="py-space-sm overflow-y-auto"><div class="px-space-md py-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase tracking-widest font-semibold">Módulos Operacionais</span></div><nav class="flex flex-col space-y-0.5 px-space-xs mt-1" data-active-classes="bg-carbon-800 text-ice-white border-l-2 border-carmine-core"><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="visao-geral" href="#"><span class="material-symbols-outlined text-[19px]">terminal</span><span class="font-body-sm text-body-sm">Visão Geral</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="inteligencia-mercado" href="#"><span class="material-symbols-outlined text-[19px]">candlestick_chart</span><span class="font-body-sm text-body-sm">Inteligência &amp; LME</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="estoque-retalhos" href="#"><span class="material-symbols-outlined text-[19px]">inventory_2</span><span class="font-body-sm text-body-sm">Estoque &amp; Retalhos</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="compras-rfq" href="#"><span class="material-symbols-outlined text-[19px]">shopping_cart_checkout</span><span class="font-body-sm text-body-sm">Compras &amp; RFQ Auto</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="vendas-orcamento" href="#"><span class="material-symbols-outlined text-[19px]">request_quote</span><span class="font-body-sm text-body-sm">Vendas &amp; Orçamento</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="producao-nesting" href="#"><span class="material-symbols-outlined text-[19px]">precision_manufacturing</span><span class="font-body-sm text-body-sm">Produção &amp; Nesting</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="qualidade-certificados" href="#"><span class="material-symbols-outlined text-[19px]">assignment_turned_in</span><span class="font-body-sm text-body-sm">Qualidade &amp; Certificados</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="financeiro-risco" href="#"><span class="material-symbols-outlined text-[19px]">query_stats</span><span class="font-body-sm text-body-sm">Financeiro &amp; Risco</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="auditoria-ia" href="#"><span class="material-symbols-outlined text-[19px]">security</span><span class="font-body-sm text-body-sm">Auditoria &amp; IA Governance</span></a></nav></div><div class="p-space-md border-t border-carbon-700/80 bg-carbon-950/60"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-titanium-muted uppercase">Terminal Core</span><span class="font-label-code text-label-code text-signal-buy font-semibold">CONNECTED</span></div><div class="mt-1 flex items-center justify-between text-titanium-dark"><span class="font-label-code text-label-code">Kernel 09.4b</span><span class="font-label-code text-label-code">Billet #4140</span></div></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-3.5rem)] pt-14 pb-10 px-space-lg bg-carbon-950"><div class="flex flex-col w-full space-y-space-md">
+<!-- TOP CONTEXTUAL BANNER / HEADER -->
+<header class="bg-carbon-900 rounded p-space-md shadow-md flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-1.5 bg-carbon-800 px-2 py-0.5 rounded">
+<span class="inline-block w-2 h-2 rounded-full bg-signal-buy animate-pulse"></span>
+<span class="font-label-code text-label-code text-signal-buy uppercase tracking-wider">Telemetry Online</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-ice-white font-bold tracking-tight">
+          Command Center <span class="text-carmine-core font-mono">//</span> Orquestrador Executivo Multi-Agente
+        </span>
+<span class="bg-carmine-core/15 text-carmine-signal font-label-code text-label-code px-2 py-0.5 rounded uppercase font-semibold">
+          Diretoria Geral
+        </span>
+</div>
+<div class="flex flex-wrap items-center gap-space-md text-titanium-muted font-label-code text-label-code">
+<span class="flex items-center gap-1 text-titanium-light">
+<span class="material-symbols-outlined text-[14px] text-titanium-steel">calendar_clock</span>
+          Quarta-feira, 28 de Outubro • 07:14 BRT
+        </span>
+<span class="text-carbon-700">|</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">sync</span>
+          Próxima Sincronia Kernel: <strong class="text-ice-white">07:30:00 (15m46s)</strong>
+</span>
+<span class="text-carbon-700">|</span>
+<span>Sessão: <strong>AUTH-DIRECTOR-REIS</strong></span>
+</div>
+</div>
+<!-- Quick Status Pills & Priority Actions -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-space-xs bg-carbon-950 px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-signal-buy">verified</span>
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted leading-tight">RISCO GLOBAL</span>
+<span class="font-label-code text-label-code text-signal-buy font-bold leading-tight">CONTROLADO</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs bg-carbon-950 px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-tertiary">smart_toy</span>
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted leading-tight">ENXAME IA</span>
+<span class="font-label-code text-label-code text-ice-white font-bold leading-tight">8/8 ATIVOS</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs bg-carbon-950 px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-signal-hold">lock_person</span>
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted leading-tight">HUMAN-IN-THE-LOOP</span>
+<span class="font-label-code text-label-code text-signal-hold font-bold leading-tight">ALÇADA RIGOROSA</span>
+</div>
+</div>
+<div class="h-6 w-px bg-carbon-700 mx-1 hidden lg:block"></div>
+<!-- Action Buttons -->
+<button class="flex items-center gap-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white px-3 py-1.5 rounded font-label-caps text-label-caps transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-titanium-muted">picture_as_pdf</span>
+        Relatório Executivo
+      </button>
+<button class="flex items-center gap-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white px-3 py-1.5 rounded font-label-caps text-label-caps transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-titanium-muted">tune</span>
+        Alçadas
+      </button>
+<button class="flex items-center gap-1.5 bg-carmine-core hover:bg-carmine-signal text-ice-white px-3 py-1.5 rounded font-label-caps text-label-caps font-bold transition-all shadow-sm" onclick="document.getElementById('copilot-input').focus()" type="button">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+        Perguntar Copilot
+        <span class="bg-carmine-dark px-1 py-0.2 rounded font-label-code text-[9px]">Ctrl+K</span>
+</button>
+</div>
+</header>
+<!-- SEÇÃO 2: BRIEFING MATINAL DAS 07:00H (CEO COPILOT DISPATCH) -->
+<section class="bg-carbon-900 rounded p-space-md shadow-md relative overflow-hidden">
+<!-- Visual Gradient & Watermark -->
+<div class="absolute -right-10 -bottom-10 opacity-5 pointer-events-none text-ice-white">
+<span class="material-symbols-outlined text-[200px]">psychology</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm pb-space-sm mb-space-sm bg-carbon-950/60 -mx-space-md -mt-space-md p-space-md rounded-t">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded bg-carmine-core flex items-center justify-center text-ice-white shadow-sm">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-ice-white font-bold leading-tight">
+              Briefing Executivo Diário — 07:00h
+            </h2>
+<span class="bg-carmine-deep text-primary-fixed px-2 py-0.5 rounded font-label-code text-label-code font-bold uppercase">
+              Seção PRD 6.9 // Prioridade Alfa
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+            Síntese algorítmica sintetizada através da varredura de mercado de comodities, ordens TOTVS e telemetria de fábrica.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm font-label-code text-label-code bg-carbon-900 px-3 py-1.5 rounded">
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+<span class="text-titanium-light">Status Dispatch:</span>
+<span class="text-signal-buy font-semibold">Disparado via WhatsApp &amp; E-mail às 07:00:12 BRT</span>
+</div>
+</div>
+<!-- 3 Action Points Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Card A: Oportunidade Crítica -->
+<div class="bg-carbon-800/90 rounded p-space-md flex flex-col justify-between shadow-sm relative group hover:bg-carbon-800 transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="bg-signal-buy/15 text-signal-buy font-label-code text-label-code px-2 py-0.5 rounded font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">trending_up</span> Oportunidade de Compra
+            </span>
+<span class="font-label-code text-label-code text-titanium-muted">Spread LME vs Usina</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-semibold text-ice-white">
+            Antecipação de 60t Chapa Fina a Frio &amp; Bobinas A36
+          </h3>
+<p class="font-body-sm text-body-sm text-titanium-light">
+            Reajuste iminente anunciado por Gerdau/CSN de <strong class="text-carmine-signal">+5,2%</strong> para a 2ª semana de novembro. Projeção de estoque cobre apenas 28 dias do consumo previsto.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between bg-carbon-950/60 p-2 rounded">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted">ECONOMIA PROJETADA</span>
+<span class="font-metric-regular text-metric-regular text-signal-buy font-bold">R$ 84.600,00</span>
+</div>
+<a class="font-label-caps text-label-caps bg-signal-buy hover:bg-signal-buy-dark text-on-tertiary-fixed px-2.5 py-1 rounded font-bold transition-colors" href="#fila-decisoes">
+            Avaliar RFQ [F1]
+          </a>
+</div>
+</div>
+<!-- Card B: Alerta de Ruptura -->
+<div class="bg-carbon-800/90 rounded p-space-md flex flex-col justify-between shadow-sm relative group hover:bg-carbon-800 transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="bg-carmine-core/20 text-carmine-signal font-label-code text-label-code px-2 py-0.5 rounded font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span> Ruptura Iminente
+            </span>
+<span class="font-label-code text-label-code text-signal-risk">Lead Time: 14 dias</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-semibold text-ice-white">
+            Chapa Grossa 1/2" A36 — Cobertura Restante: 8 Dias
+          </h3>
+<p class="font-body-sm text-body-sm text-titanium-light">
+            Consumo acelerado no corte plasma Mesa 01. Três ordens industriais críticas (OP #7890, #7892, #7901) correm risco direto de estagnação fabril em 96 horas.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between bg-carbon-950/60 p-2 rounded">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted">ORDENS EM RISCO</span>
+<span class="font-metric-regular text-metric-regular text-carmine-signal font-bold">3 Ordens de Corte (R$ 192k)</span>
+</div>
+<button class="font-label-caps text-label-caps bg-carbon-700 hover:bg-carbon-600 text-ice-white px-2.5 py-1 rounded transition-colors" type="button">
+            Ver Alocação
+          </button>
+</div>
+</div>
+<!-- Card C: Proteção de Margem -->
+<div class="bg-carbon-800/90 rounded p-space-md flex flex-col justify-between shadow-sm relative group hover:bg-carbon-800 transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="bg-signal-hold/20 text-signal-hold font-label-code text-label-code px-2 py-0.5 rounded font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Defesa de Spread
+            </span>
+<span class="font-label-code text-label-code text-signal-hold font-bold">14 Travas Ativas</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-semibold text-ice-white">
+            14 Propostas Bloqueadas: Abaixo do Custo de Reposição
+          </h3>
+<p class="font-body-sm text-body-sm text-titanium-light">
+            Vendedores utilizaram custo contábil médio antigo em cotações de Inox e Alumínio. Algoritmo ativou trava de margem garantindo spread mínimo de 22.5%.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between bg-carbon-950/60 p-2 rounded">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted">MARGEM PROTEGIDA</span>
+<span class="font-metric-regular text-metric-regular text-signal-hold font-bold">R$ 51.240 Retidos</span>
+</div>
+<button class="font-label-caps text-label-caps bg-carbon-700 hover:bg-carbon-600 text-ice-white px-2.5 py-1 rounded transition-colors" type="button">
+            Revisar Travas
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SEÇÃO 3: CARTÕES DE INDICADORES CHAVE PREVENTIVOS (KPIS ESTRATÉGICOS) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- KPI 1: Dias de Estoque -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted uppercase tracking-wider">DIAS DE ESTOQUE (DIO)</span>
+<span class="font-body-sm text-body-sm text-titanium-steel">Giro Global / CDs Integrados</span>
+</div>
+<div class="w-8 h-8 rounded bg-carbon-800 flex items-center justify-center text-titanium-light">
+<span class="material-symbols-outlined text-[18px]">timelapse</span>
+</div>
+</div>
+<div class="my-space-sm flex items-baseline justify-between">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-ice-white font-bold">41</span>
+<span class="font-label-code text-label-code text-titanium-muted">dias</span>
+</div>
+<span class="bg-signal-buy/15 text-signal-buy font-label-code text-label-code px-2 py-0.5 rounded font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">arrow_downward</span> -18.4%
+        </span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between font-label-code text-label-code text-titanium-muted">
+<span>Meta: &lt; 45 dias</span>
+<span class="text-signal-buy font-semibold">Excelente (-4d da meta)</span>
+</div>
+<!-- Progress bar sparkline -->
+<div class="w-full h-1.5 bg-carbon-800 rounded-full overflow-hidden">
+<div class="bg-signal-buy h-full rounded-full" style="width: 72%;"></div>
+</div>
+</div>
+</div>
+<!-- KPI 2: Preço Médio vs Média Móvel -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted uppercase tracking-wider">PREÇO MÉDIO VS. SMA 90D</span>
+<span class="font-body-sm text-body-sm text-titanium-steel">Eficiência de Compra Aço/Alumínio</span>
+</div>
+<div class="w-8 h-8 rounded bg-carbon-800 flex items-center justify-center text-signal-buy">
+<span class="material-symbols-outlined text-[18px]">price_check</span>
+</div>
+</div>
+<div class="my-space-sm flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="font-metric-display text-metric-display text-signal-buy font-bold">-3.8%</span>
+<span class="font-label-code text-label-code text-titanium-muted">vs índice</span>
+</div>
+<span class="bg-carbon-800 text-titanium-light font-label-code text-label-code px-2 py-0.5 rounded">
+          Mês Vigente
+        </span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between font-label-code text-label-code text-titanium-muted">
+<span>Economia Acumulada:</span>
+<span class="text-signal-buy font-bold font-metric-compact text-metric-compact">R$ 342.150,00</span>
+</div>
+<div class="w-full h-1.5 bg-carbon-800 rounded-full overflow-hidden">
+<div class="bg-signal-buy h-full rounded-full" style="width: 84%;"></div>
+</div>
+</div>
+</div>
+<!-- KPI 3: Aproveitamento de Retalhos / Sucata -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted uppercase tracking-wider">APROVEITAMENTO RETALHOS</span>
+<span class="font-body-sm text-body-sm text-titanium-steel">Algoritmo 2D Nesting &amp; Sobras</span>
+</div>
+<div class="w-8 h-8 rounded bg-carbon-800 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">recycling</span>
+</div>
+</div>
+<div class="my-space-sm flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="font-metric-display text-metric-display text-tertiary font-bold">88.4%</span>
+<span class="font-label-code text-label-code text-titanium-muted">yield</span>
+</div>
+<span class="bg-tertiary/15 text-tertiary font-label-code text-label-code px-2 py-0.5 rounded font-bold">
+          +32% vs Manual
+        </span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between font-label-code text-label-code text-titanium-muted">
+<span>Reclassificados:</span>
+<span class="text-ice-white font-semibold">42 Toneladas em OPs ativas</span>
+</div>
+<div class="w-full h-1.5 bg-carbon-800 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 88.4%;"></div>
+</div>
+</div>
+</div>
+<!-- KPI 4: Margem Bruta Realizada -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-titanium-muted uppercase tracking-wider">MARGEM BRUTA REALIZADA</span>
+<span class="font-body-sm text-body-sm text-titanium-steel">Pricing Dinâmico por Reposição</span>
+</div>
+<div class="w-8 h-8 rounded bg-carbon-800 flex items-center justify-center text-signal-buy">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</div>
+</div>
+<div class="my-space-sm flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="font-metric-display text-metric-display text-ice-white font-bold">24.6%</span>
+<span class="font-label-code text-label-code text-titanium-muted">líq.</span>
+</div>
+<span class="bg-signal-buy/15 text-signal-buy font-label-code text-label-code px-2 py-0.5 rounded font-bold">
+          +1.8 p.p. vs Target
+        </span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between font-label-code text-label-code text-titanium-muted">
+<span>Target Corporativo: 22.8%</span>
+<span class="text-signal-buy font-semibold">Spread Max</span>
+</div>
+<div class="w-full h-1.5 bg-carbon-800 rounded-full overflow-hidden">
+<div class="bg-carmine-core h-full rounded-full" style="width: 79%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- SEÇÃO 4 & SEÇÃO 5: SPLIT GRID - FILA DE DECISÕES HUMAN-IN-THE-LOOP + MATRIZ DE RISCO -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md">
+<!-- SEÇÃO 4: FILA DE DECISÕES HUMAN-IN-THE-LOOP (7 COLUNAS EM DESKTOP) -->
+<section class="xl:col-span-7 bg-carbon-900 rounded p-space-md shadow-md flex flex-col justify-between" id="fila-decisoes">
+<div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm mb-space-sm bg-carbon-950/40 -mx-space-md -mt-space-md p-space-md rounded-t gap-2">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-carmine-signal">gavel</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ice-white font-bold leading-tight">
+                Fila de Decisões Human-in-the-Loop
+              </h2>
+<span class="font-label-code text-label-code text-titanium-muted">
+                Autorização de Alçada Obrigatória • PRD Seções 6.0 e 14.0
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-carmine-core/20 text-carmine-signal font-label-code text-label-code px-2 py-0.5 rounded font-bold">
+              3 Pendências Requerem Diretor
+            </span>
+</div>
+</div>
+<!-- Decision Item List -->
+<div class="space-y-space-sm">
+<!-- Item 1: Compra Gerdau/CSN -->
+<div class="bg-carbon-800 p-space-md rounded shadow-sm flex flex-col gap-space-sm hover:bg-carbon-700/60 transition-all">
+<div class="flex flex-wrap items-center justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">DECISÃO #089-COM</span>
+<span class="bg-carbon-950 text-titanium-light px-2 py-0.5 rounded font-label-code text-label-code font-semibold">
+                  Compra Estratégica Antecipada
+                </span>
+</div>
+<span class="font-metric-regular text-metric-regular text-signal-buy font-bold">
+                R$ 310.800,00
+              </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
+<div class="md:col-span-8">
+<h4 class="font-body-md text-body-md font-semibold text-ice-white">
+                  60 Toneladas Bobina BQ A36 (Espessura 4.75mm) — Gerdau / CSN via Trader SP
+                </h4>
+<div class="mt-1 bg-carbon-950/70 p-2 rounded font-body-sm text-body-sm text-titanium-light">
+<span class="font-label-code text-label-code text-signal-buy font-semibold uppercase">Rationale da IA:</span>
+                  Score de Oportunidade <strong>82/100</strong>. Preço negociado em R$ 5,18/kg contra R$ 5,82/kg projetado pós-reajuste da usina em 18 dias. Economia estimada líquida de <strong>R$ 38.400,00</strong>.
+                </div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1.5 justify-end">
+<button class="w-full bg-signal-buy hover:bg-signal-buy-dark text-on-tertiary-fixed font-label-caps text-label-caps font-bold py-1.5 px-3 rounded flex items-center justify-between transition-colors shadow-sm" type="button">
+<span>Aprovar &amp; Emitir PO</span>
+<span class="font-label-code text-[10px] bg-on-tertiary-fixed/20 px-1 py-0.2 rounded">[F1]</span>
+</button>
+<div class="grid grid-cols-2 gap-1">
+<button class="bg-carbon-700 hover:bg-carbon-600 text-titanium-light font-label-caps text-label-caps py-1 px-2 rounded transition-colors text-center" type="button">
+                    Ajustar Qtd
+                  </button>
+<button class="bg-carbon-950 hover:bg-carmine-deep text-carmine-signal font-label-caps text-label-caps py-1 px-2 rounded transition-colors text-center" type="button">
+                    Rejeitar
+                  </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2: Liberação de Limite de Crédito -->
+<div class="bg-carbon-800 p-space-md rounded shadow-sm flex flex-col gap-space-sm hover:bg-carbon-700/60 transition-all">
+<div class="flex flex-wrap items-center justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-signal-hold"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">DECISÃO #041-FIN</span>
+<span class="bg-carbon-950 text-titanium-light px-2 py-0.5 rounded font-label-code text-label-code font-semibold">
+                  Alçada de Crédito Excepcional
+                </span>
+</div>
+<span class="font-metric-regular text-metric-regular text-ice-white font-bold">
+                Pedido: R$ 145.000,00
+              </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
+<div class="md:col-span-8">
+<h4 class="font-body-md text-body-md font-semibold text-ice-white">
+                  Metalúrgica Votorantim &amp; CIA Ltda — Liberação de Limite de R$ 90k para R$ 150k
+                </h4>
+<div class="mt-1 bg-carbon-950/70 p-2 rounded font-body-sm text-body-sm text-titanium-light">
+<span class="font-label-code text-label-code text-signal-hold font-semibold uppercase">Rationale da IA:</span>
+                  Score Serasa PJ 890 (Excelente), histórico 100% pontual. Contudo, agente detectou exposição cambial no último balanço. Parecer: aprovar com duplicata garantida ou 50% à vista.
+                </div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1.5 justify-end">
+<button class="w-full bg-signal-hold hover:bg-signal-hold-dark text-carbon-950 font-label-caps text-label-caps font-bold py-1.5 px-3 rounded flex items-center justify-center gap-1 transition-colors shadow-sm" type="button">
+<span>Aprovar com Garantia</span>
+</button>
+<button class="w-full bg-carbon-700 hover:bg-carbon-600 text-titanium-light font-label-caps text-label-caps py-1 px-3 rounded transition-colors text-center" type="button">
+                  Ver Dossiê Cadastral
+                </button>
+</div>
+</div>
+</div>
+<!-- Item 3: Descarte / Venda de Retalho Fora de Padrão -->
+<div class="bg-carbon-800 p-space-md rounded shadow-sm flex flex-col gap-space-sm hover:bg-carbon-700/60 transition-all">
+<div class="flex flex-wrap items-center justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">DECISÃO #019-IND</span>
+<span class="bg-carbon-950 text-titanium-light px-2 py-0.5 rounded font-label-code text-label-code font-semibold">
+                  Monetização de Sobra Fabril
+                </span>
+</div>
+<span class="font-metric-regular text-metric-regular text-tertiary font-bold">
+                R$ 34.080,00 (2.4t)
+              </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
+<div class="md:col-span-8">
+<h4 class="font-body-md text-body-md font-semibold text-ice-white">
+                  Descarte e Venda de 2.4 Toneladas de Retalhos Irregulares — Inox 304L (Lote Antigo)
+                </h4>
+<div class="mt-1 bg-carbon-950/70 p-2 rounded font-body-sm text-body-sm text-titanium-light">
+<span class="font-label-code text-label-code text-tertiary font-semibold uppercase">Rationale da IA:</span>
+                  Material parado há 180 dias. Algoritmo de nesting não encontrou peças compatíveis. Oferta da Fundição São Pedro por <strong>R$ 14,20/kg</strong> (+18% sobre sucata prensada comum). Libera 18m² de galpão.
+                </div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1.5 justify-end">
+<button class="w-full bg-carbon-700 hover:bg-tertiary hover:text-carbon-950 text-ice-white font-label-caps text-label-caps font-bold py-1.5 px-3 rounded flex items-center justify-center gap-1 transition-colors shadow-sm" type="button">
+<span>Aprovar Venda Fundição</span>
+</button>
+<button class="w-full bg-carbon-950 hover:bg-carbon-800 text-titanium-muted font-label-caps text-label-caps py-1 px-3 rounded transition-colors text-center" type="button">
+                  Reter no Galpão
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span>Critério: Alçada Diretoria &gt; R$ 100.000 ou Desconto &gt; 8%</span>
+<span class="text-tertiary">3 Decisões resolvidas nas últimas 24h</span>
+</div>
+</section>
+<!-- SEÇÃO 5: MATRIZ DE RISCOS MONITORADOS EM TEMPO REAL (5 COLUNAS EM DESKTOP) -->
+<section class="xl:col-span-5 bg-carbon-900 rounded p-space-md shadow-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-space-sm mb-space-sm bg-carbon-950/40 -mx-space-md -mt-space-md p-space-md rounded-t">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-signal-hold">radar</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ice-white font-bold leading-tight">
+                Matriz de Riscos &amp; Respostas
+              </h2>
+<span class="font-label-code text-label-code text-titanium-muted">
+                Monitoramento Ativo das 5 Dimensões Industriais
+              </span>
+</div>
+</div>
+<span class="font-label-code text-label-code text-signal-buy flex items-center gap-1">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-signal-buy"></span> 0 Críticos
+          </span>
+</div>
+<!-- Categorized Risk Table Grid -->
+<div class="space-y-2">
+<!-- Risco 1: Estoque -->
+<div class="p-2.5 rounded bg-carbon-800/80 hover:bg-carbon-800 transition-colors flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps font-semibold text-ice-white">
+<span class="material-symbols-outlined text-[15px] text-carmine-signal">inventory</span>
+                Estoque Siderúrgico
+              </span>
+<span class="font-label-code text-label-code text-carmine-signal bg-carmine-core/15 px-1.5 py-0.2 rounded font-bold">
+                Risco Alto (4 SKUs)
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-light">
+              Ruptura iminente em Perfis I e Chapas 1/2".
+            </p>
+<div class="bg-carbon-950 p-1.5 rounded font-label-code text-label-code text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+<strong>Ação Auto:</strong> RFQ disparado para 5 usinas e traders.
+            </div>
+</div>
+<!-- Risco 2: Mercado & LME -->
+<div class="p-2.5 rounded bg-carbon-800/80 hover:bg-carbon-800 transition-colors flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps font-semibold text-ice-white">
+<span class="material-symbols-outlined text-[15px] text-signal-hold">show_chart</span>
+                Mercado &amp; LME Alumínio
+              </span>
+<span class="font-label-code text-label-code text-signal-hold bg-signal-hold/15 px-1.5 py-0.2 rounded font-bold">
+                Moderado (+2.4%)
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-light">
+              Volatilidade do alumínio primário em Londres refletindo no mercado interno.
+            </p>
+<div class="bg-carbon-950 p-1.5 rounded font-label-code text-label-code text-signal-hold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock_clock</span>
+<strong>Ação Auto:</strong> Redução de validade das cotações ativas para 24h.
+            </div>
+</div>
+<!-- Risco 3: Produção & Nesting -->
+<div class="p-2.5 rounded bg-carbon-800/80 hover:bg-carbon-800 transition-colors flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps font-semibold text-ice-white">
+<span class="material-symbols-outlined text-[15px] text-signal-hold">precision_manufacturing</span>
+                Capacidade Fabril (CNC)
+              </span>
+<span class="font-label-code text-label-code text-signal-hold bg-signal-hold/15 px-1.5 py-0.2 rounded font-bold">
+                94% Ocupação
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-light">
+              Gargalo identificado na Guilhotina CNC 02 para chapas finas.
+            </p>
+<div class="bg-carbon-950 p-1.5 rounded font-label-code text-label-code text-ice-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-signal-buy">alt_route</span>
+<strong>Ação Auto:</strong> Redistribuição de 12 OPs para Corte Plasma Mesa 01.
+            </div>
+</div>
+<!-- Risco 4: Qualidade & Certificados -->
+<div class="p-2.5 rounded bg-carbon-800/80 hover:bg-carbon-800 transition-colors flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps font-semibold text-ice-white">
+<span class="material-symbols-outlined text-[15px] text-carmine-signal">verified</span>
+                Qualidade Metalúrgica
+              </span>
+<span class="font-label-code text-label-code text-carmine-signal bg-carmine-core/15 px-1.5 py-0.2 rounded font-bold">
+                Quarentena Lote
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-light">
+              Corrida #4892 (Chapa Naval ASTM A131): Carbono no limite máx (0.21%).
+            </p>
+<div class="bg-carbon-950 p-1.5 rounded font-label-code text-label-code text-carmine-signal flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">pause_circle</span>
+<strong>Ação Auto:</strong> Lote de 18t bloqueado eletronicamente para expedição.
+            </div>
+</div>
+<!-- Risco 5: Financeiro / Câmbio -->
+<div class="p-2.5 rounded bg-carbon-800/80 hover:bg-carbon-800 transition-colors flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps font-semibold text-ice-white">
+<span class="material-symbols-outlined text-[15px] text-titanium-light">currency_exchange</span>
+                Financeiro &amp; Câmbio PTAX
+              </span>
+<span class="font-label-code text-label-code text-titanium-light bg-carbon-700 px-1.5 py-0.2 rounded font-bold">
+                Exposição US$ 180k
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-light">
+              2 Contêineres Inox 304 aguardando desembaraço no Porto de Santos.
+            </p>
+<div class="bg-carbon-950 p-1.5 rounded font-label-code text-label-code text-titanium-light flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-signal-hold">notifications_active</span>
+<strong>Ação Auto:</strong> Alerta de hedge emitido para Diretoria Financeira.
+            </div>
+</div>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs text-right font-label-code text-label-code text-titanium-muted">
+        Auditoria Contínua: <span class="text-signal-buy">Norma ISO 9001 / IATF 16949</span>
+</div>
+</section>
+</div>
+<!-- SEÇÃO 6: STATUS DO ESQUADRÃO DE 8 AGENTES AUTÔNOMOS (TELEMETRIA ATIVA) -->
+<section class="bg-carbon-900 rounded p-space-md shadow-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm mb-space-sm gap-2 bg-carbon-950/40 -mx-space-md -mt-space-md p-space-md rounded-t">
+<div class="flex items-center gap-space-sm">
+<div class="w-2.5 h-2.5 rounded-full bg-signal-buy animate-ping"></div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-ice-white font-bold leading-tight">
+            Status do Esquadrão de 8 Agentes Autônomos
+          </h3>
+<span class="font-label-code text-label-code text-titanium-muted">
+            Microserviços Especializados • Orquestração Algorítmica Concorrente
+          </span>
+</div>
+</div>
+<div class="flex items-center gap-space-md text-titanium-muted font-label-code text-label-code">
+<span>Throughput: <strong class="text-ice-white">1.842 ops/min</strong></span>
+<span>Taxa de Erro: <strong class="text-signal-buy">0.00%</strong></span>
+</div>
+</div>
+<!-- 8 Agents Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm">
+<!-- Agente 1: Market -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-tertiary">candlestick_chart</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Market Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Verificando cotações LME, CME, SHFE e paridade PTAX.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>Latência: 12ms</span>
+<span class="text-signal-buy">Loop 30s</span>
+</div>
+</div>
+<!-- Agente 2: Procurement -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-signal-buy">shopping_cart_checkout</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Procurement Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Comparando 18 RFQs recebidos hoje de 6 usinas parceiras.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>RFQs: 18 ativas</span>
+<span class="text-signal-buy">Disparado</span>
+</div>
+</div>
+<!-- Agente 3: Inventory -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-titanium-light">inventory_2</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Inventory Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Otimizando Curva ABC/XYZ e catálogo de retalhos com QR Code.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>Itens: 4.890 SKUs</span>
+<span class="text-tertiary">Sincronizado</span>
+</div>
+</div>
+<!-- Agente 4: Sales -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-signal-buy">support_agent</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Sales Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Calculando orçamentos instantâneos recebidos via WhatsApp e ERP.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>Hoje: 64 propostas</span>
+<span class="text-signal-buy">Tempo: 4.2s</span>
+</div>
+</div>
+<!-- Agente 5: Cutting -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-carmine-signal">content_cut</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Cutting Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Otimizando 2D Nesting para corte laser, plasma e oxicorte.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>Aproveitamento: 88.4%</span>
+<span class="text-signal-buy">CNC Ativo</span>
+</div>
+</div>
+<!-- Agente 6: Logistics -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-titanium-light">local_shipping</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Logistics Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Rastreando 3 carretas de bobinas e 1 navio cargueiro em Santos.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>ETA Navio: 3d 14h</span>
+<span class="text-tertiary">GPS Normal</span>
+</div>
+</div>
+<!-- Agente 7: Finance -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-signal-hold">account_balance</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Finance Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Monitorando fluxo de caixa projetado para 30 dias e crédito.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>Caixa Livre: +R$ 1.2M</span>
+<span class="text-signal-buy">Saudável</span>
+</div>
+</div>
+<!-- Agente 8: Quality -->
+<div class="bg-carbon-800 p-space-sm rounded flex flex-col justify-between hover:bg-carbon-700/80 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-tertiary">fact_check</span>
+<span class="font-label-caps text-label-caps font-bold text-ice-white">Quality Agent</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+</div>
+<p class="mt-1 font-body-sm text-body-sm text-titanium-light leading-snug">
+          Analisando 12 Mill Certs via OCR com tolerâncias ASTM/ABNT.
+        </p>
+<div class="mt-2 pt-1 flex justify-between font-label-code text-label-code text-titanium-muted bg-carbon-950/40 px-1.5 py-0.5 rounded">
+<span>OCR: 99.8% Conf.</span>
+<span class="text-signal-buy">Conforme</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SEÇÃO 7: COPILOT TERMINAL INDUSTRIAL (INTERAÇÃO EM LINGUAGEM NATURAL) -->
+<section class="bg-carbon-900 rounded p-space-md shadow-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-carmine-core">terminal</span>
+<span class="font-headline-sm text-headline-sm text-ice-white font-bold">
+          Copilot Industrial — Interface Executiva de Comando
+        </span>
+</div>
+<div class="flex items-center gap-1 font-label-code text-label-code text-titanium-muted">
+<span>Motor: <strong>Llama-3-Industrial-70B + RAG Corporativo TOTVS</strong></span>
+</div>
+</div>
+<!-- Quick Prompt Pills -->
+<div class="flex flex-wrap items-center gap-1.5 text-titanium-light">
+<span class="font-label-code text-label-code text-titanium-muted uppercase mr-1">Prompts Rápidos:</span>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-2.5 py-1 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1 shadow-sm" onclick="setPrompt('Qual margem perdi por vender abaixo do custo de reposição no último mês?')" type="button">
+<span class="material-symbols-outlined text-[13px] text-signal-hold">analytics</span>
+        Perda por margem &lt; reposição?
+      </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-2.5 py-1 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1 shadow-sm" onclick="setPrompt('Qual nosso saldo atual de chapas grossas 1/4 A36 e previsão de chegada de usina?')" type="button">
+<span class="material-symbols-outlined text-[13px] text-tertiary">inventory</span>
+        Saldo de chapas 1/4" A36?
+      </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-2.5 py-1 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1 shadow-sm" onclick="setPrompt('Simule impacto financeiro se a Gerdau subir o aço plano em 6% na próxima sexta-feira.')" type="button">
+<span class="material-symbols-outlined text-[13px] text-carmine-signal">trending_up</span>
+        Simulação de aumento de 6% usina
+      </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-2.5 py-1 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1 shadow-sm" onclick="setPrompt('Quais clientes possuem pedidos faturados acima de R$ 80k com prazo vencido nos últimos 5 dias?')" type="button">
+<span class="material-symbols-outlined text-[13px] text-titanium-light">credit_score</span>
+        Inadimplência acima de R$ 80k
+      </button>
+</div>
+<!-- Terminal Input Form -->
+<form class="relative flex items-center mt-1" onsubmit="handleCopilotQuery(event)">
+<div class="absolute left-3.5 flex items-center pointer-events-none text-carmine-core">
+<span class="material-symbols-outlined text-[20px]">prompt_suggestion</span>
+</div>
+<input class="w-full bg-carbon-950 text-ice-white pl-11 pr-36 py-3 rounded font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-carmine-core transition-all shadow-inner placeholder:text-titanium-dark" id="copilot-input" placeholder="Pergunte ao Orquestrador em linguagem natural (ex: 'Qual a margem média dos retalhos de corte laser este mês?')..." type="text"/>
+<div class="absolute right-2 flex items-center gap-1">
+<button class="bg-carmine-core hover:bg-carmine-signal text-ice-white px-3.5 py-1.5 rounded font-label-caps text-label-caps font-bold transition-colors flex items-center gap-1.5 shadow-sm" type="submit">
+<span>Consultar IA</span>
+<span class="bg-carmine-dark font-label-code text-[10px] px-1 py-0.2 rounded text-primary-fixed">↵ Enter</span>
+</button>
+</div>
+</form>
+<!-- Response Feed Container (Hidden by default, shown via JS interaction) -->
+<div class="hidden bg-carbon-950 rounded p-space-md mt-1 space-y-space-xs transition-all" id="copilot-response-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+<span class="font-label-code text-label-code text-tertiary uppercase font-bold">Resposta Sintetizada • Agente Orquestrador</span>
+</div>
+<span class="font-label-code text-label-code text-titanium-muted">Tempo de Inferência: 412ms</span>
+</div>
+<div class="font-body-md text-body-md text-ice-white leading-relaxed" id="copilot-response-text">
+<!-- Dynamic text inserted here -->
+</div>
+<div class="pt-2 flex items-center gap-2 font-label-code text-label-code text-titanium-muted">
+<span class="text-tertiary font-semibold">Fonte dos dados:</span> Tabela TOTVS_SB2, LME Metal Data Feed &amp; Mill Spec OCR Engine.
+      </div>
+</div>
+</section>
+</div>
+<script>
+  function setPrompt(text) {
+    var input = document.getElementById('copilot-input');
+    if (input) {
+      input.value = text;
+      input.focus();
+    }
+  }
+
+  function handleCopilotQuery(e) {
+    e.preventDefault();
+    var input = document.getElementById('copilot-input');
+    var container = document.getElementById('copilot-response-container');
+    var responseText = document.getElementById('copilot-response-text');
+
+    if (!input || !input.value.trim()) return;
+
+    var query = input.value.trim();
+    container.classList.remove('hidden');
+    responseText.innerHTML = '<span class="text-titanium-muted animate-pulse">Consultando base de conhecimento siderúrgica e repositório de dados...</span>';
+
+    setTimeout(function() {
+      if (query.toLowerCase().indexOf('margem') !== -1 || query.toLowerCase().indexOf('reposi') !== -1) {
+        responseText.innerHTML = '<p class="mb-2"><strong>Análise de Dispersão de Margem:</strong> No mês de Outubro, foram identificadas <strong>14 cotações</strong> faturadas abaixo do custo de reposição dinâmico, totalizando uma erosão de margem teórica de <span class="text-carmine-signal font-bold">R$ 51.240,00</span>.</p><p class="text-titanium-light">O principal desvio ocorreu em <em>Chapas de Aço Carbono 1020 e Perfis W</em>, onde a equipe comercial utilizou a tabela de custos de 45 dias atrás antes do reajuste de usina de 4%. A trava automática agora bloqueia orçamentos com margem de contribuição &lt; 22.5%.</p>';
+      } else if (query.toLowerCase().indexOf('saldo') !== -1 || query.toLowerCase().indexOf('1/4') !== -1) {
+        responseText.innerHTML = '<p class="mb-2"><strong>Posição de Estoque Chapa Grossa 1/4" A36:</strong></p><ul class="list-disc pl-5 space-y-1 text-titanium-light"><li>Saldo Físico Disponível: <strong>14.2 Toneladas</strong> (Galpão 02, Baias C12 a C15).</li><li>Consumo Médio Diário: <strong>1.8 Toneladas/dia</strong> (Cobertura: ~7.8 dias).</li><li>Pedidos de Compra em Aberto: <strong>PO #4589</strong> (30 toneladas via Usiminas) com ETA confirmado para <strong>03/Nov</strong>.</li><li>Retalhos Reutilizáveis Disponíveis: <strong>4 peças</strong> &gt; 1200x2000mm registradas no Nesting.</li></ul>';
+      } else if (query.toLowerCase().indexOf('aumento') !== -1 || query.toLowerCase().indexOf('6%') !== -1) {
+        responseText.innerHTML = '<p class="mb-2"><strong>Simulação de Sensibilidade (+6% Aço Plano):</strong></p><p class="text-titanium-light">Um reajuste imediato de +6% pelas usinas geraria um aumento de custo de reposição de <strong>R$ 184.200,00</strong> no nosso giro mensal médio de 620 toneladas. Recomendação algorítmica: <em>Antecipar imediatamente 80t de Bobinas BQ e Chapa Fina a Quente</em>, garantindo uma economia líquida projetada de <strong>R$ 44.800,00</strong> e mantendo nossa vantagem comercial nas próximas 4 semanas.</p>';
+      } else {
+        responseText.innerHTML = '<p><strong>Orquestrador Executivo:</strong> Consulta analisada para: <em>"' + query + '"</em>.</p><p class="text-titanium-light mt-1">O enxame de agentes processou a requisição. Níveis de estoque, indicadores de margem bruta (24.6%) e ordens industriais em carteira operam em conformidade com as diretrizes do Planejamento Estratégico Q4/2025.</p>';
+      }
+    }, 450);
+  }
+
+  // Keyboard shortcut listener for Ctrl+K
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      var input = document.getElementById('copilot-input');
+      if (input) {
+        input.focus();
+      }
+    }
+  });
+</script></main><footer class="w-full h-8 bg-carbon-900 border-t border-carbon-700/80 px-space-lg flex items-center justify-between text-titanium-muted font-label-code text-label-code"><div class="flex items-center gap-space-md"><span>METALAGENTS KERNEL v4.19.8-LTS</span><span class="text-carbon-700">|</span><span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>ERP TOTVS/SAP SYNC: ATIVO (0.3s atrás)</span><span class="text-carbon-700">|</span><span>HOST: GRU-PRD-MET-01</span></div><div class="flex items-center gap-space-md"><span>CRYPTO: AES-256-GCM</span><span>© 2025 GF INDUSTRIAL ANALYTICS</span></div></footer></div></body></html>

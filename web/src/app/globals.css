@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0b0d11;
+    --foreground: #f8fafc;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #0b0d11;
+    color: #f8fafc;
+    font-family: var(--font-inter), Inter, sans-serif;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Custom scrollbar matching dark carbon terminal */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b0d11;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #222733;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+}

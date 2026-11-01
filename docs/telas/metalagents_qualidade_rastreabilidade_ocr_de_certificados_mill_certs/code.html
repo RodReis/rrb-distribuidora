@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#002113","surface-container-high":"#272a30","subtle-white":"#F1F5F9","inverse-surface":"#e1e2eb","carbon-700":"#222733","carbon-950":"#0B0D11","secondary-container":"#3a4a5f","primary-fixed":"#ffdad6","titanium-light":"#CBD5E1","inverse-on-surface":"#2d3037","on-surface":"#e1e2eb","on-secondary-fixed-variant":"#38485d","on-surface-variant":"#e6bdb8","error-container":"#93000a","surface-container-highest":"#32353b","secondary-fixed-dim":"#b7c8e1","outline-variant":"#5c403c","tertiary-fixed":"#6ffbbe","surface":"#101319","signal-buy":"#10B981","ice-white":"#F8FAFC","on-tertiary-container":"#e1ffec","surface-tint":"#ffb4ab","inverse-primary":"#bf0715","tertiary-fixed-dim":"#4edea3","surface-dim":"#101319","tertiary-container":"#008259","on-secondary":"#213145","on-primary-fixed-variant":"#93000b","on-primary":"#690005","on-secondary-container":"#a9bad3","error":"#ffb4ab","on-error":"#690005","carmine-dark":"#B91C1C","on-primary-container":"#fff6f5","on-tertiary":"#003824","on-primary-fixed":"#410002","titanium-muted":"#94A3B8","titanium-dark":"#475569","on-background":"#e1e2eb","secondary":"#b7c8e1","secondary-fixed":"#d3e4fe","signal-buy-dark":"#059669","on-error-container":"#ffdad6","surface-variant":"#32353b","surface-bright":"#363940","carmine-signal":"#EF4444","surface-container-low":"#191c22","carmine-core":"#DC2626","primary-container":"#dc2626","background":"#101319","on-secondary-fixed":"#0b1c30","surface-container":"#1d2026","primary-fixed-dim":"#ffb4ab","signal-risk":"#EF4444","titanium-steel":"#64748B","outline":"#ac8884","primary":"#ffb4ab","signal-hold-dark":"#D97706","carbon-900":"#11141A","carmine-deep":"#991B1B","surface-container-lowest":"#0b0e14","tertiary":"#4edea3","on-tertiary-fixed-variant":"#005236","signal-hold":"#F59E0B","carbon-800":"#181C24"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-md":"0.75rem","gutter-mobile":"0.5rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter":"0.75rem","space-xl":"1.5rem","margin":"1rem","margin-mobile":"0.75rem","space-lg":"1rem"},fontFamily:{"body-md":["Inter"],"headline-lg":["Inter"],"body-sm":["Inter"],"metric-display":["JetBrains Mono"],"headline-xl-mobile":["Inter"],"body-lg":["Inter"],"metric-regular":["JetBrains Mono"],"metric-compact":["JetBrains Mono"],"headline-sm":["Inter"],"headline-xl":["Inter"],"label-code":["JetBrains Mono"],"label-caps":["Inter"],"metric-display-mobile":["JetBrains Mono"],"headline-lg-mobile":["Inter"]},fontSize:{"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"30px","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"metric-display":["28px",{"lineHeight":"32px","fontWeight":"600"}],"headline-xl-mobile":["24px",{"lineHeight":"30px","fontWeight":"700"}],"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"metric-regular":["14px",{"lineHeight":"18px","fontWeight":"500"}],"metric-compact":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","fontWeight":"700"}],"label-code":["10px",{"lineHeight":"12px","fontWeight":"500"}],"label-caps":["11px",{"lineHeight":"14px","fontWeight":"600"}],"metric-display-mobile":["22px",{"lineHeight":"26px","fontWeight":"600"}],"headline-lg-mobile":["20px",{"lineHeight":"26px","fontWeight":"600"}]}}}};</script></head><body class="bg-carbon-950 font-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-14 bg-carbon-900 border-b border-carbon-700/80 z-50 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md min-w-[280px]"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 bg-carmine-core flex items-center justify-center rounded"><span class="font-label-caps text-label-caps text-ice-white font-bold tracking-tight">GF</span></div><div class="flex flex-col"><span class="font-label-caps text-label-caps font-bold tracking-wider text-ice-white leading-tight">METALAGENTS</span><span class="font-label-code text-label-code text-titanium-muted">INDUSTRIAL v4.2</span></div></div><div class="h-4 w-px bg-carbon-700 mx-space-xs"></div><div class="flex items-center gap-space-xs bg-carbon-800 border border-carbon-700/70 rounded px-space-sm py-1"><span class="material-symbols-outlined text-[16px] text-titanium-muted">factory</span><span class="font-body-sm text-body-sm text-titanium-light truncate max-w-[170px]">Matriz SP - Centro de Serviços</span><span class="material-symbols-outlined text-[16px] text-titanium-muted">expand_more</span></div></div><div class="hidden xl:flex items-center gap-space-md border-x border-carbon-700/70 px-space-md"><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">LME AL:</span><span class="font-metric-compact text-metric-compact text-signal-buy font-semibold">$2,384.50</span><span class="font-label-code text-label-code text-signal-buy">+1.2%</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">HRC BOBINA:</span><span class="font-metric-compact text-metric-compact text-carmine-signal font-semibold">R$ 4.710/t</span><span class="font-label-code text-label-code text-carmine-signal">-0.6%</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase">PTAX USD:</span><span class="font-metric-compact text-metric-compact text-titanium-light font-semibold">R$ 5.482</span></div><div class="w-1 h-1 rounded-full bg-carbon-700"></div><div class="flex items-center gap-space-xs bg-carbon-950 px-2 py-0.5 rounded border border-carbon-700/40"><span class="inline-block w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span><span class="font-label-code text-label-code text-titanium-muted">18ms</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-carbon-800/80 border border-carbon-700/50 rounded px-space-sm py-1"><span class="material-symbols-outlined text-[15px] text-tertiary">verified_user</span><span class="font-label-code text-label-code text-titanium-muted">Multi-Tenant RLS Ativo • ISO 27001</span></div><button class="p-1.5 text-titanium-muted hover:text-on-surface hover:bg-carbon-800 rounded border border-transparent hover:border-carbon-700 transition-colors" title="Alternar Tema" type="button"><span class="material-symbols-outlined text-[18px]">dark_mode</span></button><div class="h-5 w-px bg-carbon-700"></div><div class="flex items-center gap-space-sm"><div class="text-right hidden sm:block"><div class="font-body-sm text-body-sm font-semibold text-ice-white leading-tight">Rodrigo Reis</div><div class="font-label-code text-label-code text-titanium-muted leading-tight">Diretor Geral</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-carbon-700" src="https://lh3.googleusercontent.com/aida/AEtjO1V1cwbYSPNqZfF5ecGadys3lTVm0MoJ0snee_sVv4jpeg00ubHrbyWt_8gGH-WhjC32J8cJ_7IqgfnNVdyvcgu2bigvdFwWn9q3M27iEIwTDp_2HTDx7c55Ki1tzM-hUdLyrlaJjEj9_Yp_nY2cRSLrPG_KT2J6qpm0XRiFnWpxzvG0q3eZSQ1sVD7swMBRMs47Qt_-chqSThRpido0neguei-yf6vR07ZH9oxvbklDrT_CSNLtKAwHDQ"/></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 bg-carbon-900 border-r border-carbon-700/80 z-40 flex flex-col justify-between"><div class="py-space-sm overflow-y-auto"><div class="px-space-md py-space-xs"><span class="font-label-code text-label-code text-titanium-muted uppercase tracking-widest font-semibold">Módulos Operacionais</span></div><nav class="flex flex-col space-y-0.5 px-space-xs mt-1" data-active-classes="bg-carbon-800 text-ice-white border-l-2 border-carmine-core"><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="visao-geral" href="#"><span class="material-symbols-outlined text-[19px]">terminal</span><span class="font-body-sm text-body-sm">Visão Geral</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="inteligencia-mercado" href="#"><span class="material-symbols-outlined text-[19px]">candlestick_chart</span><span class="font-body-sm text-body-sm">Inteligência &amp; LME</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="estoque-retalhos" href="#"><span class="material-symbols-outlined text-[19px]">inventory_2</span><span class="font-body-sm text-body-sm">Estoque &amp; Retalhos</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="compras-rfq" href="#"><span class="material-symbols-outlined text-[19px]">shopping_cart_checkout</span><span class="font-body-sm text-body-sm">Compras &amp; RFQ Auto</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="vendas-orcamento" href="#"><span class="material-symbols-outlined text-[19px]">request_quote</span><span class="font-body-sm text-body-sm">Vendas &amp; Orçamento</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="producao-nesting" href="#"><span class="material-symbols-outlined text-[19px]">precision_manufacturing</span><span class="font-body-sm text-body-sm">Produção &amp; Nesting</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="qualidade-certificados" href="#"><span class="material-symbols-outlined text-[19px]">assignment_turned_in</span><span class="font-body-sm text-body-sm">Qualidade &amp; Certificados</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="financeiro-risco" href="#"><span class="material-symbols-outlined text-[19px]">query_stats</span><span class="font-body-sm text-body-sm">Financeiro &amp; Risco</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-titanium-muted hover:bg-carbon-800 hover:text-on-surface transition-colors" data-path="auditoria-ia" href="#"><span class="material-symbols-outlined text-[19px]">security</span><span class="font-body-sm text-body-sm">Auditoria &amp; IA Governance</span></a></nav></div><div class="p-space-md border-t border-carbon-700/80 bg-carbon-950/60"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-titanium-muted uppercase">Terminal Core</span><span class="font-label-code text-label-code text-signal-buy font-semibold">CONNECTED</span></div><div class="mt-1 flex items-center justify-between text-titanium-dark"><span class="font-label-code text-label-code">Kernel 09.4b</span><span class="font-label-code text-label-code">Billet #4140</span></div></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-3.5rem)] pt-14 pb-10 px-space-lg bg-carbon-950"><div class="flex flex-col w-full space-y-space-md">
+<!-- TOP HEADER & CONTROLS -->
+<div class="bg-carbon-900 rounded p-space-md shadow-md flex flex-col xl:flex-row items-start xl:items-center justify-between gap-space-md">
+<div class="flex flex-col space-y-1">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded bg-surface-container-highest text-tertiary font-label-code text-label-code tracking-wider uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span>
+          QUALITY AGENT ATIVO (OCR &amp; ASTM/ABNT VALIDATION ENGINE v3.4)
+        </span>
+<span class="font-label-code text-label-code text-titanium-muted">RFC-09 COMPLIANT</span>
+<span class="font-label-code text-label-code text-titanium-dark">|</span>
+<span class="font-label-code text-label-code text-titanium-muted">LATÊNCIA OCR: 1.18s</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-ice-white tracking-tight">Gestão de Qualidade, OCR de Certificados &amp; Rastreabilidade de Corrida</h1>
+<p class="font-body-sm text-body-sm text-titanium-muted">Inspeção Autônoma Multimodal de Mill Test Certificates (MTC), Análise Metalúrgica por IA &amp; Rastreio Heat Number ponta a ponta.</p>
+</div>
+<!-- ACTION BUTTON GROUP -->
+<div class="flex items-center gap-space-sm flex-wrap w-full xl:w-auto">
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-space-md py-1.5 rounded shadow-sm flex items-center gap-space-xs font-body-sm text-body-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px] text-titanium-light">analytics</span>
+        Simulador de Ensaio Mecânico
+      </button>
+<button class="bg-carbon-800 hover:bg-carbon-700 text-ice-white px-space-md py-1.5 rounded shadow-sm flex items-center gap-space-xs font-body-sm text-body-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px] text-titanium-light">download</span>
+        Exportar Data Book
+      </button>
+<button class="bg-carmine-core hover:bg-carmine-signal text-ice-white px-space-md py-1.5 rounded shadow-md flex items-center gap-space-xs font-body-sm text-body-sm font-semibold transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">cloud_upload</span>
+        + Upload / Parse de MTC (PDF/Foto)
+        <span class="bg-carmine-deep px-1 rounded font-label-code text-label-code text-ice-white ml-1">[F4]</span>
+</button>
+</div>
+</div>
+<!-- KPI SUMMARY ROW -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-sm">
+<!-- KPI 1 -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between text-titanium-muted mb-space-xs">
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Certificados Processados (Mês)</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">document_scanner</span>
+</div>
+<div class="flex items-baseline gap-space-sm">
+<span class="font-metric-display text-metric-display text-ice-white tabular-nums">142</span>
+<span class="font-label-code text-label-code text-signal-buy">99.8% EXTRAÇÃO</span>
+</div>
+<div class="mt-2 flex items-center justify-between text-titanium-muted font-label-code text-label-code">
+<span>Vision Engine v3.4</span>
+<span class="text-tertiary">141 Validados / 1 Flag</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-signal-buy"></div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between text-titanium-muted mb-space-xs">
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Lotes em Quarentena Preventiva</span>
+<span class="material-symbols-outlined text-[18px] text-carmine-signal">gpp_maybe</span>
+</div>
+<div class="flex items-baseline gap-space-sm">
+<span class="font-metric-display text-metric-display text-carmine-signal tabular-nums">02</span>
+<span class="font-label-code text-label-code text-carmine-signal uppercase">Bloqueio Ativo</span>
+</div>
+<div class="mt-2 flex items-center justify-between text-titanium-muted font-label-code text-label-code">
+<span>Prevenção de Sucata Fabril</span>
+<span class="text-signal-risk">84.2 t Preservadas</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-carmine-core"></div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between text-titanium-muted mb-space-xs">
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Acuracidade Química ASTM/SAE</span>
+<span class="material-symbols-outlined text-[18px] text-signal-buy">biotech</span>
+</div>
+<div class="flex items-baseline gap-space-sm">
+<span class="font-metric-display text-metric-display text-signal-buy tabular-nums">100%</span>
+<span class="font-label-code text-label-code text-titanium-light">Ceq &amp; Espectro</span>
+</div>
+<div class="mt-2 flex items-center justify-between text-titanium-muted font-label-code text-label-code">
+<span>Tolerância de Espectrometria</span>
+<span class="text-tertiary">Zero Desvios Críticos</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-signal-buy"></div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-carbon-900 rounded p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between text-titanium-muted mb-space-xs">
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Rastreabilidade Heat Number</span>
+<span class="material-symbols-outlined text-[18px] text-signal-hold">grain</span>
+</div>
+<div class="flex items-baseline gap-space-sm">
+<span class="font-metric-display text-metric-display text-ice-white tabular-nums">1.480 t</span>
+<span class="font-label-code text-label-code text-signal-hold">GENEALOGIA TOTAL</span>
+</div>
+<div class="mt-2 flex items-center justify-between text-titanium-muted font-label-code text-label-code">
+<span>Bobina -&gt; Chapa -&gt; Retalho -&gt; NF-e</span>
+<span class="text-ice-white">2.340 Peças CNC</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-signal-hold"></div>
+</div>
+</div>
+<!-- SECTION 1: SPLIT SCREEN MULTIMODAL OCR INSPECTION -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md">
+<!-- LEFT PANE: DOCUMENT VIEWPORT WITH BOUNDING BOXES (5 COLS) -->
+<div class="xl:col-span-5 bg-carbon-900 rounded shadow-md p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-carmine-core">visibility</span>
+<span class="font-headline-sm text-headline-sm text-ice-white">Digital MTC Viewer</span>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-carbon-800 text-titanium-light">OCR STREAM</span>
+</div>
+<div class="flex items-center gap-1 font-label-code text-label-code text-titanium-muted">
+<span>RES: 300 DPI</span>
+<span class="text-carbon-700">•</span>
+<span class="text-signal-buy">BOUNDING ACTIVE</span>
+</div>
+</div>
+<!-- SIMULATED CERTIFICATE CONTAINER -->
+<div class="relative bg-surface-container-lowest rounded p-space-md overflow-hidden text-titanium-light">
+<!-- Ambient blueprint scan grid -->
+<div class="absolute inset-0 bg-carbon-950/80 pointer-events-none"></div>
+<div class="relative z-10 flex flex-col space-y-space-sm font-label-code text-label-code">
+<!-- Cert Header -->
+<div class="flex items-start justify-between bg-carbon-900/90 p-space-xs rounded">
+<div>
+<div class="font-label-caps text-label-caps text-ice-white font-bold tracking-wider">GERDAU AÇOMINAS S.A.</div>
+<div class="text-titanium-muted text-[9px]">USINA OURO BRANCO - DEPT. DE METALURGIA &amp; QUALIDADE</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-1 rounded bg-carbon-800 text-tertiary">MTC EN 10204 3.1</span>
+</div>
+</div>
+<!-- Visual bounding box 1: Heat & Spec -->
+<div class="relative p-2 rounded bg-carbon-900/60 shadow-sm">
+<span class="absolute -top-2 left-2 bg-signal-buy text-on-tertiary-fixed font-label-code text-[9px] px-1 py-0.2 rounded font-semibold uppercase">Bounding #1: Corrida &amp; Norma</span>
+<div class="grid grid-cols-2 gap-2 mt-1">
+<div>
+<span class="text-titanium-dark block">CERTIFICADO Nº</span>
+<span class="text-ice-white font-bold">CRT-2026-88192</span>
+</div>
+<div>
+<span class="text-titanium-dark block">HEAT # (CORRIDA)</span>
+<span class="text-tertiary font-bold text-[12px]">8412-B9</span>
+</div>
+<div>
+<span class="text-titanium-dark block">ESPECIFICAÇÃO</span>
+<span class="text-ice-white font-bold">ASTM A36 / ASME SA36</span>
+</div>
+<div>
+<span class="text-titanium-dark block">TIPO DE PRODUTO</span>
+<span class="text-ice-white font-semibold">Chapa Grossa Estrutural</span>
+</div>
+</div>
+</div>
+<!-- Visual bounding box 2: Dimensions & Traceability -->
+<div class="relative p-2 rounded bg-carbon-900/60 shadow-sm">
+<span class="absolute -top-2 left-2 bg-signal-buy text-on-tertiary-fixed font-label-code text-[9px] px-1 py-0.2 rounded font-semibold uppercase">Bounding #2: Dimensões &amp; PO</span>
+<div class="grid grid-cols-3 gap-2 mt-1">
+<div>
+<span class="text-titanium-dark block">ESPESSURA</span>
+<span class="text-ice-white font-bold">12.70 mm (1/2")</span>
+</div>
+<div>
+<span class="text-titanium-dark block">LARGURA x COMP.</span>
+<span class="text-ice-white font-bold">2.400 x 6.000 mm</span>
+</div>
+<div>
+<span class="text-titanium-dark block">PESO DO LOTE</span>
+<span class="text-ice-white font-bold">45.200 kg (45.2 t)</span>
+</div>
+</div>
+<div class="mt-2 pt-1 flex items-center justify-between text-titanium-muted">
+<span>VINCULADO: <strong class="text-ice-white">PO #PC-8891</strong> (NF-e 009.281)</span>
+<span class="text-tertiary font-bold">CONFORME DIMENSIONAL</span>
+</div>
+</div>
+<!-- Mill Certificate Stamp Area -->
+<div class="bg-carbon-900/40 p-space-xs rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-tertiary">verified</span>
+<div>
+<div class="text-[10px] text-ice-white font-semibold">Assinatura Digital Usina: VÁLIDA</div>
+<div class="text-[8px] text-titanium-muted font-label-code">ICP-Brasil SHA-256: 7f3b89a02ce1...</div>
+</div>
+</div>
+<div class="px-2 py-1 bg-surface-container-high rounded text-center">
+<div class="text-[9px] text-titanium-muted uppercase">STATUS OCR</div>
+<div class="text-[10px] text-signal-buy font-bold">100% PARSED</div>
+</div>
+</div>
+<!-- OCR Confidence Bars -->
+<div class="bg-carbon-900 p-space-xs rounded space-y-1">
+<div class="flex justify-between text-[9px]">
+<span class="text-titanium-muted">Índice de Confiança de Reconhecimento OCR Multimodal</span>
+<span class="text-signal-buy font-bold">99.82%</span>
+</div>
+<div class="w-full h-1 bg-carbon-950 rounded overflow-hidden">
+<div class="h-full bg-signal-buy w-[99.8%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Document Selector Strip -->
+<div class="mt-space-sm pt-space-xs flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">attachment</span>
+          Arquivo: <strong class="text-titanium-light">MTC_GERDAU_8412-B9.pdf</strong>
+</span>
+<button class="text-tertiary hover:underline flex items-center gap-0.5" type="button">
+          Visualizar Original PDF
+          <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- RIGHT PANE: ASTM COMPARATOR, SPECTROMETRY & VERDICT (7 COLS) -->
+<div class="xl:col-span-7 bg-carbon-900 rounded shadow-md p-space-md flex flex-col justify-between space-y-space-md">
+<div>
+<!-- Section Header -->
+<div class="flex items-center justify-between pb-space-xs mb-space-sm">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-ice-white">Validador Metalúrgico Autônomo</span>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-semibold">NORM: ASTM A36</span>
+</div>
+<div class="font-label-code text-label-code text-titanium-muted mt-0.5">
+              Comparativo Cruzado: Telemetria MTC Usina vs. Padrão Estrutural ASTM / ASME
+            </div>
+</div>
+<div class="text-right">
+<span class="font-label-code text-label-code text-titanium-muted uppercase block">Temperatura Ensaio</span>
+<span class="font-metric-compact text-metric-compact text-ice-white">22.4 °C (Norma 23±2°C)</span>
+</div>
+</div>
+<!-- CHEMICAL COMPOSITION MATRIX -->
+<div class="mb-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-caps text-label-caps text-ice-white font-semibold uppercase tracking-wider">1. Composição Química Espectrométrica (% em Massa)</span>
+<span class="font-label-code text-label-code text-titanium-muted">Método: Espectrometria de Emissão Óptica (OES)</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-label-code text-label-code">
+<thead>
+<tr class="bg-carbon-950 text-titanium-muted">
+<th class="py-1.5 px-space-sm font-semibold">Elemento Químico</th>
+<th class="py-1.5 px-space-sm text-right font-semibold">Valor Extraído MTC</th>
+<th class="py-1.5 px-space-sm text-right font-semibold">Faixa Exigida (ASTM A36)</th>
+<th class="py-1.5 px-space-sm text-center font-semibold">Delta de Tolerância</th>
+<th class="py-1.5 px-space-sm text-center font-semibold">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<tr class="bg-carbon-900 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm font-medium text-ice-white">C (Carbono)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-semibold">0.210%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Máx 0.250%</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">-0.040% (Margem Segura)</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">CONFORME</span>
+</td>
+</tr>
+<tr class="bg-carbon-950/40 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm font-medium text-ice-white">Mn (Manganês)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-semibold">0.880%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">0.800 - 1.200%</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">Ponto Médio Nominal</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">CONFORME</span>
+</td>
+</tr>
+<tr class="bg-carbon-900 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm font-medium text-ice-white">Si (Silício)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-semibold">0.220%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Máx 0.400%</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">-0.180%</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">CONFORME</span>
+</td>
+</tr>
+<tr class="bg-carbon-950/40 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm font-medium text-ice-white">P (Fósforo)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-semibold">0.024%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Máx 0.040%</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">-0.016%</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">CONFORME</span>
+</td>
+</tr>
+<tr class="bg-carbon-900 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm font-medium text-ice-white">S (Enxofre)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-semibold">0.018%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Máx 0.050%</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">-0.032%</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">CONFORME</span>
+</td>
+</tr>
+<tr class="bg-carbon-950/80 font-bold">
+<td class="py-1 px-space-sm text-tertiary">Carbono Equivalente (Ceq IIW)</td>
+<td class="py-1 px-space-sm text-right text-tertiary">0.38%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Limite Soldável: 0.43%</td>
+<td class="py-1 px-space-sm text-center text-tertiary">Excelente Soldabilidade</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container">ÓTIMO</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- MECHANICAL PROPERTIES MATRIX -->
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-caps text-label-caps text-ice-white font-semibold uppercase tracking-wider">2. Propriedades Mecânicas (Ensaio Tração &amp; Dobramento)</span>
+<span class="font-label-code text-label-code text-titanium-muted">Corpo de Prova Longitudinal ASTM A370</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-label-code text-label-code">
+<thead>
+<tr class="bg-carbon-950 text-titanium-muted">
+<th class="py-1.5 px-space-sm font-semibold">Propriedade Mecânica</th>
+<th class="py-1.5 px-space-sm text-right font-semibold">Valor Encontrado</th>
+<th class="py-1.5 px-space-sm text-right font-semibold">Norma Requerida</th>
+<th class="py-1.5 px-space-sm text-center font-semibold">Variação / Margem</th>
+<th class="py-1.5 px-space-sm text-center font-semibold">Avaliação</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<tr class="bg-carbon-900 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm text-ice-white">Limite de Escoamento (Yield Strength, Fy)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-bold">278 MPa</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Mínimo 250 MPa</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">+11.2% Segurança Estrutural</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">APROVADO</span>
+</td>
+</tr>
+<tr class="bg-carbon-950/40 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm text-ice-white">Limite de Resistência à Tração (Tensile, Fu)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-bold">442 MPa</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">400 a 550 MPa</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">Dentro do Envelope (+42 MPa min)</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">APROVADO</span>
+</td>
+</tr>
+<tr class="bg-carbon-900 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm text-ice-white">Alongamento Relativo (% em 200mm / 8")</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-bold">24.5%</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">Mínimo 20.0%</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">+4.5% Ductilidade Alta</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">APROVADO</span>
+</td>
+</tr>
+<tr class="bg-carbon-950/40 hover:bg-carbon-800/60 transition-colors">
+<td class="py-1 px-space-sm text-ice-white">Ensaio de Dobramento a Frio (Bend Test)</td>
+<td class="py-1 px-space-sm text-right text-ice-white font-bold">180° sem trincas</td>
+<td class="py-1 px-space-sm text-right text-titanium-muted">180° d=1.5e (Sem Fissuras)</td>
+<td class="py-1 px-space-sm text-center text-signal-buy">Conforme ASTM A370</td>
+<td class="py-1 px-space-sm text-center">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold">APROVADO</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- AI VERDICT BANNER & ERP RELEASE BUTTONS -->
+<div class="bg-carbon-950 p-space-md rounded flex flex-col md:flex-row items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px] text-tertiary">gavel</span>
+</div>
+<div>
+<div class="font-body-sm text-body-sm font-semibold text-ice-white flex items-center gap-1.5">
+<span>Veredito Metalúrgico Autônomo da IA:</span>
+<span class="text-tertiary">CONFORMIDADE INTEGRAL</span>
+</div>
+<p class="font-label-code text-label-code text-titanium-muted">
+              Lote liberado para entrada em estoque e alocação imediata nas mesas de corte Plasma/Laser CNC. Certificado assinado digitalmente e carimbado no módulo SPED Fiscal.
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0 w-full md:w-auto">
+<button class="flex-1 md:flex-none bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-space-sm py-2 rounded font-label-code text-label-code transition-colors flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">link</span>
+            Anexar à PO #PC-8891
+          </button>
+<button class="flex-1 md:flex-none bg-carmine-core hover:bg-carmine-signal text-ice-white px-space-md py-2 rounded font-body-sm text-body-sm font-semibold shadow-md transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">qr_code_2</span>
+            Liberar Lote #8412-B9 &amp; Gerar QR
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 2: PREVENTIVE NON-CONFORMANCE ALERT BANNER (QUARANTINE ENFORCED) -->
+<div class="bg-carbon-900 rounded p-space-md shadow-md relative overflow-hidden">
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded bg-carbon-800 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] text-carmine-signal animate-pulse">crisis_alert</span>
+</div>
+<div>
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="px-2 py-0.5 rounded bg-carbon-800 text-carmine-signal font-label-code text-label-code font-bold uppercase">
+              BLOQUEIO PREVENTIVO DISPARADO PELO QUALITY AGENT
+            </span>
+<span class="font-label-code text-label-code text-titanium-light">QUARANTINE ID: #QRT-2026-092</span>
+<span class="font-label-code text-label-code text-titanium-muted">DETECÇÃO: 14/OUT 10:42</span>
+</div>
+<div class="mt-1 font-body-sm text-body-sm text-ice-white font-medium">
+            Lote: Tubos Mecânicos SAE 1045 Ø 120mm (Fornecedor B - Açotubo Distribuidora) — Corrida #H-99214 (NF-e 8812)
+          </div>
+<p class="mt-1 font-label-code text-label-code text-titanium-muted max-w-4xl">
+<strong class="text-carmine-signal">Motivo do Bloqueio:</strong> Limite de escoamento medido em <strong class="text-ice-white">310 MPa</strong> (Norma SAE 1045 exige mínimo de 340 MPa) e Teor de Carbono espectrométrico medido em <strong class="text-ice-white">0.39%</strong> (Norma exige faixa 0.43% - 0.50%). Risco iminente de trinca sob usinagem e falha por fadiga mecânica.
+          </p>
+</div>
+</div>
+<!-- Automated Actions Taken by IA -->
+<div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start lg:items-end gap-space-sm shrink-0">
+<div class="bg-carbon-950 p-space-xs rounded text-right font-label-code text-label-code">
+<div class="text-signal-risk font-semibold flex items-center gap-1 justify-end">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+            ERP TOTVS TRAVADO (Almox. 04)
+          </div>
+<div class="text-titanium-muted text-[10px]">Minuta RNC gerada &amp; enviada via API Usina</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-space-sm py-1.5 rounded font-label-code text-label-code transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[15px]">mail</span>
+            Ver Minuta Jurídica RNC
+          </button>
+<button class="bg-carmine-core hover:bg-carmine-signal text-ice-white px-space-sm py-1.5 rounded font-label-code text-label-code font-semibold transition-colors flex items-center gap-1 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px]">block</span>
+            Rejeição Formal &amp; Devolução
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 3: HEAT TRACEABILITY MATRIX (ACTIVE HEATS & GENEALOGY) -->
+<div class="bg-carbon-900 rounded shadow-md p-space-md flex flex-col space-y-space-sm">
+<!-- Table Header & Controls -->
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-tertiary">alt_route</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-ice-white">Matriz de Rastreabilidade &amp; Genealogia de Corridas (Heat Traceability)</span>
+<p class="font-label-code text-label-code text-titanium-muted">Vínculo bidirecional da Matéria-Prima ao Retalho e Ordem de Produção (OP)</p>
+</div>
+</div>
+<!-- Quick Filter Pills -->
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-code text-label-code text-titanium-muted mr-1 uppercase">Filtro:</span>
+<button class="px-2 py-1 rounded bg-carbon-800 text-ice-white font-label-code text-label-code font-medium hover:bg-carbon-700" type="button">Todos (142)</button>
+<button class="px-2 py-1 rounded bg-surface-container-high text-signal-buy font-label-code text-label-code font-medium hover:bg-carbon-700" type="button">Aprovados (139)</button>
+<button class="px-2 py-1 rounded bg-carbon-800 text-carmine-signal font-label-code text-label-code font-medium hover:bg-carbon-700" type="button">Quarentena (02)</button>
+<button class="px-2 py-1 rounded bg-carbon-800 text-signal-hold font-label-code text-label-code font-medium hover:bg-carbon-700" type="button">Em OCR (01)</button>
+<div class="h-4 w-px bg-carbon-700 mx-1"></div>
+<input class="bg-carbon-950 text-ice-white placeholder-titanium-dark px-space-sm py-1 rounded font-label-code text-label-code focus:outline-none w-44" placeholder="Buscar Heat # / PO..." type="text"/>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left font-label-code text-label-code">
+<thead>
+<tr class="bg-carbon-950 text-titanium-muted border-b-0">
+<th class="py-2 px-space-sm font-semibold">Corrida (Heat #)</th>
+<th class="py-2 px-space-sm font-semibold">Certificado MTC</th>
+<th class="py-2 px-space-sm font-semibold">Usina / Siderúrgica</th>
+<th class="py-2 px-space-sm font-semibold">Norma &amp; Liga</th>
+<th class="py-2 px-space-sm font-semibold">Dimensão &amp; Formato</th>
+<th class="py-2 px-space-sm text-right font-semibold">Estoque Ativo</th>
+<th class="py-2 px-space-sm text-center font-semibold">Status IA</th>
+<th class="py-2 px-space-sm font-semibold">Genealogia &amp; Peças Cortadas</th>
+<th class="py-2 px-space-sm text-center font-semibold">Ação Técnica</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- Row 1: Gerdau A36 (Examined above) -->
+<tr class="bg-carbon-900 hover:bg-carbon-800/70 transition-colors">
+<td class="py-2 px-space-sm font-bold text-tertiary flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>
+              8412-B9
+            </td>
+<td class="py-2 px-space-sm text-ice-white font-medium">CRT-2026-88192</td>
+<td class="py-2 px-space-sm text-titanium-light">Gerdau Ouro Branco</td>
+<td class="py-2 px-space-sm">
+<span class="px-1.5 py-0.5 rounded bg-carbon-950 text-ice-white font-semibold">ASTM A36</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-light">Chapa 12.7 x 2400 x 6000 mm</td>
+<td class="py-2 px-space-sm text-right text-ice-white font-bold tabular-nums">45.2 t</td>
+<td class="py-2 px-space-sm text-center">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold text-[10px]">APROVADO</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-muted">
+<span class="text-ice-white font-medium">Lote em Entrada</span> → Vinculado à PO #PC-8891 (Laser Mesa 02)
+            </td>
+<td class="py-2 px-space-sm text-center">
+<div class="flex items-center justify-center gap-1">
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Abrir MTC PDF" type="button">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+</button>
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Ver Árvore Genealógica" type="button">
+<span class="material-symbols-outlined text-[16px]">account_tree</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: CSN HRC Bobina -->
+<tr class="bg-carbon-950/40 hover:bg-carbon-800/70 transition-colors">
+<td class="py-2 px-space-sm font-bold text-ice-white flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>
+              9910-K2
+            </td>
+<td class="py-2 px-space-sm text-ice-white font-medium">CSN-BR-449102</td>
+<td class="py-2 px-space-sm text-titanium-light">CSN Volta Redonda</td>
+<td class="py-2 px-space-sm">
+<span class="px-1.5 py-0.5 rounded bg-carbon-950 text-ice-white font-semibold">SAE 1020 CQ</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-light">Bobina Fina Quente 3.00 x 1500 mm</td>
+<td class="py-2 px-space-sm text-right text-ice-white font-bold tabular-nums">28.4 t</td>
+<td class="py-2 px-space-sm text-center">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold text-[10px]">APROVADO</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-muted">
+<span>Desbobinada: 12 Blanks → 48 Peças Estampadas (NF 19821)</span>
+</td>
+<td class="py-2 px-space-sm text-center">
+<div class="flex items-center justify-center gap-1">
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Abrir MTC PDF" type="button">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+</button>
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Ver Árvore Genealógica" type="button">
+<span class="material-symbols-outlined text-[16px]">account_tree</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Aperam Inox 304 -->
+<tr class="bg-carbon-900 hover:bg-carbon-800/70 transition-colors">
+<td class="py-2 px-space-sm font-bold text-ice-white flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>
+              AP-7731-X
+            </td>
+<td class="py-2 px-space-sm text-ice-white font-medium">AP-MTC-00984</td>
+<td class="py-2 px-space-sm text-titanium-light">Aperam South America</td>
+<td class="py-2 px-space-sm">
+<span class="px-1.5 py-0.5 rounded bg-carbon-950 text-ice-white font-semibold">AISI 304L (Inox)</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-light">Chapa 2.00 x 1250 x 3000 mm 2B</td>
+<td class="py-2 px-space-sm text-right text-ice-white font-bold tabular-nums">12.1 t</td>
+<td class="py-2 px-space-sm text-center">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold text-[10px]">APROVADO</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-muted">
+<span>OP #1920 (Tanques Farmacêuticos) → 3 Retalhos Cadastrados</span>
+</td>
+<td class="py-2 px-space-sm text-center">
+<div class="flex items-center justify-center gap-1">
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Abrir MTC PDF" type="button">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+</button>
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Ver Árvore Genealógica" type="button">
+<span class="material-symbols-outlined text-[16px]">account_tree</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Quarantined SAE 1045 -->
+<tr class="bg-carbon-950/80 hover:bg-carbon-800/70 transition-colors">
+<td class="py-2 px-space-sm font-bold text-carmine-signal flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-carmine-signal animate-pulse"></span>
+              H-99214
+            </td>
+<td class="py-2 px-space-sm text-carmine-signal font-medium">ACT-2026-1029</td>
+<td class="py-2 px-space-sm text-titanium-light">Açotubo Distribuidora</td>
+<td class="py-2 px-space-sm">
+<span class="px-1.5 py-0.5 rounded bg-carbon-800 text-carmine-signal font-semibold">SAE 1045</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-light">Tubo Mecânico Ø 120 x 85 mm</td>
+<td class="py-2 px-space-sm text-right text-carmine-signal font-bold tabular-nums">18.6 t</td>
+<td class="py-2 px-space-sm text-center">
+<span class="px-2 py-0.5 rounded bg-carbon-800 text-carmine-signal font-bold text-[10px]">QUARENTENA</span>
+</td>
+<td class="py-2 px-space-sm text-carmine-signal">
+<span>CORTE BLOQUEADO: Desvio de Escoamento (Fy 310 MPa) &amp; C: 0.39%</span>
+</td>
+<td class="py-2 px-space-sm text-center">
+<div class="flex items-center justify-center gap-1">
+<button class="p-1 text-carmine-signal hover:bg-carbon-800 rounded" title="Ver RNC Aberto" type="button">
+<span class="material-symbols-outlined text-[16px]">report_problem</span>
+</button>
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Abrir MTC PDF" type="button">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Vallourec Seamless -->
+<tr class="bg-carbon-900 hover:bg-carbon-800/70 transition-colors">
+<td class="py-2 px-space-sm font-bold text-ice-white flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>
+              VBR-6612
+            </td>
+<td class="py-2 px-space-sm text-ice-white font-medium">VLR-2026-5541</td>
+<td class="py-2 px-space-sm text-titanium-light">Vallourec Tubos</td>
+<td class="py-2 px-space-sm">
+<span class="px-1.5 py-0.5 rounded bg-carbon-950 text-ice-white font-semibold">API 5L Gr. B</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-light">Tubo Sem Costura 6" SCH 40</td>
+<td class="py-2 px-space-sm text-right text-ice-white font-bold tabular-nums">34.0 t</td>
+<td class="py-2 px-space-sm text-center">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-signal-buy font-bold text-[10px]">APROVADO</span>
+</td>
+<td class="py-2 px-space-sm text-titanium-muted">
+<span>Spool Tubulação Gasoduto Petrobras (OP #4401)</span>
+</td>
+<td class="py-2 px-space-sm text-center">
+<div class="flex items-center justify-center gap-1">
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Abrir MTC PDF" type="button">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+</button>
+<button class="p-1 text-titanium-light hover:text-ice-white hover:bg-carbon-800 rounded" title="Ver Árvore Genealógica" type="button">
+<span class="material-symbols-outlined text-[16px]">account_tree</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination / Summary Bar -->
+<div class="pt-space-xs flex flex-col sm:flex-row items-center justify-between text-titanium-muted font-label-code text-label-code gap-2">
+<div class="flex items-center gap-space-sm">
+<span>Exibindo 5 de 142 corridas ativas</span>
+<span class="text-carbon-700">•</span>
+<span>Rastreio de Norma: ASTM / ASME / SAE / DIN EN 10204</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2 py-0.5 bg-carbon-950 hover:bg-carbon-800 text-titanium-light rounded transition-colors" type="button">Anterior</button>
+<span class="px-2 py-0.5 bg-carmine-core text-ice-white rounded font-bold">1</span>
+<button class="px-2 py-0.5 bg-carbon-950 hover:bg-carbon-800 text-titanium-light rounded transition-colors" type="button">2</button>
+<button class="px-2 py-0.5 bg-carbon-950 hover:bg-carbon-800 text-titanium-light rounded transition-colors" type="button">3</button>
+<button class="px-2 py-0.5 bg-carbon-950 hover:bg-carbon-800 text-titanium-light rounded transition-colors" type="button">Próximo</button>
+</div>
+</div>
+</div>
+<!-- TECHNICAL AUDIT FOOTER & CRYPTOGRAPHIC TELEMETRY STRIP -->
+<div class="bg-carbon-900 rounded p-space-sm shadow-sm flex flex-col md:flex-row items-center justify-between text-titanium-muted font-label-code text-label-code gap-space-sm">
+<div class="flex items-center gap-space-md flex-wrap">
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>
+        MOTOR OCR: GEMINI VISION MULTIMODAL v1.5 PRO
+      </span>
+<span class="text-carbon-700">|</span>
+<span>LATÊNCIA MÉDIA DE INFERÊNCIA: 1.180 ms</span>
+<span class="text-carbon-700">|</span>
+<span>CONFORMIDADE: ISO 9001:2015 &amp; IATF 16949 (AUTOMOTIVO)</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span>INTEGRIDADE CRIPTOGRÁFICA MTC SHA-256:</span>
+<span class="text-titanium-light font-mono bg-carbon-950 px-1.5 py-0.5 rounded">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span>
+</div>
+</div>
+</div></main><footer class="w-full h-8 bg-carbon-900 border-t border-carbon-700/80 px-space-lg flex items-center justify-between text-titanium-muted font-label-code text-label-code"><div class="flex items-center gap-space-md"><span>METALAGENTS KERNEL v4.19.8-LTS</span><span class="text-carbon-700">|</span><span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>ERP TOTVS/SAP SYNC: ATIVO (0.3s atrás)</span><span class="text-carbon-700">|</span><span>HOST: GRU-PRD-MET-01</span></div><div class="flex items-center gap-space-md"><span>CRYPTO: AES-256-GCM</span><span>© 2025 GF INDUSTRIAL ANALYTICS</span></div></footer></div></body></html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary-container":"#fff6f5","inverse-surface":"#283044","surface-variant":"#dae2fd","tertiary":"#005e90","surface-container-low":"#f2f3ff","inverse-on-surface":"#eef0ff","on-background":"#131b2e","on-surface":"#131b2e","surface-dim":"#d2d9f4","primary-fixed-dim":"#ffb4ab","on-tertiary-fixed":"#001d31","surface-container-lowest":"#ffffff","on-secondary-container":"#007230","on-tertiary-fixed-variant":"#004b73","on-primary-fixed":"#410002","surface-bright":"#faf8ff","on-tertiary-container":"#f5f8ff","secondary-fixed-dim":"#62df7d","secondary":"#006e2d","outline-variant":"#e6bdb8","outline":"#916f6b","on-error":"#ffffff","primary-container":"#dc2626","on-secondary":"#ffffff","on-primary-fixed-variant":"#93000b","on-tertiary":"#ffffff","primary":"#b70011","on-primary":"#ffffff","primary-fixed":"#ffdad6","on-error-container":"#93000a","surface-container-highest":"#dae2fd","surface-tint":"#bf0715","inverse-primary":"#ffb4ab","tertiary-fixed":"#cce5ff","surface":"#faf8ff","tertiary-fixed-dim":"#93ccff","background":"#faf8ff","on-secondary-fixed":"#002109","on-secondary-fixed-variant":"#005320","surface-container":"#eaedff","error":"#ba1a1a","secondary-container":"#7cf994","on-surface-variant":"#5c403c","error-container":"#ffdad6","secondary-fixed":"#7ffc97","surface-container-high":"#e2e7ff","tertiary-container":"#0078b6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-xs":"0.25rem","gutter":"1rem","space-lg":"1.25rem","space-xl":"2rem","space-sm":"0.5rem","space-md":"0.75rem","gutter-mobile":"0.75rem","margin-mobile":"1rem","margin":"1.5rem"},fontFamily:{"headline-md":["Inter"],"body-md":["Inter"],"headline-xl-mobile":["Inter"],"label-sm":["JetBrains Mono"],"headline-xl":["Inter"],"label-lg":["JetBrains Mono"],"headline-lg":["Inter"],"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"]},fontSize:{"headline-md":["18px",{"lineHeight":"26px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"34px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.03em","fontWeight":"700"}],"label-lg":["13px",{"lineHeight":"18px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["15px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"400"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-surface-container z-50 flex flex-col justify-between shadow-sm"><div class="flex flex-col"><div class="h-16 px-margin flex items-center gap-space-sm border-b border-surface-container bg-surface-container-lowest"><span class="flex h-7 w-7 items-center justify-center rounded bg-primary text-on-primary font-headline-md text-headline-md tracking-tight">M</span><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-body-lg font-bold tracking-tight text-on-surface">METALAGENTS</span></div><span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">Industrial Intelligence</span></div></div><div class="px-space-md py-space-sm"><div class="px-space-sm py-space-xs"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Módulos Operacionais</span></div><nav class="mt-space-xs flex flex-col gap-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold rounded shadow-sm"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="visao-geral" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span><span>Visão Geral</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="inteligencia-lme" href="#"><span class="material-symbols-outlined text-[18px]">monitoring</span><span>Inteligência &amp; LME</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="estoque-retalhos" href="#"><span class="material-symbols-outlined text-[18px]">warehouse</span><span>Estoque &amp; Retalhos</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="compras-rfq-auto" href="#"><span class="material-symbols-outlined text-[18px]">request_quote</span><span>Compras &amp; RFQ Auto</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="vendas-orcamento" href="#"><span class="material-symbols-outlined text-[18px]">point_of_sale</span><span>Vendas &amp; Orçamento</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="producao-nesting" href="#"><span class="material-symbols-outlined text-[18px]">precision_manufacturing</span><span>Produção &amp; Nesting</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="qualidade-certificados" href="#"><span class="material-symbols-outlined text-[18px]">verified</span><span>Qualidade &amp; Certificados</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="financeiro-risco" href="#"><span class="material-symbols-outlined text-[18px]">account_balance</span><span>Financeiro &amp; Risco</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="auditoria-ia-governance" href="#"><span class="material-symbols-outlined text-[18px]">policy</span><span>Auditoria &amp; IA Governance</span></a></nav></div></div><div class="p-space-md border-t border-surface-container bg-surface-container-low"><div class="flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="h-2 w-2 rounded-full bg-secondary"></span><span class="font-label-sm text-label-sm text-on-surface font-semibold">TELEMETRY ACTIVE</span></div><span class="font-label-sm text-label-sm text-tertiary">18ms</span></div></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest border-b border-surface-container z-40 flex items-center justify-between px-margin shadow-sm"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container-low border border-surface-container"><span class="font-label-sm text-label-sm text-outline font-semibold uppercase">LME Alumínio</span><span class="font-label-sm text-label-sm font-semibold text-on-surface">$2,384.50</span><span class="font-label-sm text-label-sm font-bold text-secondary">+1.2%</span></div><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container-low border border-surface-container"><span class="font-label-sm text-label-sm text-outline font-semibold uppercase">HRC Bobina</span><span class="font-label-sm text-label-sm font-semibold text-on-surface">R$ 4.710/t</span><span class="font-label-sm text-label-sm font-bold text-primary">-0.6%</span></div><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container-low border border-surface-container"><span class="font-label-sm text-label-sm text-outline font-semibold uppercase">PTAX USD</span><span class="font-label-sm text-label-sm font-semibold text-on-surface">R$ 5,482</span></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container text-tertiary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[14px]">shield</span><span>Multi-Tenant RLS Ativo</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center bg-surface-container-low rounded border border-surface-container p-0.5"><button class="flex items-center justify-center p-1 rounded bg-surface-container-lowest text-primary shadow-xs"><span class="material-symbols-outlined text-[16px]">light_mode</span></button><button class="flex items-center justify-center p-1 rounded text-outline hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">dark_mode</span></button></div><div class="h-6 w-px bg-surface-container"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right"><span class="font-body-sm text-body-sm font-semibold text-on-surface">Rodrigo Reis</span><span class="font-label-sm text-label-sm text-outline">Diretor Geral / Admin</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-surface-container" src="https://lh3.googleusercontent.com/aida/AEtjO1V1cwbYSPNqZfF5ecGadys3lTVm0MoJ0snee_sVv4jpeg00ubHrbyWt_8gGH-WhjC32J8cJ_7IqgfnNVdyvcgu2bigvdFwWn9q3M27iEIwTDp_2HTDx7c55Ki1tzM-hUdLyrlaJjEj9_Yp_nY2cRSLrPG_KT2J6qpm0XRiFnWpxzvG0q3eZSQ1sVD7swMBRMs47Qt_-chqSThRpido0neguei-yf6vR07ZH9oxvbklDrT_CSNLtKAwHDQ"/></div></div></header><main class="relative pt-16 flex-1 w-full bg-background"><div class="flex flex-col w-full">
+<!-- Sub-Header Metadados & Comandos Rápidos da Diretoria -->
+<div class="px-margin py-space-md bg-surface-container-lowest border-b border-surface-container flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase font-semibold">MÓDULO 00 • COMMAND CENTER EXECUTIVO</span>
+<span class="text-outline">•</span>
+<span class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded bg-surface-container text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse"></span>
+          ORQUESTRADOR MULTI-AGENTE ATIVO (CEO COPILOT v4.2)
+        </span>
+</div>
+<div class="flex items-baseline gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Command Center do Diretor &amp; Briefing 07h</h1>
+<span class="font-body-sm text-body-sm text-outline font-normal">Visão Holística Preditiva: Rupturas Antecipadas, LME, Rentabilidade em Tempo Real &amp; Risco</span>
+</div>
+</div>
+<!-- Botões de Ação de Nível Executivo -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-surface-container-lowest border border-outline hover:border-on-surface text-on-surface font-label-lg text-label-lg transition-colors" onclick="simularRepasse()">
+<span class="material-symbols-outlined text-[16px] text-tertiary">analytics</span>
+<span>Simular Cenário Repasse (+5% Usinas)</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-surface-container-low border border-surface-container hover:bg-surface-container text-on-surface font-label-lg text-label-lg transition-colors" onclick="window.print()">
+<span class="material-symbols-outlined text-[16px] text-outline">picture_as_pdf</span>
+<span>Exportar Relatório Diretoria (PDF)</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-primary-container hover:bg-primary text-on-primary font-label-lg text-label-lg font-semibold shadow-xs transition-colors" onclick="acaoEmergencial()">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+<span>+ Ação Emergencial de Alçada [F1]</span>
+</button>
+</div>
+</div>
+<div class="p-margin flex flex-col gap-margin">
+<!-- 1. BRIEFING EXECUTIVO DAS 07:00 (Card Preditivo Destaque) -->
+<section class="bg-surface-container-lowest rounded-lg border border-surface-container shadow-xs p-space-lg flex flex-col gap-space-md relative overflow-hidden">
+<!-- Tarja de Status do Briefing -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm border-b border-surface-container">
+<div class="flex items-center gap-space-sm">
+<div class="flex h-8 w-8 items-center justify-center rounded bg-primary-fixed text-primary font-label-sm">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-outline font-semibold uppercase tracking-wider block">SÍNTESE EXECUTIVA DO BRIEFING MATINAL • GERADO ÀS 07:00 BRT</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Decisões Críticas Recomendadas para o Turno da Manhã</span>
+</div>
+</div>
+<!-- Audio Widget (Briefing WhatsApp Bot) -->
+<div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-1.5 rounded border border-surface-container self-start sm:self-auto">
+<button class="h-7 w-7 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-xs hover:opacity-90 transition-opacity" id="audio-toggle" onclick="toggleAudio()">
+<span class="material-symbols-outlined text-[18px]" id="play-icon">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold flex items-center gap-1">
+<span>Áudio Briefing (WhatsApp Bot)</span>
+<span class="text-outline font-normal">2m 14s</span>
+</span>
+<!-- Waveform decorativo SVG -->
+<svg class="h-3 w-32 text-secondary fill-current" viewbox="0 0 128 12">
+<rect height="4" rx="1" width="2" x="0" y="4"></rect>
+<rect height="8" rx="1" width="2" x="6" y="2"></rect>
+<rect height="10" rx="1" width="2" x="12" y="1"></rect>
+<rect height="6" rx="1" width="2" x="18" y="3"></rect>
+<rect height="12" rx="1" width="2" x="24" y="0"></rect>
+<rect height="4" rx="1" width="2" x="30" y="4"></rect>
+<rect height="8" rx="1" width="2" x="36" y="2"></rect>
+<rect height="6" rx="1" width="2" x="42" y="3"></rect>
+<rect height="10" rx="1" width="2" x="48" y="1"></rect>
+<rect height="2" rx="1" width="2" x="54" y="5"></rect>
+<rect height="8" rx="1" width="2" x="60" y="2"></rect>
+<rect height="12" rx="1" width="2" x="66" y="0"></rect>
+<rect height="6" rx="1" width="2" x="72" y="3"></rect>
+<rect height="10" rx="1" width="2" x="78" y="1"></rect>
+<rect height="4" rx="1" width="2" x="84" y="4"></rect>
+<rect height="8" rx="1" width="2" x="90" y="2"></rect>
+<rect height="2" rx="1" width="2" x="96" y="5"></rect>
+<rect height="10" rx="1" width="2" x="102" y="1"></rect>
+<rect height="6" rx="1" width="2" x="108" y="3"></rect>
+<rect height="8" rx="1" width="2" x="114" y="2"></rect>
+<rect height="4" rx="1" width="2" x="120" y="4"></rect>
+<rect height="2" rx="1" width="2" x="126" y="5"></rect>
+</svg>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold ml-1">AUDIO OK</span>
+</div>
+</div>
+<!-- 3 Alertas Estratégicos Prioritários -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Alerta 1: Crítico Estoque/Compras -->
+<div class="bg-surface-container-low/60 rounded p-space-md border-l-2 border-primary flex flex-col justify-between gap-space-sm hover:bg-surface-container-low transition-colors">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold tracking-wide">
+                CRÍTICO • ESTOQUE &amp; COMPRAS
+              </span>
+<span class="font-label-sm text-label-sm text-error font-semibold">D+8 RUPTURA</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong class="font-semibold text-error">Ruptura iminente em D+8 para Chapa Grossa A36 1/2":</strong> Lead time Gerdau é 14 dias. Procurement Agent disparou RFQ para 5 usinas. Economia prevista de <strong>R$ 38.400</strong> se aprovado antes do reajuste de quinta.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs border-t border-surface-container">
+<span class="font-label-sm text-label-sm text-outline">Gerdau/Usiminas/CSN</span>
+<a class="font-label-sm text-label-sm text-primary font-bold hover:underline flex items-center gap-0.5" href="#tabela-acoes">
+              Ver RFQ #2026-089 <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Alerta 2: Oportunidade LME -->
+<div class="bg-surface-container-low/60 rounded p-space-md border-l-2 border-secondary flex flex-col justify-between gap-space-sm hover:bg-surface-container-low transition-colors">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide">
+                OPORTUNIDADE • MERCADO LME
+              </span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">ARBITRAGEM +14.8%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong class="font-semibold text-secondary">Alumínio LME recuou -2.1% no overnight Londres:</strong> Spread de importação bateu 14.8%. Recomendado antecipar lote de 20t com trader Ásia para travar custo da linha extrusão Q3.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs border-t border-surface-container">
+<span class="font-label-sm text-label-sm text-outline">LME Spot: $2,384.50/t</span>
+<button class="font-label-sm text-label-sm text-secondary font-bold hover:underline flex items-center gap-0.5" onclick="analisarArbitragem()">
+              Analisar Arbitragem <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Alerta 3: Risco Financeiro/Crédito -->
+<div class="bg-surface-container-low/60 rounded p-space-md border-l-2 border-outline flex flex-col justify-between gap-space-sm hover:bg-surface-container-low transition-colors">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold tracking-wide">
+                RISCO • CRÉDITO BLOQUEADO
+              </span>
+<span class="font-label-sm text-label-sm text-error font-semibold">SERASA TRAVA</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong class="font-semibold text-on-surface">Caldeiraria Vale do Aço:</strong> 2 protestos registrados no Serasa ontem; limite de crédito bloqueado preventivamente para R$ 0,00 travando pedido #ORC-5192 (R$ 114.200) antes da liberação do corte CNC.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs border-t border-surface-container">
+<span class="font-label-sm text-label-sm text-outline">Exposição evitada: R$ 114k</span>
+<button class="font-label-sm text-label-sm text-tertiary font-bold hover:underline flex items-center gap-0.5" onclick="verFichaRisco()">
+              Ver Ficha de Risco <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. GRADE DE KPIS ESTRATÉGICOS (4 Cards em Linha) -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-space-md border border-surface-container shadow-xs flex flex-col justify-between">
+<div class="flex items-center justify-between text-outline mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Faturamento Projetado (D+30)</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">trending_up</span>
+</div>
+<div class="flex flex-col gap-0.5 my-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-xl font-bold text-on-surface tracking-tight">R$ 5.940.000</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="text-secondary font-bold flex items-center">+8.4%</span>
+<span class="text-outline">vs meta mensal (R$ 5.48m)</span>
+</div>
+</div>
+<div class="pt-space-xs border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">Margem Bruta Ponderada:</span>
+<span class="font-bold text-on-surface">23.8% <span class="text-secondary text-[10px]">(blindada)</span></span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-space-md border border-surface-container shadow-xs flex flex-col justify-between">
+<div class="flex items-center justify-between text-outline mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Capital de Giro Imobilizado</span>
+<span class="material-symbols-outlined text-[18px] text-primary">inventory_2</span>
+</div>
+<div class="flex flex-col gap-0.5 my-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-xl font-bold text-on-surface tracking-tight">R$ 14.280.000</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="text-secondary font-bold flex items-center">-5 dias DIO</span>
+<span class="text-outline">vs mês anterior</span>
+</div>
+</div>
+<div class="pt-space-xs border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">Dias de Estoque (DIO):</span>
+<span class="font-bold text-on-surface">41 dias <span class="text-outline text-[10px]">(meta: 38d)</span></span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-space-md border border-surface-container shadow-xs flex flex-col justify-between">
+<div class="flex items-center justify-between text-outline mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Aproveitamento / Nesting</span>
+<span class="material-symbols-outlined text-[18px] text-secondary">precision_manufacturing</span>
+</div>
+<div class="flex flex-col gap-0.5 my-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-xl font-bold text-on-surface tracking-tight">92.4%</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="text-secondary font-bold flex items-center">+3.2 p.p.</span>
+<span class="text-outline">eficiência laser CNC</span>
+</div>
+</div>
+<div class="pt-space-xs border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">Retalhos Reutilizados:</span>
+<span class="font-bold text-secondary">14.6 t <span class="text-on-surface font-normal">(+R$ 92.3k)</span></span>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-lowest rounded-lg p-space-md border border-surface-container shadow-xs flex flex-col justify-between">
+<div class="flex items-center justify-between text-outline mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Saúde de Risco Global</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">verified_user</span>
+</div>
+<div class="flex flex-col gap-0.5 my-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-xl font-bold text-on-surface tracking-tight">94.2</span>
+<span class="font-label-sm text-label-sm text-outline">/ 100</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="text-secondary font-bold">Grau A+ Corporativo</span>
+<span class="text-outline">• Telemetria Segura</span>
+</div>
+</div>
+<div class="pt-space-xs border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">Inadimplência Prev. (D-30):</span>
+<span class="font-bold text-on-surface">0.8% <span class="text-secondary text-[10px]">(benchmark 3.4%)</span></span>
+</div>
+</div>
+</section>
+<!-- 3. GRID DUAS COLUNAS PRINCIPAIS: MATRIZ DE AÇÕES (60%) + TERMÔMETRO DE DEPARTAMENTOS (40%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-margin items-start">
+<!-- COLUNA A: 60% (7 cols no desktop LG) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-lg border border-surface-container shadow-xs flex flex-col" id="tabela-acoes">
+<!-- Cabeçalho do Card -->
+<div class="p-space-md border-b border-surface-container flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="h-2 w-2 rounded-full bg-primary animate-ping"></span>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">Matriz Preditiva de Ações dos Agentes</h2>
+<span class="font-label-sm text-label-sm text-outline">Próximas 24 Horas • Ações de Alçada Executiva e Automações Pendentes</span>
+</div>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-container-low border border-surface-container font-label-sm text-label-sm text-tertiary">
+            4 Decisões no Radar
+          </span>
+</div>
+<!-- Tabela Estruturada de Ações -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-container text-outline font-label-sm text-label-sm uppercase">
+<th class="py-space-sm px-space-md font-semibold">Horário / Agente</th>
+<th class="py-space-sm px-space-md font-semibold">Ação Recomendada / Preventiva</th>
+<th class="py-space-sm px-space-md font-semibold text-right">Impacto Financeiro</th>
+<th class="py-space-sm px-space-md font-semibold text-center">Decisão / Alçada</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-sm text-body-sm">
+<!-- Linha 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">08:30 BRT</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Inventory + Procurement</span>
+<span class="text-outline text-[11px]">RFQ #2026-089</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-semibold text-on-surface">Aprovação de PO Gerdau 60t Chapa Grossa A36</span>
+<span class="text-outline text-[12px]">Disparo preventivo antes de alta tabelar de quinta. Lead time de 14 dias fecha janela de segurança.</span>
+<span class="font-label-sm text-label-sm text-outline">Valor PO: R$ 321.600,00</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top text-right whitespace-nowrap">
+<span class="font-label-md text-label-md font-bold text-secondary">+R$ 38.400</span>
+<span class="block text-outline text-[11px]">Economia de Custo</span>
+</td>
+<td class="py-space-md px-space-md align-top text-center whitespace-nowrap">
+<button class="px-space-md py-1 rounded bg-primary-container hover:bg-primary text-on-primary font-label-sm text-label-sm font-semibold transition-colors shadow-xs" id="btn-compra-1" onclick="aprovarCompra()">
+                    Aprovar Compra
+                  </button>
+</td>
+</tr>
+<!-- Linha 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">09:15 BRT</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Sales Pricing Agent</span>
+<span class="text-outline text-[11px]">4 Cotações CNC</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-semibold text-on-surface">Liberação de Lote de Cotações com Trava de Margem &gt;22%</span>
+<span class="text-outline text-[12px]">Clientes Metalúrgica Alpha, TermoSteel, Ind. Vale. Parâmetro de margem mínima atendido com sobra.</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top text-right whitespace-nowrap">
+<span class="font-label-md text-label-md font-bold text-on-surface">R$ 84.500</span>
+<span class="block text-secondary text-[11px]">Margem 24.2%</span>
+</td>
+<td class="py-space-md px-space-md align-top text-center whitespace-nowrap">
+<button class="px-space-md py-1 rounded bg-surface-container border border-outline hover:border-on-surface text-on-surface font-label-sm text-label-sm font-semibold transition-colors" id="btn-fila-2" onclick="liberarFila()">
+                    Liberar Fila
+                  </button>
+</td>
+</tr>
+<!-- Linha 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">10:00 BRT</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Quality Agent (MTC)</span>
+<span class="text-outline text-[11px]">Corrida #8412-B9</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-semibold text-on-surface">Liberação de Corrida #8412-B9 após OCR Espectrométrico</span>
+<span class="text-outline text-[12px]">Conformidade ASTM A36 100% validada pelo agente de visão. 45.2 toneladas aptas para o nesting laser.</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top text-right whitespace-nowrap">
+<span class="font-label-md text-label-md font-bold text-secondary">45.2 t</span>
+<span class="block text-outline text-[11px]">Zero Não-Conformidade</span>
+</td>
+<td class="py-space-md px-space-md align-top text-center whitespace-nowrap">
+<button class="px-space-md py-1 rounded bg-secondary hover:opacity-90 text-on-secondary font-label-sm text-label-sm font-semibold transition-opacity shadow-xs" id="btn-mtc-3" onclick="homologarMTC()">
+                    Homologar MTC
+                  </button>
+</td>
+</tr>
+<!-- Linha 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">11:30 BRT</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Finance &amp; Hedge Agent</span>
+<span class="text-outline text-[11px]">NDF Câmbio Spot</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col gap-0.5">
+<span class="font-semibold text-on-surface">Hedge Cambial de US$ 80.000 para Frete Marítimo Spot</span>
+<span class="text-outline text-[12px]">Trava NDF sugerida a R$ 5,438. PTAX projetada sob volatilidade do FOMC às 14h.</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top text-right whitespace-nowrap">
+<span class="font-label-md text-label-md font-bold text-secondary">+R$ 16.200</span>
+<span class="block text-outline text-[11px]">Proteção de Spread</span>
+</td>
+<td class="py-space-md px-space-md align-top text-center whitespace-nowrap">
+<button class="px-space-md py-1 rounded bg-surface-container border border-outline hover:border-on-surface text-on-surface font-label-sm text-label-sm font-semibold transition-colors" id="btn-cambio-4" onclick="travarCambio()">
+                    Travar Câmbio
+                  </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Rodapé da Tabela com Status da Fila Preditiva -->
+<div class="p-space-sm bg-surface-container-low border-t border-surface-container flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>Próxima varredura neural do Copilot em: <strong class="text-on-surface">04m 18s</strong></span>
+<span class="text-secondary font-semibold">4/4 AGENTES SINCRONIZADOS</span>
+</div>
+</div>
+<!-- COLUNA B: 40% (5 cols no desktop LG) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Bloco: Termômetro dos Departamentos Operacionais -->
+<div class="bg-surface-container-lowest rounded-lg border border-surface-container shadow-xs flex flex-col p-space-md">
+<div class="flex items-center justify-between pb-space-sm border-b border-surface-container mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-outline">tune</span>
+<h2 class="font-headline-md text-body-lg font-bold text-on-surface tracking-tight">Termômetro dos Departamentos</h2>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">ONLINE • 6/6 ATIVOS</span>
+</div>
+<!-- Grade de Cartões de Departamentos -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<!-- Compras -->
+<div class="p-space-sm rounded bg-surface-container-low border border-surface-container flex flex-col justify-between gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">COMPRAS &amp; RFQ</span>
+<span class="h-2 w-2 rounded-full bg-secondary" title="Status Normal"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">6 RFQs Ativos</span>
+<span class="font-label-sm text-label-sm text-outline">4 usinas respondendo</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-outline">Tempo médio:</span>
+<span class="font-semibold text-secondary">3h 12m</span>
+</div>
+</div>
+<!-- Vendas -->
+<div class="p-space-sm rounded bg-surface-container-low border border-surface-container flex flex-col justify-between gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">VENDAS &amp; BALCÃO</span>
+<span class="h-2 w-2 rounded-full bg-secondary" title="Status Normal"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">48 Orçamentos Hoje</span>
+<span class="font-label-sm text-label-sm text-outline">Conversão: 38.4%</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-outline">Tempo resposta:</span>
+<span class="font-semibold text-secondary">1m 48s</span>
+</div>
+</div>
+<!-- Produção/Corte -->
+<div class="p-space-sm rounded bg-surface-container-low border border-surface-container flex flex-col justify-between gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">PRODUÇÃO &amp; NESTING</span>
+<span class="h-2 w-2 rounded-full bg-secondary" title="Status Normal"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">3 Mesas CNC Laser</span>
+<span class="font-label-sm text-label-sm text-outline">Yield médio: 91.8%</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-outline">Manut. Preditiva:</span>
+<span class="font-semibold text-secondary">OK (100%)</span>
+</div>
+</div>
+<!-- Estoque (Atenção - Amarelo) -->
+<div class="p-space-sm rounded bg-surface-container-low border border-surface-container flex flex-col justify-between gap-space-xs border-l-2 border-l-outline">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">ESTOQUE &amp; RETALHOS</span>
+<span class="h-2 w-2 rounded-full bg-primary" title="Ponto de Atenção"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-error font-medium">2 Itens Ponto de Pedido</span>
+<span class="font-label-sm text-label-sm text-outline">842 retalhos c/ QR</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-outline">Risco Ruptura:</span>
+<span class="font-semibold text-error">Chapa A36 1/2</span>
+</div>
+</div>
+<!-- Qualidade -->
+<div class="p-space-sm rounded bg-surface-container-low border border-surface-container flex flex-col justify-between gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">QUALIDADE &amp; MTC</span>
+<span class="h-2 w-2 rounded-full bg-secondary" title="Status Normal"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">142 Certificados OK</span>
+<span class="font-label-sm text-label-sm text-outline">2 quarentenas ativas</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-outline">Conformidade:</span>
+<span class="font-semibold text-secondary">98.9%</span>
+</div>
+</div>
+<!-- Financeiro -->
+<div class="p-space-sm rounded bg-surface-container-low border border-surface-container flex flex-col justify-between gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">FINANCEIRO &amp; RISCO</span>
+<span class="h-2 w-2 rounded-full bg-secondary" title="Status Normal"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">R$ 3.84m Caixa Proj.</span>
+<span class="font-label-sm text-label-sm text-outline">PTAX: R$ 5,482</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-container font-label-sm text-label-sm">
+<span class="text-outline">Alavancagem:</span>
+<span class="font-semibold text-secondary">1.2x EBITDA</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Operacional: Visão Rápida dos Retalhos & Matéria-Prima -->
+<div class="bg-surface-container-lowest rounded-lg border border-surface-container shadow-xs p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold uppercase tracking-wider">Aproveitamento de Chapa por Agente Nesting</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold">+18.4% vs 2025</span>
+</div>
+<!-- Barra de Progresso Segmentada -->
+<div class="flex flex-col gap-1">
+<div class="h-3 w-full bg-surface-container rounded-sm overflow-hidden flex">
+<div class="bg-secondary h-full" style="width: 78%;" title="Corte Efetivo de Peças (78%)"></div>
+<div class="bg-tertiary h-full" style="width: 14.4%;" title="Retalhos Reutilizáveis com QR (14.4%)"></div>
+<div class="bg-primary h-full" style="width: 7.6%;" title="Sucata Inevitável (7.6%)"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="h-2 w-2 rounded-full bg-secondary"></span>
+<span>Peças Venda (78%)</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="h-2 w-2 rounded-full bg-tertiary"></span>
+<span>Retalhos Salvos (14.4%)</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="h-2 w-2 rounded-full bg-primary"></span>
+<span>Sucata (7.6%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. CHAT COPILOT DA DIRETORIA (Inline Bar Executiva) -->
+<section class="bg-surface-container-lowest rounded-lg border border-surface-container shadow-xs p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">psychology</span>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface uppercase tracking-wider">METALAGENTS EXECUTIVE COPILOT • SESSÃO DIRETORIA</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-outline">
+<span>Base de Conhecimento: ERP TOTVS + LME Londres + Custo Reposição</span>
+</div>
+</div>
+<!-- Área de Input Executivo -->
+<form class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm" onsubmit="handleCopilotSubmit(event)">
+<div class="relative flex-1">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+</div>
+<input class="w-full h-10 pl-10 pr-10 rounded border border-surface-container bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:border-on-surface transition-colors" id="copilot-input" placeholder="Pergunte ao Copilot Executivo (ex: 'Qual margem perderíamos se repassarmos 3% das chapas em vez de 5%?')" type="text"/>
+<button class="absolute inset-y-0 right-0 pr-space-md flex items-center text-outline hover:text-on-surface transition-colors" onclick="triggerVoiceInput()" title="Gravar pergunta por voz" type="button">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+</div>
+<button class="h-10 px-space-lg rounded bg-primary-container hover:bg-primary text-on-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-space-xs shadow-xs transition-colors shrink-0" type="submit">
+<span>Enviar [Enter]</span>
+<span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</form>
+<!-- Sugestões Rápidas de Prompt Executivo -->
+<div class="flex items-center gap-space-xs flex-wrap font-label-sm text-label-sm">
+<span class="text-outline">Prompts Rápidos:</span>
+<button class="px-space-xs py-0.5 rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant transition-colors" onclick="preencherPrompt('Se a LME subir mais 3%, qual o impacto no nosso estoque atual?')">
+          • Impacto da alta LME +3% no estoque
+        </button>
+<button class="px-space-xs py-0.5 rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant transition-colors" onclick="preencherPrompt('Qual o lote econômico de compra (EOQ) para bobina 1.5mm hoje?')">
+          • Lote econômico EOQ Bobina 1.5mm
+        </button>
+<button class="px-space-xs py-0.5 rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant transition-colors" onclick="preencherPrompt('Listar top 5 clientes com margem abaixo de 18% este mês')">
+          • Top 5 clientes margem &lt;18%
+        </button>
+</div>
+<!-- Resposta Dinâmica do Copilot (Placeholder para Microinteração) -->
+<div class="hidden mt-space-xs p-space-md rounded bg-surface-container-low border border-surface-container text-body-sm font-body-sm text-on-surface flex flex-col gap-space-xs" id="copilot-response">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span> RESPOSTA DO COPILOT EXECUTIVO
+          </span>
+<span class="font-label-sm text-label-sm text-outline">Latência: 310ms</span>
+</div>
+<p class="text-on-surface leading-relaxed" id="copilot-text"></p>
+</div>
+</section>
+</div>
+</div>
+<script>
+  // Microinterações do Command Center da Diretoria
+  function simularRepasse() {
+    alert("Simulação de Repasse (+5% Usinas):\n\n• Impacto na Margem Bruta: Preservação de +1.4 p.p. (25.2%)\n• Rejeição estimada em cotações ativas: Baixa (<2.1%)\n• Aumento de Receita Projetada: +R$ 184.200 no ciclo D+30.\n\nRecomendação do Copilot: Aplicar repasse gradativo a partir de Quinta-feira 00:00.");
+  }
+
+  function acaoEmergencial() {
+    const motivo = prompt("Ação Emergencial de Alçada Executiva (F1):\nInforme o código de override ou autorização manual:");
+    if (motivo) {
+      alert("Override registrado em Log de Auditoria Imutável (Hash: " + Math.random().toString(36).substring(2, 10).toUpperCase() + "). Notificação enviada ao Compliance.");
+    }
+  }
+
+  function analisarArbitragem() {
+    alert("Arbitragem LME Londres vs Mercado Nacional:\n\n• Preço Spot Trader Ásia: US$ 2.410/t CIF Santos\n• Preço Usina Nacional: R$ 16.850/t (eqv. US$ 3.073/t)\n• Spread Líquido após Impostos (II/IPI/PIS/COFINS): +14.8%\n\nAção: Lote de 20t reservado no pipeline do Procurement Agent.");
+  }
+
+  function verFichaRisco() {
+    alert("Ficha de Risco • Caldeiraria Vale do Aço:\n\n• CNPJ: 14.892.304/0001-92\n• Serasa Score: 240 (Risco Alto)\n• 2 Títulos Protestados em Cartório (Total: R$ 42.150)\n• Limite Anterior: R$ 150.000 -> Atual: R$ 0,00 (Trava Automática)\n• Pedido #ORC-5192 retido antes da emissão de OP.");
+  }
+
+  function aprovarCompra() {
+    const btn = document.getElementById("btn-compra-1");
+    btn.innerHTML = "PO Gerdau Aprovado ✓";
+    btn.classList.remove("bg-primary-container", "hover:bg-primary");
+    btn.classList.add("bg-secondary", "text-on-secondary", "cursor-default");
+    btn.disabled = true;
+    alert("PO Gerdau 60t Chapa Grossa A36 Aprovado com Sucesso!\nEconomia de R$ 38.400 travada antes do reajuste.");
+  }
+
+  function liberarFila() {
+    const btn = document.getElementById("btn-fila-2");
+    btn.innerHTML = "4 Cotações Liberadas ✓";
+    btn.classList.remove("bg-surface-container");
+    btn.classList.add("bg-surface-variant", "text-on-surface", "cursor-default");
+    btn.disabled = true;
+    alert("Fila de cotações CNC liberada e enviada via WhatsApp Bot aos clientes.");
+  }
+
+  function homologarMTC() {
+    const btn = document.getElementById("btn-mtc-3");
+    btn.innerHTML = "MTC Homologado ✓";
+    btn.classList.add("opacity-80", "cursor-default");
+    btn.disabled = true;
+    alert("Corrida #8412-B9 homologada. 45.2 toneladas liberadas no WMS para corte a laser.");
+  }
+
+  function travarCambio() {
+    const btn = document.getElementById("btn-cambio-4");
+    btn.innerHTML = "Hedge NDF Concluído ✓";
+    btn.classList.remove("bg-surface-container");
+    btn.classList.add("bg-surface-variant", "text-on-surface", "cursor-default");
+    btn.disabled = true;
+    alert("Ordem de NDF de US$ 80.000 a R$ 5,438 executada junto à mesa de câmbio.");
+  }
+
+  let isPlaying = false;
+  function toggleAudio() {
+    const icon = document.getElementById("play-icon");
+    isPlaying = !isPlaying;
+    if (isPlaying) {
+      icon.textContent = "pause";
+      alert("Reproduzindo Briefing Matinal 07h sintetizado por voz neural...");
+    } else {
+      icon.textContent = "play_arrow";
+    }
+  }
+
+  function triggerVoiceInput() {
+    alert("Microfone ativado. Fale o comando executivo para o Copilot...");
+    document.getElementById("copilot-input").value = "Qual a previsão de caixa livre para a próxima sexta-feira?";
+  }
+
+  function preencherPrompt(texto) {
+    document.getElementById("copilot-input").value = texto;
+    document.getElementById("copilot-input").focus();
+  }
+
+  function handleCopilotSubmit(e) {
+    e.preventDefault();
+    const input = document.getElementById("copilot-input");
+    const val = input.value.trim();
+    if (!val) return;
+
+    const respBox = document.getElementById("copilot-response");
+    const respText = document.getElementById("copilot-text");
+    respBox.classList.remove("hidden");
+
+    respText.innerHTML = "<strong>Análise Neural Concluída:</strong> Para a consulta <em>'" + val + "'</em>, os dados do ERP TOTVS apontam que qualquer repasse de 3% geraria perda de 1.8 p.p. na margem de contribuição (R$ 68.200/mês). Recomendamos manter o repasse integral de 5% apenas para clientes com score de fidelidade abaixo de 80.";
+    input.value = "";
+  }
+</script></main><footer class="w-full border-t border-surface-container bg-surface-container-lowest px-margin py-space-sm"><div class="flex flex-col sm:flex-row items-center justify-between gap-space-xs"><div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm"><span>MetalAgents Kernel v4.19.8-LTS</span><span>•</span><span class="text-secondary font-semibold">ERP TOTVS/SAP Sync: ATIVO (0.3s atrás)</span><span>•</span><span>Criptografia AES-256-GCM</span></div><div class="flex items-center gap-space-sm text-outline font-label-sm text-label-sm"><span>LATÊNCIA: 18ms</span><span>•</span><span>ZONA: BR-SP-01</span></div></div></footer></div></body></html>

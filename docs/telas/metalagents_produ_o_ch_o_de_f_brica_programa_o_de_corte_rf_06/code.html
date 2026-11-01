@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"background":"#101319","surface-container-lowest":"#0b0e14","carbon-700":"#222733","surface-container-low":"#191c22","on-tertiary":"#003824","tertiary":"#4edea3","subtle-white":"#F1F5F9","on-secondary-fixed":"#0b1c30","surface-bright":"#363940","ice-white":"#F8FAFC","tertiary-container":"#008259","on-primary":"#690005","carbon-900":"#11141A","secondary":"#b7c8e1","on-tertiary-fixed":"#002113","carbon-800":"#181C24","secondary-fixed":"#d3e4fe","signal-buy-dark":"#059669","signal-hold-dark":"#D97706","on-primary-container":"#fff6f5","primary-container":"#dc2626","titanium-dark":"#475569","inverse-surface":"#e1e2eb","secondary-fixed-dim":"#b7c8e1","primary-fixed":"#ffdad6","on-error":"#690005","secondary-container":"#3a4a5f","on-tertiary-container":"#e1ffec","signal-risk":"#EF4444","on-primary-fixed":"#410002","tertiary-fixed-dim":"#4edea3","on-error-container":"#ffdad6","surface-dim":"#101319","signal-buy":"#10B981","tertiary-fixed":"#6ffbbe","error":"#ffb4ab","surface-tint":"#ffb4ab","surface-container":"#1d2026","inverse-on-surface":"#2d3037","error-container":"#93000a","primary":"#ffb4ab","carmine-signal":"#EF4444","surface-container-high":"#272a30","carmine-deep":"#991B1B","primary-fixed-dim":"#ffb4ab","outline-variant":"#5c403c","on-tertiary-fixed-variant":"#005236","surface-container-highest":"#32353b","on-secondary-container":"#a9bad3","on-surface":"#e1e2eb","surface-variant":"#32353b","on-secondary-fixed-variant":"#38485d","outline":"#ac8884","surface":"#101319","titanium-steel":"#64748B","titanium-light":"#CBD5E1","signal-hold":"#F59E0B","on-background":"#e1e2eb","carbon-950":"#0B0D11","carmine-core":"#DC2626","on-secondary":"#213145","carmine-dark":"#B91C1C","on-surface-variant":"#e6bdb8","on-primary-fixed-variant":"#93000b","inverse-primary":"#bf0715","titanium-muted":"#94A3B8"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter":"0.75rem","margin":"1rem","space-xl":"1.5rem","space-xs":"0.25rem","space-sm":"0.5rem","space-lg":"1rem","margin-mobile":"0.75rem","space-md":"0.75rem","gutter-mobile":"0.5rem"},"fontFamily":{"metric-display":["JetBrains Mono"],"headline-lg-mobile":["Inter"],"metric-display-mobile":["JetBrains Mono"],"label-caps":["Inter"],"label-code":["JetBrains Mono"],"body-lg":["Inter"],"body-md":["Inter"],"headline-xl":["Inter"],"headline-sm":["Inter"],"metric-regular":["JetBrains Mono"],"headline-lg":["Inter"],"metric-compact":["JetBrains Mono"],"body-sm":["Inter"],"headline-xl-mobile":["Inter"]},"fontSize":{"metric-display":["28px",{"lineHeight":"32px","fontWeight":"600"}],"headline-lg-mobile":["20px",{"lineHeight":"26px","fontWeight":"600"}],"metric-display-mobile":["22px",{"lineHeight":"26px","fontWeight":"600"}],"label-caps":["11px",{"lineHeight":"14px","fontWeight":"600"}],"label-code":["10px",{"lineHeight":"12px","fontWeight":"500"}],"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-xl":["32px",{"lineHeight":"38px","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"metric-regular":["14px",{"lineHeight":"18px","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"30px","fontWeight":"600"}],"metric-compact":["11px",{"lineHeight":"14px","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"headline-xl-mobile":["24px",{"lineHeight":"30px","fontWeight":"700"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-carbon-900 z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="h-14 px-space-md flex items-center justify-between bg-carbon-950"><div class="flex items-center gap-space-sm"><div class="w-6 h-6 rounded bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-ice-white text-[16px]">precision_manufacturing</span></div><div class="flex flex-col"><span class="font-label-caps text-label-caps uppercase tracking-wider text-ice-white font-bold">GF Industrial</span><span class="font-label-code text-label-code text-titanium-muted tracking-tight">MetalAgents OS v4.2</span></div></div><span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary font-medium">ONLINE</span></div><div class="px-space-md py-space-sm bg-carbon-900"><div class="flex items-center justify-between text-titanium-muted font-label-caps text-label-caps uppercase tracking-wider mb-1"><span>Planta Ativa</span><span class="text-tertiary-fixed-dim">Cluster SP-01</span></div><div class="flex items-center gap-1.5 text-ice-white font-body-sm text-body-sm font-medium"><span class="material-symbols-outlined text-[15px] text-tertiary">apartment</span><span>Usina Matriz • Cubatão</span></div></div><nav class="flex-1 px-space-xs py-space-sm space-y-0.5 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary-container font-semibold shadow-sm"><div class="px-space-sm pt-space-xs pb-1 font-label-caps text-label-caps uppercase text-titanium-dark tracking-wider">Operação Central</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="visao-geral" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span><span>Visão Geral</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="inteligencia-lme" href="#"><span class="material-symbols-outlined text-[18px]">trending_up</span><span>Inteligência &amp; LME</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="estoque-retalhos" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span><span>Estoque &amp; Retalhos</span></a><div class="px-space-sm pt-space-sm pb-1 font-label-caps text-label-caps uppercase text-titanium-dark tracking-wider">Comercial &amp; Suprimentos</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="compras-rfq-auto" href="#"><span class="material-symbols-outlined text-[18px]">shopping_cart_checkout</span><span>Compras &amp; RFQ Auto</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="vendas-orcamento" href="#"><span class="material-symbols-outlined text-[18px]">request_quote</span><span>Vendas &amp; Orçamento</span></a><div class="px-space-sm pt-space-sm pb-1 font-label-caps text-label-caps uppercase text-titanium-dark tracking-wider">Chão de Fábrica &amp; CQ</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="producao-nesting" href="#"><span class="material-symbols-outlined text-[18px]">auto_awesome_mosaic</span><span>Produção &amp; Nesting</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="qualidade-certificados" href="#"><span class="material-symbols-outlined text-[18px]">verified</span><span>Qualidade &amp; Certificados</span></a><div class="px-space-sm pt-space-sm pb-1 font-label-caps text-label-caps uppercase text-titanium-dark tracking-wider">Governança &amp; Sistema</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="financeiro-risco" href="#"><span class="material-symbols-outlined text-[18px]">account_balance</span><span>Financeiro &amp; Risco</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="cadastros-crud" href="#"><span class="material-symbols-outlined text-[18px]">dataset</span><span>Cadastros &amp; CRUD</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-titanium-light hover:bg-carbon-800 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="auditoria-ia-governance" href="#"><span class="material-symbols-outlined text-[18px]">shield</span><span>Auditoria &amp; IA Governance</span></a></nav><div class="p-space-sm bg-carbon-950 flex items-center justify-between"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-signal-buy animate-pulse"></span><span class="font-label-code text-label-code text-titanium-muted">AGENTS ENGINE 4.2</span></div><span class="font-label-code text-label-code text-tertiary">SYNC OK</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-carbon-950/95 backdrop-blur-md z-40 flex items-center justify-between px-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.5)]"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-space-sm py-1 rounded bg-carbon-900"><span class="font-label-caps text-label-caps text-titanium-muted uppercase">LME AL</span><span class="font-label-code text-label-code text-ice-white font-medium">US$ 2.418,50/t</span><span class="font-label-code text-label-code text-signal-buy flex items-center"><span class="material-symbols-outlined text-[12px]">arrow_drop_up</span>+1.4%</span></div><div class="flex items-center gap-1.5 px-space-sm py-1 rounded bg-carbon-900"><span class="font-label-caps text-label-caps text-titanium-muted uppercase">HRC BOBINA</span><span class="font-label-code text-label-code text-ice-white font-medium">R$ 4.890,00/t</span><span class="font-label-code text-label-code text-carmine-signal flex items-center"><span class="material-symbols-outlined text-[12px]">arrow_drop_down</span>-0.6%</span></div><div class="flex items-center gap-1.5 px-space-sm py-1 rounded bg-carbon-900"><span class="font-label-caps text-label-caps text-titanium-muted uppercase">PTAX USD</span><span class="font-label-code text-label-code text-ice-white font-medium">R$ 5,684</span><span class="font-label-code text-label-code text-signal-buy flex items-center"><span class="material-symbols-outlined text-[12px]">arrow_drop_up</span>+0.2%</span></div></div><div class="hidden xl:flex items-center gap-1.5 text-titanium-steel font-label-code text-label-code"><span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span><span>LAT: <span class="text-ice-white font-semibold">12ms</span></span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-2"><button class="w-8 h-8 rounded bg-carbon-900 text-titanium-light hover:bg-carbon-800 hover:text-on-surface flex items-center justify-center transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">search</span></button><button class="w-8 h-8 rounded bg-carbon-900 text-titanium-light hover:bg-carbon-800 hover:text-on-surface flex items-center justify-center transition-colors relative" type="button"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-carmine-signal"></span></button></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="text-right hidden sm:block"><div class="font-body-sm text-body-sm font-semibold text-ice-white leading-tight">Rodrigo Reis</div><div class="font-label-code text-label-code text-titanium-muted">Diretor Geral • Usina Matriz</div></div><img alt="Rodrigo Reis" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1V1cwbYSPNqZfF5ecGadys3lTVm0MoJ0snee_sVv4jpeg00ubHrbyWt_8gGH-WhjC32J8cJ_7IqgfnNVdyvcgu2bigvdFwWn9q3M27iEIwTDp_2HTDx7c55Ki1tzM-hUdLyrlaJjEj9_Yp_nY2cRSLrPG_KT2J6qpm0XRiFnWpxzvG0q3eZSQ1sVD7swMBRMs47Qt_-chqSThRpido0neguei-yf6vR07ZH9oxvbklDrT_CSNLtKAwHDQ"/></div></div></header><main class="w-full pt-14 bg-background min-h-screen px-space-lg py-space-lg"><div class="flex flex-col w-full space-y-space-md">
+<!-- TOP HEADER & CUTTING AGENT TELEMETRY BAR -->
+<section class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md p-space-md rounded-xl bg-carbon-900 shadow-md">
+<div class="flex flex-col space-y-1">
+<div class="flex flex-wrap items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-tertiary font-label-code text-label-code shadow-sm">
+<span class="w-2 h-2 rounded-full bg-signal-buy animate-pulse"></span>
+<span>CUTTING AGENT ATIVO (NESTING 2D/1D &amp; CNC SEQUENCER v4.2)</span>
+</span>
+<span class="text-titanium-dark font-label-code text-label-code hidden sm:inline">•</span>
+<span class="text-titanium-muted font-label-code text-label-code">ALGORITMO OR-TOOLS ATIVO</span>
+<span class="text-titanium-dark font-label-code text-label-code hidden sm:inline">•</span>
+<span class="text-ice-white font-label-code text-label-code">LATÊNCIA OTIMIZAÇÃO: <span class="text-tertiary font-semibold">0.84s</span></span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-ice-white tracking-tight">
+        Produção Industrial, Programação de Corte &amp; Chão de Fábrica <span class="font-metric-regular text-metric-regular text-titanium-steel font-normal">(RF-06)</span>
+</h1>
+<p class="font-body-sm text-body-sm text-titanium-light">
+        Sequenciamento Preditivo de Máquinas CNC, Apontamento de OPs, Priorização Automática de Retalhos e Telemetria de Desgaste
+      </p>
+</div>
+<!-- Quick Action Triggers -->
+<div class="flex items-center flex-wrap gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-carbon-800 hover:bg-carbon-700 text-ice-white font-body-sm text-body-sm shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px] text-titanium-muted">tune</span>
+<span>Simular Balanceamento</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-carbon-800 hover:bg-carbon-700 text-ice-white font-body-sm text-body-sm shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px] text-tertiary">terminal</span>
+<span>Exportar G-Code / NC</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded bg-primary-container hover:bg-carmine-signal active:bg-carmine-deep text-on-primary-container font-body-sm text-body-sm font-semibold shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>+ Nova Ordem de Produção</span>
+<span class="font-label-code text-label-code opacity-80 ml-0.5">[F3]</span>
+</button>
+</div>
+</section>
+<!-- KPI SUMMARY CARDS (4 TILES) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-sm">
+<!-- KPI 1: OEE -->
+<div class="p-space-md rounded-xl bg-carbon-900 shadow-sm flex flex-col justify-between space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-titanium-muted uppercase tracking-wider">OEE Médio da Planta</span>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>+3.4% vs meta
+        </span>
+</div>
+<div>
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-ice-white">88.6%</span>
+<span class="font-label-code text-label-code text-titanium-steel">META: 85.0%</span>
+</div>
+<div class="w-full bg-carbon-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 88.6%"></div>
+</div>
+</div>
+<div class="font-label-code text-label-code text-titanium-light pt-1 flex justify-between">
+<span>Disp: <strong class="text-ice-white">94.1%</strong></span>
+<span>Perf: <strong class="text-ice-white">91.8%</strong></span>
+<span>Qual: <strong class="text-ice-white">99.2%</strong></span>
+</div>
+</div>
+<!-- KPI 2: Retalhos Salvos -->
+<div class="p-space-md rounded-xl bg-carbon-900 shadow-sm flex flex-col justify-between space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-titanium-muted uppercase tracking-wider">Reaproveitamento de Retalhos</span>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-surface-container-high text-signal-buy flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">qr_code_2</span>QR Track
+        </span>
+</div>
+<div>
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-tertiary">34.8 t</span>
+<span class="font-label-code text-label-code text-titanium-steel">SALVAS MÊS</span>
+</div>
+<div class="w-full bg-carbon-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light truncate">
+        Econ: <span class="text-ice-white font-medium">R$ 184.200</span> <span class="text-tertiary">(+14% vs meta)</span>
+</div>
+</div>
+<!-- KPI 3: Scrap Rate -->
+<div class="p-space-md rounded-xl bg-carbon-900 shadow-sm flex flex-col justify-between space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-titanium-muted uppercase tracking-wider">Índice Geral de Sucata</span>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">arrow_downward</span>-1.8 p.p.
+        </span>
+</div>
+<div>
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-ice-white">7.6%</span>
+<span class="font-label-code text-label-code text-titanium-steel">TETO: 9.0%</span>
+</div>
+<div class="w-full bg-carbon-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-signal-buy h-full rounded-full" style="width: 84%"></div>
+</div>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light truncate">
+        Otimização 2D/1D densidade máxima
+      </div>
+</div>
+<!-- KPI 4: Alertas Preditivos -->
+<div class="p-space-md rounded-xl bg-carbon-900 shadow-sm flex flex-col justify-between space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-titanium-muted uppercase tracking-wider">Manutenção &amp; Desgaste</span>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-carmine-deep/40 text-carmine-signal flex items-center gap-0.5 animate-pulse">
+<span class="material-symbols-outlined text-[12px]">error</span>1 Crítico
+        </span>
+</div>
+<div>
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-metric-display text-carmine-signal">1 / 2</span>
+<span class="font-label-code text-label-code text-titanium-steel">CRÍT / PREV</span>
+</div>
+<div class="w-full bg-carbon-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-carmine-signal h-full rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<div class="font-body-sm text-body-sm text-titanium-light truncate">
+        Laser 01: Bico 1.5mm em 92% desgaste <span class="text-signal-risk font-semibold">(4.5h)</span>
+</div>
+</div>
+</section>
+<!-- LIVE CNC MACHINE LINE STATUS (4 CELLS) -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-tertiary">precision_manufacturing</span>
+<h2 class="font-headline-sm text-headline-sm text-ice-white tracking-tight">Status do Chão de Fábrica ao Vivo</h2>
+<span class="font-label-code text-label-code text-titanium-steel hidden sm:inline">• 4 Células Monitoradas</span>
+</div>
+<div class="flex items-center gap-3 font-label-code text-label-code text-titanium-muted">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-signal-buy"></span> Operando (2)</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-signal-hold"></span> Setup (1)</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-titanium-dark"></span> Aguardando (1)</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-sm">
+<!-- Célula 01 -->
+<div class="rounded-xl bg-carbon-900 p-space-md shadow-sm flex flex-col justify-between space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-start justify-between">
+<span class="font-label-code text-label-code text-titanium-muted">CÉLULA 01 • CNC 12kW</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary font-label-code text-label-code font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy animate-ping"></span>CORTE CONTÍNUO
+            </span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-ice-white font-semibold">Laser Fibra 12kW</h3>
+<p class="font-label-code text-label-code text-titanium-steel">Mesa Dupla 2500x6000mm • G-Code #NC_8842</p>
+</div>
+<div class="p-2 rounded bg-carbon-950 space-y-1.5">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-titanium-light truncate">#OP-8842 (A36 12.7mm)</span>
+<span class="font-metric-regular text-metric-regular text-tertiary font-semibold">68%</span>
+</div>
+<div class="w-full bg-carbon-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 68%"></div>
+</div>
+<div class="flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span>Cliente: Romi S/A</span>
+<span>Aprov: <strong class="text-ice-white font-metric-compact">93.4%</strong></span>
+</div>
+</div>
+<div class="space-y-1 pt-1 font-label-code text-label-code">
+<div class="flex justify-between text-titanium-light">
+<span>Lente Prot: <strong class="text-tertiary">88% OK</strong></span>
+<span class="text-carmine-signal font-semibold">Bico 1.5mm: 8% (ALERTA)</span>
+</div>
+<div class="flex items-center justify-between text-titanium-muted pt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">person</span> Marcos Vinicius (Turno A)</span>
+<span class="text-titanium-steel">OEE 91.2%</span>
+</div>
+</div>
+</div>
+<!-- Célula 02 -->
+<div class="rounded-xl bg-carbon-900 p-space-md shadow-sm flex flex-col justify-between space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-start justify-between">
+<span class="font-label-code text-label-code text-titanium-muted">CÉLULA 02 • HD 260A</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary font-label-code text-label-code font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>FURAÇÃO &amp; CHANFRO
+            </span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-ice-white font-semibold">Plasma Alta Definição</h3>
+<p class="font-label-code text-label-code text-titanium-steel">Mesa de Água 2400x12000mm • G-Code #PL_8839</p>
+</div>
+<div class="p-2 rounded bg-carbon-950 space-y-1.5">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-titanium-light truncate">#OP-8839 (Naval 5052-H32)</span>
+<span class="font-metric-regular text-metric-regular text-secondary font-semibold">42%</span>
+</div>
+<div class="w-full bg-carbon-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 42%"></div>
+</div>
+<div class="flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span>Espessura: 4.76mm</span>
+<span>Aprov: <strong class="text-ice-white font-metric-compact">91.8%</strong></span>
+</div>
+</div>
+<div class="space-y-1 pt-1 font-label-code text-label-code">
+<div class="flex justify-between text-titanium-light">
+<span>Eletrodo: <strong class="text-tertiary">74% OK</strong></span>
+<span>Gás O2: <strong class="text-ice-white">8.4 bar</strong></span>
+</div>
+<div class="flex items-center justify-between text-titanium-muted pt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">person</span> Edson Tavares (Turno A)</span>
+<span class="text-titanium-steel">OEE 86.8%</span>
+</div>
+</div>
+</div>
+<!-- Célula 03 -->
+<div class="rounded-xl bg-carbon-900 p-space-md shadow-sm flex flex-col justify-between space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-start justify-between">
+<span class="font-label-code text-label-code text-titanium-muted">CÉLULA 03 • SLITTER</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-signal-hold font-label-code text-label-code font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-hold"></span>SETUP / FACAS
+            </span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-ice-white font-semibold">Slitter Longitudinal</h3>
+<p class="font-label-code text-label-code text-titanium-steel">Capacidade 1500mm / 15t • Setup: 14 min rest.</p>
+</div>
+<div class="p-2 rounded bg-carbon-950 space-y-1.5">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-titanium-light truncate">#BOB-910408 (BQ 1008)</span>
+<span class="font-metric-regular text-metric-regular text-signal-hold font-semibold">TIRAS: 8</span>
+</div>
+<div class="w-full bg-carbon-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-signal-hold h-full rounded-full" style="width: 25%"></div>
+</div>
+<div class="flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span>Origem: CSN (14.2t)</span>
+<span>Largura: <strong class="text-ice-white font-metric-compact">1500mm</strong></span>
+</div>
+</div>
+<div class="space-y-1 pt-1 font-label-code text-label-code">
+<div class="flex justify-between text-titanium-light">
+<span>Folga Facas: <strong class="text-ice-white">0.24mm</strong></span>
+<span>Borda: <strong class="text-tertiary">Refilada 12mm</strong></span>
+</div>
+<div class="flex items-center justify-between text-titanium-muted pt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">person</span> Carlos Santana (Líder Slitter)</span>
+<span class="text-titanium-steel">OEE 82.5%</span>
+</div>
+</div>
+</div>
+<!-- Célula 04 -->
+<div class="rounded-xl bg-carbon-900 p-space-md shadow-sm flex flex-col justify-between space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-start justify-between">
+<span class="font-label-code text-label-code text-titanium-muted">CÉLULA 04 • OXICORTE</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-titanium-muted font-label-code text-label-code font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-titanium-steel"></span>AGUARDANDO CHAPA
+            </span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-ice-white font-semibold">Oxicorte Pantográfico</h3>
+<p class="font-label-code text-label-code text-titanium-steel">4 Maçaricos CNC • Mesa 3000x12000mm</p>
+</div>
+<div class="p-2 rounded bg-carbon-950 space-y-1.5">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-titanium-light truncate">#OP-8845 (Chapa 2'' 1045)</span>
+<span class="font-metric-regular text-metric-regular text-titanium-steel font-semibold">FILA 01</span>
+</div>
+<div class="w-full bg-carbon-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-carbon-700 h-full rounded-full" style="width: 5%"></div>
+</div>
+<div class="flex items-center justify-between font-label-code text-label-code text-titanium-muted">
+<span>Pátio: Ponte Rolante 02</span>
+<span>Aguard: <strong class="text-signal-hold font-metric-compact">06 min</strong></span>
+</div>
+</div>
+<div class="space-y-1 pt-1 font-label-code text-label-code">
+<div class="flex justify-between text-titanium-light">
+<span>Pressão GLP: <strong class="text-tertiary">3.2 bar</strong></span>
+<span>Aquecedor: <strong class="text-ice-white">Pronto</strong></span>
+</div>
+<div class="flex items-center justify-between text-titanium-muted pt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">person</span> Reginaldo Dias</span>
+<span class="text-titanium-steel">OEE 79.4%</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SPLIT SECTION: SEQUENCIADOR PREVENTIVO & AUDITORIA DE SUCATA / IA RECOMMENDATION -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md">
+<!-- MAIN LEFT: OP SCHEDULER & REPORTING TABLE (8 COLS) -->
+<div class="xl:col-span-8 flex flex-col space-y-space-sm">
+<!-- Table Filters & Tabs -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm p-space-sm rounded-xl bg-carbon-900 shadow-sm">
+<div class="flex items-center gap-1 overflow-x-auto">
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container font-label-caps text-label-caps uppercase font-bold shadow-sm" type="button">
+            Todas as OPs (24)
+          </button>
+<button class="px-3 py-1.5 rounded bg-carbon-800 text-titanium-light hover:text-ice-white font-label-caps text-label-caps uppercase transition-colors" type="button">
+            Em Máquina (4)
+          </button>
+<button class="px-3 py-1.5 rounded bg-carbon-800 text-titanium-light hover:text-ice-white font-label-caps text-label-caps uppercase transition-colors" type="button">
+            Aguardando Nesting (6)
+          </button>
+<button class="px-3 py-1.5 rounded bg-carbon-800 text-tertiary hover:bg-carbon-700 font-label-caps text-label-caps uppercase flex items-center gap-1 transition-colors" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>
+            Em Retalhos (8)
+          </button>
+<button class="px-3 py-1.5 rounded bg-carbon-800 text-titanium-light hover:text-ice-white font-label-caps text-label-caps uppercase transition-colors" type="button">
+            Concluídas Hoje (12)
+          </button>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative">
+<input class="w-48 xl:w-56 px-2.5 py-1 text-body-sm font-body-sm bg-carbon-950 text-ice-white rounded focus:outline-none focus:ring-1 focus:ring-carmine-core" placeholder="Buscar OP, Cliente, Aço..." type="text"/>
+<span class="material-symbols-outlined text-[16px] text-titanium-steel absolute right-2 top-1.5">search</span>
+</div>
+</div>
+</div>
+<!-- OP High-Density Production Table -->
+<div class="rounded-xl bg-carbon-900 shadow-md overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-body-sm font-body-sm">
+<thead class="bg-carbon-950 text-titanium-muted font-label-caps text-label-caps uppercase tracking-wider">
+<tr>
+<th class="py-2.5 px-3">OP # / Pedido</th>
+<th class="py-2.5 px-3">Cliente &amp; Aplicação</th>
+<th class="py-2.5 px-3">Produto &amp; Dimensão</th>
+<th class="py-2.5 px-3">Origem Material</th>
+<th class="py-2.5 px-3 text-right">Yield / Perda</th>
+<th class="py-2.5 px-3">Máquina Alocada</th>
+<th class="py-2.5 px-3 text-right">Tempo Est./Real</th>
+<th class="py-2.5 px-3 text-center">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-carbon-800 text-titanium-light">
+<!-- Row 1 -->
+<tr class="hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div class="font-bold text-ice-white">#OP-8842</div>
+<div class="text-titanium-steel">Ped #ORC-5184</div>
+</td>
+<td class="py-2.5 px-3">
+<div class="font-medium text-ice-white">Indústrias Romi S/A</div>
+<div class="text-body-sm text-titanium-muted text-[11px]">Flanges Pesadas &amp; Coroas</div>
+</td>
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div>ASTM A36 (Grossa)</div>
+<div class="text-titanium-steel">12.70 x 2500 x 6000mm</div>
+</td>
+<td class="py-2.5 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-tertiary font-label-code text-label-code font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[12px]">recycling</span>
+                    RETALHO QR-9921
+                  </span>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<span class="text-tertiary font-semibold">94.2%</span>
+<div class="text-titanium-steel text-label-code font-label-code">Perda: 5.8%</div>
+</td>
+<td class="py-2.5 px-3 font-body-sm">
+<span class="text-ice-white">Laser Fibra 12kW</span>
+<div class="font-label-code text-label-code text-tertiary">Mesa 01 (Ativo)</div>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<div class="text-ice-white">42 min</div>
+<div class="text-titanium-steel text-label-code font-label-code">Est: 45 min</div>
+</td>
+<td class="py-2.5 px-3 text-center">
+<div class="inline-flex items-center gap-1">
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-tertiary transition-colors" title="Apontar Peças (Baixa no Estoque)" type="button">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-ice-white transition-colors" title="Ver Plano de Nesting (SVG/DXF)" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-titanium-muted transition-colors" title="Mais Opções" type="button">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div class="font-bold text-ice-white">#OP-8839</div>
+<div class="text-titanium-steel">Ped #ORC-5178</div>
+</td>
+<td class="py-2.5 px-3">
+<div class="font-medium text-ice-white">Estaleiro Mauá S/A</div>
+<div class="text-body-sm text-titanium-muted text-[11px]">Costado &amp; Vigas Navais</div>
+</td>
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div>Naval 5052-H32</div>
+<div class="text-titanium-steel">4.76 x 2400 x 12000mm</div>
+</td>
+<td class="py-2.5 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-titanium-light font-label-code text-label-code">
+<span class="material-symbols-outlined text-[12px]">layers</span>
+                    CHAPA VIRGEM
+                  </span>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<span class="text-ice-white font-semibold">91.8%</span>
+<div class="text-titanium-steel text-label-code font-label-code">Perda: 8.2%</div>
+</td>
+<td class="py-2.5 px-3 font-body-sm">
+<span class="text-ice-white">Plasma HD 260A</span>
+<div class="font-label-code text-label-code text-secondary">Mesa d'Água</div>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<div class="text-ice-white">1h 12m</div>
+<div class="text-titanium-steel text-label-code font-label-code">Est: 1h 15m</div>
+</td>
+<td class="py-2.5 px-3 text-center">
+<div class="inline-flex items-center gap-1">
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-tertiary transition-colors" title="Apontar Peças (Baixa no Estoque)" type="button">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-ice-white transition-colors" title="Ver Plano de Nesting (SVG/DXF)" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-titanium-muted transition-colors" title="Mais Opções" type="button">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div class="font-bold text-ice-white">#OP-8846</div>
+<div class="text-titanium-steel">Ped #ORC-5192</div>
+</td>
+<td class="py-2.5 px-3">
+<div class="font-medium text-ice-white">Metso Outotec Brasil</div>
+<div class="text-body-sm text-titanium-muted text-[11px]">Revestimento Calhas Minério</div>
+</td>
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div>HARDOX 450 (Resist.)</div>
+<div class="text-titanium-steel">9.52 x 2000 x 6000mm</div>
+</td>
+<td class="py-2.5 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-tertiary font-label-code text-label-code font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[12px]">auto_awesome</span>
+                    SUG. RETALHO #4081
+                  </span>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<span class="text-tertiary font-semibold">96.8%</span>
+<div class="text-titanium-steel text-label-code font-label-code">Perda: 3.2%</div>
+</td>
+<td class="py-2.5 px-3 font-body-sm">
+<span class="text-ice-white">Laser Fibra 12kW</span>
+<div class="font-label-code text-label-code text-titanium-muted">Mesa 02 (Fila #1)</div>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<div class="text-titanium-light">-- min</div>
+<div class="text-titanium-steel text-label-code font-label-code">Est: 32 min</div>
+</td>
+<td class="py-2.5 px-3 text-center">
+<div class="inline-flex items-center gap-1">
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-titanium-steel transition-colors" title="Apontar Peças" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-ice-white transition-colors" title="Ver Plano de Nesting" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-titanium-muted transition-colors" title="Mais Opções" type="button">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-carbon-800 transition-colors">
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div class="font-bold text-ice-white">#OP-8845</div>
+<div class="text-titanium-steel">Ped #ORC-5190</div>
+</td>
+<td class="py-2.5 px-3">
+<div class="font-medium text-ice-white">Zanini Renk Engrenagens</div>
+<div class="text-body-sm text-titanium-muted text-[11px]">Discos p/ Usinagem Pesada</div>
+</td>
+<td class="py-2.5 px-3 font-label-code text-label-code">
+<div>SAE 1045 Forjado</div>
+<div class="text-titanium-steel">50.80mm (2'') x Bloco</div>
+</td>
+<td class="py-2.5 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-titanium-light font-label-code text-label-code">
+<span class="material-symbols-outlined text-[12px]">layers</span>
+                    CHAPA VIRGEM
+                  </span>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<span class="text-ice-white font-semibold">88.5%</span>
+<div class="text-titanium-steel text-label-code font-label-code">Perda: 11.5%</div>
+</td>
+<td class="py-2.5 px-3 font-body-sm">
+<span class="text-ice-white">Oxicorte Pantográfico</span>
+<div class="font-label-code text-label-code text-signal-hold">Aguardando Chapa</div>
+</td>
+<td class="py-2.5 px-3 text-right font-metric-regular text-metric-regular">
+<div class="text-titanium-light">-- min</div>
+<div class="text-titanium-steel text-label-code font-label-code">Est: 1h 40m</div>
+</td>
+<td class="py-2.5 px-3 text-center">
+<div class="inline-flex items-center gap-1">
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-titanium-steel transition-colors" title="Apontar Peças" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-ice-white transition-colors" title="Ver Plano de Nesting" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="p-1 rounded bg-carbon-950 hover:bg-carbon-700 text-titanium-muted transition-colors" title="Mais Opções" type="button">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Telemetry Pagination -->
+<div class="p-2.5 px-3 bg-carbon-950 flex flex-wrap items-center justify-between gap-2 text-titanium-muted font-label-code text-label-code">
+<div>Exibindo 4 de 24 OPs ativas • Algoritmo de Nesting rebalanceado a cada 180s</div>
+<div class="flex items-center gap-2">
+<button class="px-2 py-1 rounded bg-carbon-900 text-titanium-light hover:bg-carbon-800" type="button">Anterior</button>
+<span class="text-ice-white">Página 1 / 6</span>
+<button class="px-2 py-1 rounded bg-carbon-900 text-titanium-light hover:bg-carbon-800" type="button">Próxima</button>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT RAIL: AI NESTING OPTIMIZER & OPERATOR SCRAP AUDIT (4 COLS) -->
+<div class="xl:col-span-4 flex flex-col space-y-space-sm">
+<!-- CARD 1: IA AGENT CUTTING SUGGESTION & REMNANT MATCH -->
+<div class="p-space-md rounded-xl bg-carbon-900 shadow-md space-y-space-sm relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-tertiary font-label-caps text-label-caps uppercase font-bold">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+<span>Otimização Inteligente de Nesting</span>
+</div>
+<span class="font-label-code text-label-code px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary">ECONOMIA ATIVA</span>
+</div>
+<!-- Interactive Sheet Utilization SVG Graphic -->
+<div class="p-2.5 rounded bg-carbon-950 space-y-2">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-label-code text-label-code text-titanium-muted">PLANO DE REAPROVEITAMENTO • OP #OP-8846</span>
+<span class="font-metric-regular text-metric-regular text-tertiary font-semibold">96.8% Densidade</span>
+</div>
+<!-- Technical CAD-Style Wireframe Preview -->
+<div class="w-full h-28 bg-carbon-900 rounded p-2 flex flex-col justify-between relative overflow-hidden">
+<svg class="w-full h-full text-titanium-steel" fill="none" viewbox="0 0 320 80" xmlns="http://www.w3.org/2000/svg">
+<!-- Sheet Outline (Retalho 4081) -->
+<rect fill="#11141A" height="76" rx="2" stroke="#363940" stroke-dasharray="2 2" stroke-width="1.5" width="316" x="2" y="2"></rect>
+<!-- Nested Parts (Calculated via 2D Nesting OR-Tools) -->
+<rect fill="#003824" height="64" rx="1" stroke="#4edea3" stroke-width="1.2" width="60" x="8" y="8"></rect>
+<rect fill="#003824" height="64" rx="1" stroke="#4edea3" stroke-width="1.2" width="60" x="72" y="8"></rect>
+<rect fill="#003824" height="30" rx="1" stroke="#4edea3" stroke-width="1.2" width="60" x="136" y="8"></rect>
+<rect fill="#003824" height="30" rx="1" stroke="#4edea3" stroke-width="1.2" width="60" x="136" y="42"></rect>
+<polygon fill="#003824" points="200,8 240,8 220,72 200,72" stroke="#4edea3" stroke-width="1.2"></polygon>
+<polygon fill="#003824" points="244,72 284,72 264,8 244,8" stroke="#4edea3" stroke-width="1.2"></polygon>
+<!-- Offcut Leftover (Sucata Residual Reutilizável) -->
+<rect fill="#222733" height="64" rx="1" stroke="#475569" stroke-dasharray="3 3" stroke-width="1" width="24" x="288" y="8"></rect>
+<text fill="#94A3B8" font-family="JetBrains Mono" font-size="7" x="291" y="42">RET</text>
+</svg>
+<div class="flex items-center justify-between font-label-code text-label-code text-titanium-steel pt-1">
+<span>Retalho #RET-4081 (Setor D-04)</span>
+<span>18 Peças Alocadas</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-light leading-snug">
+            IA detectou que o nesting da OP <strong class="text-ice-white">#OP-8846</strong> pode reaproveitar o retalho <strong class="text-tertiary">#RET-4081</strong> localizado no Almoxarifado Setor D-04, poupando 1 chapa inteira virgem de 6 metros.
+          </p>
+<div class="p-2 rounded bg-surface-container-high flex items-center justify-between font-label-code text-label-code">
+<span class="text-titanium-muted">Economia Instantânea Estimada:</span>
+<span class="font-metric-regular text-metric-regular text-tertiary font-bold">R$ 3.840,00</span>
+</div>
+<button class="w-full py-2 px-3 rounded bg-primary-container hover:bg-carmine-signal text-on-primary-container font-body-sm text-body-sm font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[17px]">task_alt</span>
+<span>Aplicar Sugestão do Cutting Agent</span>
+</button>
+</div>
+</div>
+<!-- CARD 2: SCRAP AUDIT & OPERATOR SCOREBOARD -->
+<div class="p-space-md rounded-xl bg-carbon-900 shadow-md space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-ice-white font-label-caps text-label-caps uppercase font-bold">
+<span class="material-symbols-outlined text-[16px] text-titanium-muted">equalizer</span>
+<span>Auditoria de Sucata &amp; Turnos</span>
+</div>
+<span class="font-label-code text-label-code text-titanium-steel">META DIÁRIA ≤ 9.0%</span>
+</div>
+<div class="space-y-2">
+<!-- Turno A -->
+<div class="p-2 rounded bg-carbon-950 space-y-1">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-semibold text-ice-white flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-signal-buy"></span>
+                Turno A (Diurno • 06h às 15h)
+              </span>
+<span class="font-metric-regular text-metric-regular text-tertiary font-semibold">6.8% scrap</span>
+</div>
+<div class="w-full bg-carbon-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-signal-buy h-full rounded-full" style="width: 75%"></div>
+</div>
+<div class="flex justify-between font-label-code text-label-code text-titanium-muted">
+<span>Líder: M. Vinicius</span>
+<span class="text-tertiary">Dentro da Meta (-2.2 p.p.)</span>
+</div>
+</div>
+<!-- Turno B -->
+<div class="p-2 rounded bg-carbon-950 space-y-1">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-semibold text-ice-white flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-signal-hold"></span>
+                Turno B (Vespertino • 15h às 23h)
+              </span>
+<span class="font-metric-regular text-metric-regular text-signal-hold font-semibold">8.4% scrap</span>
+</div>
+<div class="w-full bg-carbon-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-signal-hold h-full rounded-full" style="width: 93%"></div>
+</div>
+<div class="flex justify-between font-label-code text-label-code text-titanium-muted">
+<span>Líder: C. Santana</span>
+<span class="text-signal-hold">Alerta: Próximo do limite</span>
+</div>
+</div>
+</div>
+<!-- Consumables Quick Alert Bar -->
+<div class="p-2 rounded bg-carbon-950 flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-carmine-signal mt-0.5">build_circle</span>
+<div class="text-body-sm">
+<div class="font-medium text-ice-white leading-tight">Telemetria de Cabeçote Laser 01</div>
+<div class="text-titanium-light text-body-sm text-[11px] leading-tight">
+              Desgaste do bico 1.5mm em 92%. A parada preventiva está programada para o fim da OP #8842.
+            </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

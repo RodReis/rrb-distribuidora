@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>MetalAgents | GF Industrial Analytics</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-background":"#e1e2eb","surface-variant":"#32353b","on-error-container":"#ffdad6","on-secondary-fixed":"#0b1c30","inverse-primary":"#bf0715","secondary-fixed":"#d3e4fe","signal-buy-dark":"#059669","on-tertiary-container":"#e1ffec","carmine-signal":"#EF4444","secondary-container":"#3a4a5f","carbon-950":"#0B0D11","carbon-700":"#222733","carbon-900":"#11141A","surface-dim":"#101319","primary-fixed-dim":"#ffb4ab","tertiary-fixed-dim":"#4edea3","tertiary-container":"#008259","surface-container-highest":"#32353b","on-primary-fixed":"#410002","on-secondary":"#213145","on-error":"#690005","error-container":"#93000a","on-tertiary-fixed":"#002113","signal-buy":"#10B981","background":"#101319","on-primary-fixed-variant":"#93000b","signal-hold":"#F59E0B","titanium-light":"#CBD5E1","surface-bright":"#363940","ice-white":"#F8FAFC","signal-risk":"#EF4444","on-tertiary-fixed-variant":"#005236","primary-fixed":"#ffdad6","on-secondary-fixed-variant":"#38485d","surface-tint":"#ffb4ab","outline":"#ac8884","carmine-core":"#DC2626","titanium-steel":"#64748B","on-primary-container":"#fff6f5","tertiary":"#4edea3","carmine-deep":"#991B1B","subtle-white":"#F1F5F9","outline-variant":"#5c403c","carbon-800":"#181C24","surface-container-low":"#191c22","primary":"#ffb4ab","surface-container-high":"#272a30","secondary-fixed-dim":"#b7c8e1","error":"#ffb4ab","on-tertiary":"#003824","on-secondary-container":"#a9bad3","on-primary":"#690005","secondary":"#b7c8e1","on-surface-variant":"#e6bdb8","titanium-muted":"#94A3B8","primary-container":"#dc2626","inverse-surface":"#e1e2eb","surface-container":"#1d2026","tertiary-fixed":"#6ffbbe","signal-hold-dark":"#D97706","titanium-dark":"#475569","surface-container-lowest":"#0b0e14","on-surface":"#e1e2eb","carmine-dark":"#B91C1C","surface":"#101319","inverse-on-surface":"#2d3037"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-md":"0.75rem","space-xs":"0.25rem",margin:"1rem",gutter:"0.75rem","space-sm":"0.5rem","space-xl":"1.5rem","margin-mobile":"0.75rem","gutter-mobile":"0.5rem","space-lg":"1rem"},fontFamily:{"headline-sm":["Inter"],"headline-lg":["Inter"],"body-sm":["Inter"],"label-code":["JetBrains Mono"],"headline-xl":["Inter"],"metric-display":["JetBrains Mono"],"body-lg":["Inter"],"metric-regular":["JetBrains Mono"],"label-caps":["Inter"],"headline-xl-mobile":["Inter"],"headline-lg-mobile":["Inter"],"body-md":["Inter"],"metric-compact":["JetBrains Mono"],"metric-display-mobile":["JetBrains Mono"]},fontSize:{"headline-sm":["18px",{lineHeight:"24px",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"30px",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"label-code":["10px",{lineHeight:"12px",fontWeight:"500"}],"headline-xl":["32px",{lineHeight:"38px",fontWeight:"700"}],"metric-display":["28px",{lineHeight:"32px",fontWeight:"600"}],"body-lg":["15px",{lineHeight:"22px",fontWeight:"400"}],"metric-regular":["14px",{lineHeight:"18px",fontWeight:"500"}],"label-caps":["11px",{lineHeight:"14px",fontWeight:"600"}],"headline-xl-mobile":["24px",{lineHeight:"30px",fontWeight:"700"}],"headline-lg-mobile":["20px",{lineHeight:"26px",fontWeight:"600"}],"body-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"metric-compact":["11px",{lineHeight:"14px",fontWeight:"500"}],"metric-display-mobile":["22px",{lineHeight:"26px",fontWeight:"600"}]}}}};</script></head><body class="bg-carbon-950 font-body-md text-on-surface antialiased selection:bg-carmine-core selection:text-ice-white"><header class="fixed top-0 left-0 w-full z-50 bg-carbon-900/95 backdrop-blur-xl"><div class="w-full bg-carbon-950 px-gutter py-space-xs"><div class="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto whitespace-nowrap"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span><span class="font-label-caps text-label-caps uppercase tracking-wider text-titanium-muted">METALLURGY FEED</span></div><div class="flex items-center gap-space-md font-metric-compact text-metric-compact"><span class="text-titanium-steel">LME ALUMÍNIO</span><span class="text-ice-white">US$ 2.428,50</span><span class="text-signal-buy">+1.2%</span></div><div class="flex items-center gap-space-md font-metric-compact text-metric-compact"><span class="text-titanium-steel">CME HRC BOBINA</span><span class="text-ice-white">US$ 714,00</span><span class="text-signal-risk">-0.4%</span></div><div class="flex items-center gap-space-md font-metric-compact text-metric-compact"><span class="text-titanium-steel">SHFE VERGALHÃO</span><span class="text-ice-white">¥ 3.320</span><span class="text-signal-buy">+0.8%</span></div><div class="flex items-center gap-space-md font-metric-compact text-metric-compact"><span class="text-titanium-steel">PTAX USD/BRL</span><span class="text-ice-white">R$ 5,742</span><span class="text-signal-hold">STABLE</span></div></div><div class="hidden lg:flex items-center gap-space-sm font-label-code text-label-code text-titanium-muted"><span class="material-symbols-outlined text-[13px] text-titanium-steel">sensors</span><span>LATÊNCIA: 14ms (LONDRES / SÃO PAULO)</span></div></div></div><div class="h-16 max-w-7xl mx-auto px-gutter flex items-center justify-between"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-sm" data-path="solucoes-agentes" href="#"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1V1cwbYSPNqZfF5ecGadys3lTVm0MoJ0snee_sVv4jpeg00ubHrbyWt_8gGH-WhjC32J8cJ_7IqgfnNVdyvcgu2bigvdFwWn9q3M27iEIwTDp_2HTDx7c55Ki1tzM-hUdLyrlaJjEj9_Yp_nY2cRSLrPG_KT2J6qpm0XRiFnWpxzvG0q3eZSQ1sVD7swMBRMs47Qt_-chqSThRpido0neguei-yf6vR07ZH9oxvbklDrT_CSNLtKAwHDQ"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm tracking-tight text-ice-white font-bold">MetalAgents</span><span class="font-label-code text-label-code bg-carbon-800 text-carmine-signal px-space-xs py-0.5 rounded uppercase font-semibold">GF AI</span></div><span class="font-label-code text-label-code text-titanium-muted tracking-wider uppercase">Industrial Analytics</span></div></a><nav class="hidden xl:flex items-center gap-space-xs font-body-sm text-body-sm" data-active-classes="bg-carbon-800 text-ice-white font-semibold rounded px-space-md py-space-xs"><a class="text-on-surface-variant hover:text-on-surface transition-colors px-space-md py-space-xs" data-path="solucoes-agentes" href="#">Soluções &amp; Agentes</a><a class="text-on-surface-variant hover:text-on-surface transition-colors px-space-md py-space-xs" data-path="mercado-cotacoes" href="#">Mercado &amp; Cotações</a><a class="text-on-surface-variant hover:text-on-surface transition-colors px-space-md py-space-xs" data-path="estoque-preventivo" href="#">Estoque Preventivo</a><a class="text-on-surface-variant hover:text-on-surface transition-colors px-space-md py-space-xs" data-path="orcamentos-corte" href="#">Orçamentos &amp; Corte</a><a class="text-on-surface-variant hover:text-on-surface transition-colors px-space-md py-space-xs" data-path="compliance-seguranca" href="#">Compliance &amp; Segurança</a></nav></div><div class="flex items-center gap-space-md"><button class="flex items-center gap-space-xs bg-carbon-800 hover:bg-surface-container-high px-space-sm py-space-xs rounded text-titanium-muted hover:text-on-surface transition-colors" title="Alternar Tema (Pré-visualização)" type="button"><span class="material-symbols-outlined text-[16px]">dark_mode</span><span class="font-label-code text-label-code uppercase hidden sm:inline">Escuro</span></button><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors px-space-md py-space-xs font-medium" data-path="login" href="#">Acessar Plataforma</a><a class="flex items-center gap-space-xs bg-carmine-core hover:bg-carmine-signal text-ice-white px-space-lg py-space-sm rounded font-body-sm text-body-sm font-semibold transition-colors shadow-[0_2px_10px_rgba(220,38,38,0.35)]" data-path="solicitar-demonstracao" href="#"><span class="material-symbols-outlined text-[16px]">precision_manufacturing</span><span>Solicitar Demonstração</span></a></div></div></header><main class="w-full pt-24 bg-carbon-950 min-h-screen"><div class="flex flex-col w-full">
+<!-- Subtle Ambient Top Gradient for Structural Depth -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-gradient-to-b from-carmine-deep/15 via-carbon-900/10 to-transparent blur-3xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-gutter py-space-xl relative z-10">
+<!-- Breadcrumbs & Status Flag Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md pb-space-lg">
+<div class="flex items-center gap-space-sm font-label-code text-label-code text-titanium-muted">
+<span class="flex items-center gap-1 text-ice-white font-semibold">
+<span class="material-symbols-outlined text-[15px] text-carmine-core">shield</span>
+            LEGAL CONFORMANCE
+          </span>
+<span>/</span>
+<span class="text-titanium-steel">DOC-REF: MA-GOV-2026-V1.0</span>
+<span>/</span>
+<span class="bg-carbon-800 text-titanium-light px-space-xs py-0.5 rounded uppercase">Vigência: 2026.1</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="flex items-center gap-1.5 px-space-sm py-1 rounded bg-carbon-900 text-signal-buy font-label-code text-label-code">
+<span class="w-1.5 h-1.5 rounded-full bg-signal-buy animate-pulse"></span>
+            AUDIT TRAIL ATIVO • ISO 27001
+          </span>
+<a class="px-space-sm py-1 rounded bg-carbon-800 hover:bg-carbon-700 text-titanium-light font-label-code text-label-code transition-colors flex items-center gap-1" href="#compliance-officer">
+<span class="material-symbols-outlined text-[13px]">alternate_email</span>
+            DPO: dpo@metalagents.com.br
+          </a>
+</div>
+</div>
+<!-- Main Header Block -->
+<div class="bg-carbon-900 rounded-xl p-space-xl shadow-xl relative overflow-hidden mb-space-xl">
+<div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-carbon-800/40 to-transparent pointer-events-none hidden md:block"></div>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg relative z-10">
+<div class="space-y-space-xs max-w-3xl">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-carmine-signal font-semibold">MARCO REGULATÓRIO &amp; SALVAGUARDAS INDUSTRIAIS</span>
+<span class="font-label-code text-label-code text-titanium-steel bg-carbon-950 px-1.5 py-0.5 rounded">REV. 2026</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-ice-white font-bold tracking-tight">
+              Termos de Uso, Governança de IA &amp; Políticas LGPD
+            </h1>
+<p class="font-body-lg text-body-lg text-titanium-muted">
+              Diretrizes contratuais que regem a operação do ecossistema MetalAgents (GF Industrial Analytics). Estabelece critérios de isenção de risco para motor de sinais preditivos, salvaguardas estritas de soberania dos dados fabris via Row-Level Security e o princípio inegociável de Human-in-the-Loop em operações de compra e corte siderúrgico.
+            </p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm shrink-0">
+<button class="flex items-center gap-space-xs bg-carbon-800 hover:bg-carbon-700 text-ice-white font-body-sm text-body-sm px-space-lg py-space-sm rounded transition-all shadow-sm" onclick="window.print()">
+<span class="material-symbols-outlined text-[16px] text-titanium-light">print</span>
+<span>Imprimir</span>
+</button>
+<a class="flex items-center gap-space-xs bg-carmine-core hover:bg-carmine-signal text-ice-white font-body-sm text-body-sm font-semibold px-space-lg py-space-sm rounded transition-all shadow-md" href="mailto:compliance@metalagents.com.br?subject=Solicitacao%20de%20PDF%20Certificado%20Termos%20MetalAgents">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Baixar PDF Assinado SHA-256</span>
+</a>
+</div>
+</div>
+<!-- Telemetry KPI Summary Strip -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md pt-space-lg mt-space-lg bg-carbon-950 rounded-lg p-space-md">
+<div class="space-y-0.5">
+<span class="font-label-caps text-label-caps uppercase text-titanium-steel block">Isolamento Multi-Tenant</span>
+<span class="font-metric-regular text-metric-regular text-ice-white font-semibold">Row-Level Security (RLS)</span>
+<span class="font-label-code text-label-code text-tertiary block">Zero Cross-Tenant Leak</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-caps text-label-caps uppercase text-titanium-steel block">Treinamento de Modelos</span>
+<span class="font-metric-regular text-metric-regular text-ice-white font-semibold">Opt-Out Absoluto</span>
+<span class="font-label-code text-label-code text-signal-buy block">Dados Privados Isolados</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-caps text-label-caps uppercase text-titanium-steel block">Autonomia Executiva</span>
+<span class="font-metric-regular text-metric-regular text-ice-white font-semibold">Human-in-the-Loop</span>
+<span class="font-label-code text-label-code text-signal-hold block">Aprovação Humana Mandatória</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-caps text-label-caps uppercase text-titanium-steel block">Auditoria Operacional</span>
+<span class="font-metric-regular text-metric-regular text-ice-white font-semibold">Ledger Criptográfico</span>
+<span class="font-label-code text-label-code text-titanium-light block">Logs Imutáveis 5 Anos</span>
+</div>
+</div>
+</div>
+<!-- Main Layout: Sticky Anchor Navigation Sidebar + Comprehensive Legal Clauses -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Sticky Navigation Index Sidebar (4 Cols on LG) -->
+<aside class="lg:col-span-4 sticky top-28 space-y-space-md">
+<div class="bg-carbon-900 rounded-xl p-space-md shadow-md space-y-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-xs font-label-caps text-label-caps uppercase text-titanium-muted tracking-wider">
+<span class="material-symbols-outlined text-[15px] text-carmine-core">menu_book</span>
+<span>Sumário Regulatório</span>
+</div>
+<span class="font-label-code text-label-code text-titanium-steel">7 ARTIGOS</span>
+</div>
+<!-- Fast Navigation Links -->
+<nav class="flex flex-col space-y-1 font-body-sm text-body-sm" id="terms-toc">
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-ice-white bg-carbon-800 transition-colors" href="#artigo-1">
+<span class="truncate">1. Objeto &amp; Escopo da Plataforma SaaS</span>
+<span class="font-label-code text-label-code text-titanium-muted ml-2 shrink-0">§ 1.1</span>
+</a>
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-titanium-light hover:text-ice-white hover:bg-carbon-800/60 transition-colors" href="#artigo-2">
+<span class="truncate">2. Isenção &amp; Sinais de Mercado (Buy/Sell)</span>
+<span class="font-label-code text-label-code text-signal-hold ml-2 shrink-0">CRÍTICO</span>
+</a>
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-titanium-light hover:text-ice-white hover:bg-carbon-800/60 transition-colors" href="#artigo-3">
+<span class="truncate">3. Governança de IA &amp; Human-in-the-Loop</span>
+<span class="font-label-code text-label-code text-carmine-signal ml-2 shrink-0">MANDATÓRIO</span>
+</a>
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-titanium-light hover:text-ice-white hover:bg-carbon-800/60 transition-colors" href="#artigo-4">
+<span class="truncate">4. Proteção de Dados, Segredo &amp; LGPD</span>
+<span class="font-label-code text-label-code text-tertiary ml-2 shrink-0">RLS</span>
+</a>
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-titanium-light hover:text-ice-white hover:bg-carbon-800/60 transition-colors" href="#artigo-5">
+<span class="truncate">5. Integrações ERPs &amp; Protocolo MCP</span>
+<span class="font-label-code text-label-code text-titanium-muted ml-2 shrink-0">API</span>
+</a>
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-titanium-light hover:text-ice-white hover:bg-carbon-800/60 transition-colors" href="#artigo-6">
+<span class="truncate">6. Responsabilidade sobre Orçamentos &amp; Corte</span>
+<span class="font-label-code text-label-code text-titanium-muted ml-2 shrink-0">NESTING</span>
+</a>
+<a class="toc-link flex items-center justify-between p-space-xs rounded text-titanium-light hover:text-ice-white hover:bg-carbon-800/60 transition-colors" href="#artigo-7">
+<span class="truncate">7. Propriedade Intelectual, Auditoria &amp; SLA</span>
+<span class="font-label-code text-label-code text-titanium-muted ml-2 shrink-0">99.8%</span>
+</a>
+</nav>
+<!-- Document Integrity Hash Box -->
+<div class="p-space-sm bg-carbon-950 rounded-lg space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-titanium-muted">Integridade do Contrato</span>
+<span class="font-label-code text-label-code text-signal-buy font-semibold">VERIFICADO</span>
+</div>
+<div class="font-label-code text-label-code text-titanium-steel break-all select-all bg-carbon-900 p-space-xs rounded">
+                e8f49b10c93a89047bf3de2a5b67c13038d823483b8a1ec564efc8742ab4c120
+              </div>
+<span class="font-label-code text-label-code text-titanium-muted block pt-1">Timestamp ECDSA: 2026-01-15T00:00:00 UTC</span>
+</div>
+<!-- Urgent Contact Callout -->
+<div class="p-space-sm bg-surface-container rounded-lg space-y-1" id="compliance-officer">
+<span class="font-label-caps text-label-caps uppercase text-carmine-signal font-semibold block">Canal Oficial do DPO</span>
+<p class="font-body-sm text-body-sm text-titanium-light">
+                Para exercício de direitos previstos no Artigo 18 da LGPD ou esclarecimentos técnicos de auditoria:
+              </p>
+<div class="flex items-center gap-space-xs pt-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary">mail</span>
+<a class="font-label-code text-label-code text-tertiary hover:underline font-semibold" href="mailto:compliance@metalagents.com.br">compliance@metalagents.com.br</a>
+</div>
+</div>
+</div>
+</aside>
+<!-- Detailed Legal Body Clauses (8 Cols on LG) -->
+<article class="lg:col-span-8 space-y-space-xl text-on-surface">
+<!-- Section 1 -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-carmine-core"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Primeiro</span>
+</div>
+<span class="font-label-caps text-label-caps bg-carbon-800 text-titanium-light px-space-xs py-0.5 rounded uppercase">VIGÊNCIA V1.0</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              1. Objeto e Escopo da Plataforma SaaS
+            </h2>
+<p class="font-body-md text-body-md text-titanium-light leading-relaxed">
+              O presente instrumento regula o licenciamento, acesso e utilização da suíte de software como serviço denominada <strong class="text-ice-white">MetalAgents™</strong>, desenvolvida e mantida com exclusividade pela <strong class="text-ice-white">GF Industrial Analytics Ltda.</strong> ("GF"), destinada especificamente ao suporte analítico, hedging e inteligência de cadeia de suprimentos para distribuidores de aços, centros de serviços metalmecânicos, caldeirarias e indústrias transformadoras de metais ferrosos e não-ferrosos.
+            </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs">
+<div class="bg-carbon-950 p-space-md rounded-lg space-y-space-xs">
+<div class="flex items-center gap-space-xs text-tertiary font-body-sm text-body-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Escopo Autorizado</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+                  Processamento algorítmico de telemetria pública de bolsas internacionais (LME, CME, SHFE), dados macroeconômicos (PTAX BRL) e dados transacionais internos estritamente autorizados pela CONTRATANTE para cálculo de curvas de reposição de estoque e nesting.
+                </p>
+</div>
+<div class="bg-carbon-950 p-space-md rounded-lg space-y-space-xs">
+<div class="flex items-center gap-space-xs text-carmine-signal font-body-sm text-body-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">block</span>
+<span>Restrições Inegociáveis</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+                  É expressamente vedada a engenharia reversa de pesos neurais, uso de crawlers não autenticados, compartilhamento de tokens de API fora dos limites contratados e qualquer tentativa de desanonimização de benchmarks setoriais consolidados.
+                </p>
+</div>
+</div>
+</section>
+<!-- Section 2: Critical Financial Disclaimer Callout -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-signal-hold"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Segundo</span>
+</div>
+<span class="font-label-caps text-label-caps bg-signal-hold/20 text-signal-hold px-space-xs py-0.5 rounded uppercase font-semibold">DECLARAÇÃO DE ISENÇÃO CRÍTICA</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              2. Isenção e Natureza dos Sinais de Mercado (Buy/Sell Signal Engine)
+            </h2>
+<!-- Heavy Duty Callout -->
+<div class="bg-carbon-950 p-space-lg rounded-xl space-y-space-sm shadow-inner">
+<div class="flex items-center gap-space-sm text-signal-hold font-label-caps text-label-caps tracking-wider uppercase font-bold">
+<span class="material-symbols-outlined text-[20px] text-signal-hold">warning</span>
+<span>AVISO FORMAL DE NATUREZA ANALÍTICA E ISENÇÃO DE CONSULTORIA FINANCEIRA</span>
+</div>
+<p class="font-body-md text-body-md text-ice-white leading-relaxed">
+                Os módulos preditivos da plataforma MetalAgents — incluindo, sem limitação, o <strong class="text-signal-buy">Índice Preditivo de Compra</strong>, o <strong class="text-signal-hold">Score de Alerta de Scrap</strong> e as <strong class="text-carmine-signal">Recomendações Táticas de Aquisição de Bobinas e Chapas</strong> — constituem exclusivamente instrumentos de modelagem estatística, inferência quantitativa e auxílio computacional.
+              </p>
+<div class="space-y-space-xs pt-space-xs font-body-sm text-body-sm text-titanium-light">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-signal-hold shrink-0 mt-0.5">priority_high</span>
+<span><strong class="text-ice-white">Ausência de Consultoria CVM:</strong> A MetalAgents e a GF Industrial Analytics não atuam como corretoras de commodities, instituições financeiras ou consultoras de valores mobiliários registradas na CVM ou no BACEN.</span>
+</div>
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-signal-hold shrink-0 mt-0.5">priority_high</span>
+<span><strong class="text-ice-white">Volatilidade Exógena:</strong> Cotações de Bobinas a Quente (BOC/HRC), Vergalhão CA-50, Lingotes de Alumínio e paridades cambiais PTAX estão sujeitas a flutuações geopolíticas e tarifárias imprevisíveis.</span>
+</div>
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-signal-hold shrink-0 mt-0.5">priority_high</span>
+<span><strong class="text-ice-white">Soberania Decisória:</strong> Toda e qualquer decisão de aporte de capital, fechamento de pedidos de compra (PC) junto a usinas ou fixação antecipada de preços de sucata é de responsabilidade única e indelegável da diretoria e dos operadores humanos da CONTRATANTE.</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+              § 2.1. O score preditivo (escala 0-100) reflete pura probabilidade paramétrica construída com base em séries históricas de até 15 anos de ciclos siderúrgicos e não assegura garantia de lucro, spread mínimo de distribuição ou imunidade a oscilações abruptas no mercado spot.
+            </p>
+</section>
+<!-- Section 3: Human-in-the-Loop & Model Constraints -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-carmine-signal"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Terceiro</span>
+</div>
+<span class="font-label-caps text-label-caps bg-carbon-800 text-carmine-signal px-space-xs py-0.5 rounded uppercase font-semibold">ARQUITETURA DETERMINÍSTICA</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              3. Governança de IA &amp; Princípio Human-in-the-Loop
+            </h2>
+<p class="font-body-md text-body-md text-titanium-light leading-relaxed">
+              Em estrita conformidade com as diretrizes internacionais de Inteligência Artificial Ética para Infraestrutura Crítica e a Estratégia Brasileira de Inteligência Artificial (EBIA), a plataforma MetalAgents opera com travas sistêmicas de segurança contra ações autônomas não fiscalizadas:
+            </p>
+<!-- Visual Flow of Human-in-the-Loop Protocol -->
+<div class="bg-carbon-950 p-space-lg rounded-xl space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-titanium-steel tracking-wider">Protocolo de Confirmação Obrigatória [HITL]</span>
+<span class="font-label-code text-label-code text-carmine-signal bg-carbon-900 px-space-xs py-0.5 rounded">ZERO DISPARO AUTÔNOMO</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm relative">
+<div class="bg-carbon-900 p-space-sm rounded-lg space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-titanium-steel">ETAPA 01</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary">analytics</span>
+</div>
+<span class="font-body-sm text-body-sm font-semibold text-ice-white block">Inferência &amp; Sugestão</span>
+<p class="font-label-code text-label-code text-titanium-muted">
+                    O agente calcula gap de bobinas e propõe lote econômico de 80 ton.
+                  </p>
+</div>
+<div class="bg-carbon-900 p-space-sm rounded-lg space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-carmine-signal">ETAPA 02 (BLOQUEIO)</span>
+<span class="material-symbols-outlined text-[16px] text-signal-hold">lock_clock</span>
+</div>
+<span class="font-body-sm text-body-sm font-semibold text-ice-white block">Trava Sistêmica</span>
+<p class="font-label-code text-label-code text-titanium-muted">
+                    Requisição congelada em fila segura aguardando assinatura do Comprador.
+                  </p>
+</div>
+<div class="bg-carbon-900 p-space-sm rounded-lg space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-signal-buy">ETAPA 03</span>
+<span class="material-symbols-outlined text-[16px] text-signal-buy">fingerprint</span>
+</div>
+<span class="font-body-sm text-body-sm font-semibold text-ice-white block">Chancela Humana</span>
+<p class="font-label-code text-label-code text-titanium-muted">
+                    Operador autoriza com MFA; despacho para o ERP Protheus/SAP via MCP.
+                  </p>
+</div>
+</div>
+<div class="bg-carbon-900/60 p-space-sm rounded-lg font-body-sm text-body-sm text-titanium-light space-y-1">
+<strong class="text-ice-white block">Cláusula 3.1 — Vedação de Automação Irrestrita:</strong>
+<p>Nenhum Pedido de Compra (PC), alteração em listas de preços por tonelada ou descarte de retalhos de estoque será executado diretamente no ERP corporativo da CONTRATANTE sem uma confirmação biométrica ou multifator efetuada por um operador credenciado.</p>
+</div>
+</div>
+</section>
+<!-- Section 4: Privacy, Data Protection & LGPD -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Quarto</span>
+</div>
+<span class="font-label-caps text-label-caps bg-carbon-800 text-tertiary px-space-xs py-0.5 rounded uppercase font-semibold">LGPD &amp; SEGREDO INDUSTRIAL</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              4. Proteção de Dados, Segredo Comercial e LGPD (Lei 13.709/2018)
+            </h2>
+<p class="font-body-md text-body-md text-titanium-light leading-relaxed">
+              O MetalAgents foi concebido sob a premissa de que listas de clientes siderúrgicos, margens de bobinas e desenhos de corte geométrico representam os segredos industriais de maior valor econômico das empresas metalmecânicas brasileiras.
+            </p>
+<div class="space-y-space-md">
+<!-- Feature Row 1: RLS -->
+<div class="bg-carbon-950 p-space-md rounded-lg flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-carbon-900 flex items-center justify-center shrink-0 text-tertiary">
+<span class="material-symbols-outlined text-[22px]">database</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-ice-white font-semibold">Isolamento Multi-Tenant com Row-Level Security (RLS)</h3>
+<p class="font-body-sm text-body-sm text-titanium-muted leading-relaxed">
+                    Todas as tabelas de estoque, notas fiscais (XML/Danfe), ordens de corte e tabelas de markup são segmentadas criptograficamente no nível de banco de dados via políticas estritas de Row-Level Security associadas ao TenantID exclusivo da CONTRATANTE. Inexiste a possibilidade física de cruzamento ou visibilidade entre empresas concorrentes.
+                  </p>
+</div>
+</div>
+<!-- Feature Row 2: No-Training Policy -->
+<div class="bg-carbon-950 p-space-md rounded-lg flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-carbon-900 flex items-center justify-center shrink-0 text-carmine-signal">
+<span class="material-symbols-outlined text-[22px]">psychology_alt</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-ice-white font-semibold">Vedação de Retreino de Modelos Fundacionais com Dados Proprietários</h3>
+<p class="font-body-sm text-body-sm text-titanium-muted leading-relaxed">
+                    A GF Industrial Analytics assume o compromisso irrevogável de <strong class="text-ice-white">NUNCA utilizar</strong> arquivos CAD/DXF, volumes faturados ou cadastros de compradores inseridos pela CONTRATANTE para o treinamento de modelos abertos, pesos de IA de terceiros ou LLMs comerciais. Os pesos analíticos do cliente são executados exclusivamente em instâncias efêmeras seguras com isolamento de memória RAM.
+                  </p>
+</div>
+</div>
+<!-- Feature Row 3: Audit Trail -->
+<div class="bg-carbon-950 p-space-md rounded-lg flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-carbon-900 flex items-center justify-center shrink-0 text-titanium-light">
+<span class="material-symbols-outlined text-[22px]">history_edu</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-ice-white font-semibold">Audit Trail e Log Criptográfico Imutável</h3>
+<p class="font-body-sm text-body-sm text-titanium-muted leading-relaxed">
+                    Cada consulta executada por agentes generativos, chamadas de API MCP e exportações de orçamentos são registradas em logs de auditoria append-only, indexados com hashing SHA-256 e retidos por 5 (cinco) anos para atender às auditorias fiscais e à ANPD (Autoridade Nacional de Proteção de Dados).
+                  </p>
+</div>
+</div>
+</div>
+<!-- LGPD Specific Sub-box -->
+<div class="bg-carbon-800/40 p-space-md rounded-lg space-y-space-xs font-body-sm text-body-sm text-titanium-light">
+<span class="font-label-caps text-label-caps uppercase text-tertiary font-bold tracking-wider">Tratamento de Dados Pessoais (LGPD Art. 7 e 18)</span>
+<p>No tocante a dados cadastrais de representantes comerciais, compradores e motoristas de transporte de carga pesada, a GF atua como <strong class="text-ice-white">Operadora de Dados</strong>, incumbindo à CONTRATANTE o papel de <strong class="text-ice-white">Controladora</strong>. O canal para solicitação de expurgo, revogação de consentimento ou relatório de impacto à proteção de dados (RIPD) é <code class="font-label-code text-ice-white bg-carbon-950 px-1 py-0.5 rounded">compliance@metalagents.com.br</code>.</p>
+</div>
+</section>
+<!-- Section 5: ERP Integration & MCP Protocol -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-titanium-steel"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Quinto</span>
+</div>
+<span class="font-label-caps text-label-caps bg-carbon-800 text-titanium-light px-space-xs py-0.5 rounded uppercase">SEGURANÇA DE CONECTORES</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              5. Integrações com ERPs e Protocolo MCP (Model Context Protocol)
+            </h2>
+<p class="font-body-md text-body-md text-titanium-light leading-relaxed">
+              O ecossistema utiliza conectores nativos para sistemas ERP siderúrgicos (Totvs Protheus, SAP S/4HANA, Sankhya, Senior e bancos de dados customizados via ODBC/gRPC) baseados na especificação aberta do <strong class="text-ice-white">Model Context Protocol (MCP)</strong>:
+            </p>
+<div class="bg-carbon-950 p-space-lg rounded-xl space-y-space-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="space-y-space-xs">
+<span class="font-label-caps text-label-caps uppercase text-ice-white font-bold block">1. Princípio do Menor Privilégio</span>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+                    Conexões MCP operam em modo padrão de <code class="font-label-code text-label-code text-tertiary">READ-ONLY</code> para tabelas financeiras e cadastrais. O acesso a escrita (<code class="font-label-code text-label-code text-signal-hold">WRITE-ENABLED</code>) requer liberação expressa da equipe de TI da CONTRATANTE via chaves mTLS.
+                  </p>
+</div>
+<div class="space-y-space-xs">
+<span class="font-label-caps text-label-caps uppercase text-ice-white font-bold block">2. Criptografia em Trânsito &amp; Repouso</span>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+                    Tunelamento obrigatório TLS 1.3 com Perfect Forward Secrecy (PFS). Dados em repouso no cluster de alta disponibilidade são protegidos por cifragem AES-256-GCM com rotação semestral de chaves HSM.
+                  </p>
+</div>
+</div>
+<!-- Terminal visual mock of permissions -->
+<div class="bg-carbon-900 rounded-lg p-space-sm font-label-code text-label-code space-y-1">
+<div class="text-titanium-steel flex items-center justify-between">
+<span>// SCHEMA DE AUTORIZAÇÃO MCP: ERP_GATEWAY_V2</span>
+<span class="text-tertiary">STRICT ENFORCEMENT</span>
+</div>
+<div class="text-ice-white">GRANT SELECT ON PROTHEUS.SB1, SB2 (ESTOQUE, GRADES_AÇO) TO 'metalagents_agent';</div>
+<div class="text-carmine-signal">DENY INSERT, UPDATE ON FINANCEIRO.SE2, SA2 WITHOUT '2FA_CHIEF_BUYER';</div>
+<div class="text-titanium-muted">AUDIT RECORD CREATED HASH: [0x78ab..91ff] TIMESTAMP: NOW()</div>
+</div>
+</div>
+</section>
+<!-- Section 6: Responsibility on Nesting & Pricing -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-signal-risk"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Sexto</span>
+</div>
+<span class="font-label-caps text-label-caps bg-carbon-800 text-signal-risk px-space-xs py-0.5 rounded uppercase">LIMITAÇÃO TÉCNICA</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              6. Responsabilidade sobre Orçamentos e Planos de Corte Computacional (Nesting)
+            </h2>
+<p class="font-body-md text-body-md text-titanium-light leading-relaxed">
+              O motor de nesting geométrico 2D/3D da MetalAgents otimiza a taxa de aproveitamento de chapas de aço, vigas laminadas e tubos industriais com base em algoritmos de empacotamento heurístico:
+            </p>
+<div class="bg-carbon-950 p-space-md rounded-lg space-y-space-sm">
+<div class="flex items-center gap-space-xs text-signal-hold font-body-sm text-body-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">engineering</span>
+<span>Tolerâncias Mecânicas e Variáveis de Produção de Fábrica</span>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted leading-relaxed">
+                As simulações de aproveitamento de chapa assumem parâmetros ideais informados pelo operador (como largura do corte/kerf do laser ou plasma, afastamento mínimo entre peças e orientação das fibras de laminação). É de inteira obrigação do programador CAM ou operador de corte CNC validar o arquivo gerado (DXF/G-Code) no software de comando numérico da máquina física para certificar que micro-juntas, tolerâncias dimensionais e compensações térmicas estão em conformidade com as normas ABNT NBR aplicáveis.
+              </p>
+<div class="p-space-xs bg-carbon-900 rounded font-label-code text-label-code text-titanium-light">
+                ISENÇÃO: A GF NÃO SE RESPONSABILIZA POR COLISÕES DE CABEÇOTE DE CORTE CNC, REJEIÇÃO DIMENSIONAL POR TENSÃO RESIDUAL DE CHAPA OU DANOS A CONSUMÍVEIS DE MÁQUINAS.
+              </div>
+</div>
+</section>
+<!-- Section 7: IP, SLA & Dispute Resolution -->
+<section class="bg-carbon-900 rounded-xl p-space-xl shadow-md space-y-space-md scroll-mt-28" id="artigo-7">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-titanium-light"></span>
+<span class="font-label-code text-label-code text-titanium-muted uppercase">Artigo Sétimo</span>
+</div>
+<span class="font-label-caps text-label-caps bg-carbon-800 text-titanium-light px-space-xs py-0.5 rounded uppercase font-semibold">SLA &amp; JURISDIÇÃO</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ice-white font-bold tracking-tight">
+              7. Propriedade Intelectual, Acordo de Nível de Serviço (SLA) e Foro
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="space-y-space-xs bg-carbon-950 p-space-md rounded-lg">
+<span class="font-label-caps text-label-caps uppercase text-ice-white font-bold block">Propriedade Intelectual</span>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+                  Os algoritmos matemáticos, heurísticas de otimização de scrap, marcas comerciais MetalAgents™ e arquitetura GF Industrial Analytics pertencem com exclusividade à GF. Os relatórios gerados e os dados de clientes permanecem como propriedade integral da CONTRATANTE.
+                </p>
+</div>
+<div class="space-y-space-xs bg-carbon-950 p-space-md rounded-lg">
+<span class="font-label-caps text-label-caps uppercase text-ice-white font-bold block">Disponibilidade SLA 99.8%</span>
+<p class="font-body-sm text-body-sm text-titanium-muted">
+                  A GF assegura índice de disponibilidade mensal da API de cálculo de 99,8%, excetuando-se janelas de manutenção preventiva programadas e comunicadas com 48h de antecedência ou interrupções nos feeds de dados de bolsas globais.
+                </p>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-titanium-muted pt-space-xs">
+              § 7.1. Foro de Eleição: Fica eleito o Foro da Comarca de Joinville, Estado de Santa Catarina ou da Capital do Estado de São Paulo, para dirimir quaisquer litígios oriundos do presente instrumento, com renúncia expressa a qualquer outro por mais privilegiado que seja.
+            </p>
+</section>
+<!-- Certification Banner & Version Footnote -->
+<div class="bg-carbon-900 rounded-xl p-space-lg shadow-md space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded bg-carmine-core flex items-center justify-center text-ice-white">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-ice-white font-bold block">GF Industrial Compliance Certification</span>
+<span class="font-label-code text-label-code text-titanium-steel">DOC VERSION: 1.0.4-LATEST (2026 EDITION)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<a class="flex items-center gap-1 bg-carmine-core hover:bg-carmine-signal text-ice-white px-space-md py-space-xs rounded font-body-sm text-body-sm font-semibold transition-colors" href="mailto:compliance@metalagents.com.br">
+<span class="material-symbols-outlined text-[16px]">contact_support</span>
+<span>Falar com Jurídico</span>
+</a>
+</div>
+</div>
+<div class="bg-carbon-950 p-space-md rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-space-sm font-label-code text-label-code text-titanium-muted">
+<div>
+<span>Última revisão formal: </span>
+<strong class="text-ice-white">15 de Janeiro de 2026</strong>
+<span> • Válido para todos os planos Enterprise &amp; Professional</span>
+</div>
+<div class="flex items-center gap-space-xs text-signal-buy">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>STATUS: VIGENTE E COMPATÍVEL COM LGPD</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple active highlighting for sticky navigation
+  document.addEventListener('DOMContentLoaded', function () {
+    const links = document.querySelectorAll('#terms-toc .toc-link');
+    const sections = Array.from(links).map(link => {
+      const targetId = link.getAttribute('href').substring(1);
+      return document.getElementById(targetId);
+    });
+
+    function updateActiveToc() {
+      const scrollPos = window.scrollY + 140;
+      let activeIndex = -1;
+
+      sections.forEach((sec, idx) => {
+        if (sec && sec.offsetTop <= scrollPos) {
+          activeIndex = idx;
+        }
+      });
+
+      if (activeIndex !== -1) {
+        links.forEach((link, idx) => {
+          if (idx === activeIndex) {
+            link.classList.add('bg-carbon-800', 'text-ice-white');
+            link.classList.remove('text-titanium-light');
+          } else {
+            link.classList.remove('bg-carbon-800', 'text-ice-white');
+            link.classList.add('text-titanium-light');
+          }
+        });
+      }
+    }
+
+    window.addEventListener('scroll', updateActiveToc, { passive: true });
+    updateActiveToc();
+  });
+</script></main><footer class="w-full bg-carbon-900"><div class="max-w-7xl mx-auto px-gutter py-space-xl"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-xl pb-space-xl"><div class="lg:col-span-2 flex flex-col gap-space-md"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 bg-carmine-core rounded flex items-center justify-center"><span class="material-symbols-outlined text-ice-white text-[16px]">terminal</span></div><span class="font-headline-sm text-headline-sm text-ice-white font-bold">MetalAgents</span><span class="font-label-code text-label-code bg-carbon-800 text-titanium-light px-space-xs py-0.5 rounded uppercase">GF INDUSTRIAL</span></div><p class="font-body-sm text-body-sm text-titanium-muted max-w-sm">Plataforma de inteligência algorítmica para abastecimento siderúrgico, hedging de commodities físicas e otimização de corte computacional para a cadeia de valor metalmecânica.</p><div class="flex items-center gap-space-md pt-space-xs"><div class="flex items-center gap-space-xs bg-carbon-950 px-space-sm py-space-xs rounded"><span class="material-symbols-outlined text-[14px] text-tertiary">verified_user</span><span class="font-label-code text-label-code text-titanium-light">LGPD COMPLIANT</span></div><div class="flex items-center gap-space-xs bg-carbon-950 px-space-sm py-space-xs rounded"><span class="material-symbols-outlined text-[14px] text-tertiary">lock</span><span class="font-label-code text-label-code text-titanium-light">ISO/IEC 27001</span></div></div></div><div class="flex flex-col gap-space-sm"><span class="font-label-caps text-label-caps uppercase text-ice-white tracking-wider">Módulos Siderúrgicos</span><nav class="flex flex-col gap-space-xs font-body-sm text-body-sm" data-active-classes="text-carmine-signal font-semibold"><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="solucoes-agentes" href="#">Agentes Preditivos de Scrap</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="mercado-cotacoes" href="#">Radar de Bobinas &amp; Tarugos</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="estoque-preventivo" href="#">Otimizador 2D/3D Nesting</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="orcamentos-corte" href="#">Motor de Cotação de Retalhos</a></nav></div><div class="flex flex-col gap-space-sm"><span class="font-label-caps text-label-caps uppercase text-ice-white tracking-wider">Infraestrutura &amp; Dados</span><nav class="flex flex-col gap-space-xs font-body-sm text-body-sm" data-active-classes="text-carmine-signal font-semibold"><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="mercado-cotacoes" href="#">APIs de Mercado em Tempo Real</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="compliance-seguranca" href="#">Certificados de Rastreabilidade</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="compliance-seguranca" href="#">Auditoria Criptográfica de Bobinas</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="compliance-seguranca" href="#">Status da Rede Industrial</a></nav></div><div class="flex flex-col gap-space-sm"><span class="font-label-caps text-label-caps uppercase text-ice-white tracking-wider">Políticas &amp; GF Group</span><nav class="flex flex-col gap-space-xs font-body-sm text-body-sm" data-active-classes="text-carmine-signal font-semibold"><a aria-current="page" class="transition-colors text-carmine-signal font-semibold" data-path="termos-de-uso" href="#">Termos de Uso</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="privacidade" href="#">Privacidade &amp; Dados Industriais</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="compliance-seguranca" href="#">Governança Algorítmica</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="solicitar-demonstracao" href="#">Canal de Relações Industriais</a></nav></div></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md"><span class="font-label-code text-label-code text-titanium-muted">© 2025 GF Industrial Analytics Ltda. Todos os direitos reservados. MetalAgents™ é marca registrada.</span><div class="flex items-center gap-space-md font-label-code text-label-code text-titanium-steel"><span>TERMINAL BUILD 4.19.2</span><span class="text-signal-buy flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-signal-buy"></span>OPERACIONAL</span></div></div></div></footer></body></html>
