@@ -11,8 +11,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/produtos";
 
-  const [email, setEmail] = React.useState("rodrigo.reis@gfdistribuicao.com.br");
-  const [password, setPassword] = React.useState("Admin@123456");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [rememberMe, setRememberMe] = React.useState(true);
   const [loading, setLoading] = React.useState(false);

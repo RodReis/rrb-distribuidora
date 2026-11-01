@@ -38,11 +38,17 @@ push/PR → GitHub Actions (lint + format + build)  →  merge em main
 6. **Gerar domínio público:** serviço web → *Settings → Networking → Generate Domain* (porta 3000).
    Copie a URL para `NEXTAUTH_URL` e faça o redeploy.
 7. **Primeiro acesso:** após o deploy, o banco estará vazio — o schema é criado pelo `drizzle-kit migrate`
-   no start. Para popular o tenant + admin + produtos de referência, rode o seed uma vez:
-   - Opção A ( Railway Shell, plano Hobby+ ): `pnpm db:seed` no terminal do serviço.
-   - Opção B (a partir da sua máquina): aponte `DATABASE_URL` para a URL pública do Railway e rode `pnpm db:seed` localmente (ativo em *Settings → Networking → Public Networking*).
+   no start. Crie o tenant, o admin e a matriz de permissões rodando o seed **de produção** uma vez,
+   dentro do container (o host interno do Postgres só resolve lá):
 
-   Login inicial: `rodrigo.reis@gfdistribuicao.com.br` / `Admin@123456` (troque a senha depois do primeiro acesso).
+   ```
+   railway ssh --service <servico-web> -- "SEED_MODE=production SEED_ADMIN_PASSWORD=<senha-forte-12+> pnpm db:seed"
+   ```
+
+   - `SEED_MODE=production` cria **somente** o admin, sem usuários de teste nem dados de exemplo.
+   - `SEED_ADMIN_PASSWORD` é obrigatória (mínimo 12 caracteres) e **nunca** deve ser commitada.
+   - O seed sem `SEED_MODE` é só para desenvolvimento local e usa senhas de teste.
+   - Depois do primeiro acesso, gere uma credencial própria em *Usuários & Acesso* (ícone de chave).
 8. **Importação do catálogo real:** com o admin logado, use `/importar` (US-09) para subir o CSV da distribuidora.
 
 ## Alternativa de deploy via CLI (opcional)
