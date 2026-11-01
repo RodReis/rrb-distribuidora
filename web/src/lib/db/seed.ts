@@ -35,11 +35,19 @@ async function runSeed() {
   }
 
   // 2. Seed Admin User & Test Users
-  const passwordHash = await argon2.hash("Admin@123456", {
+  const isProd = process.env.SEED_MODE === "production";
+  if (isProd && !process.env.SEED_ADMIN_PASSWORD) {
+    throw new Error("SEED_MODE=production exige SEED_ADMIN_PASSWORD (mínimo 12 caracteres).");
+  }
+  if (isProd && (process.env.SEED_ADMIN_PASSWORD || "").length < 12) {
+    throw new Error("SEED_ADMIN_PASSWORD deve ter no mínimo 12 caracteres.");
+  }
+
+  const passwordHash = await argon2.hash(process.env.SEED_ADMIN_PASSWORD || "Admin@123456", {
     type: argon2.argon2id,
   });
 
-  const testUsers = [
+  const allUsers = [
     {
       email: "rodrigo.reis@gfdistribuicao.com.br",
       name: "Rodrigo Reis",
@@ -66,6 +74,8 @@ async function runSeed() {
       role: "diretor" as const,
     },
   ];
+
+  const testUsers = isProd ? allUsers.filter((u) => u.role === "admin") : allUsers;
 
   let adminUserId = "";
 
@@ -151,6 +161,11 @@ async function runSeed() {
           set: { canRead, canWrite },
         });
     }
+  }
+
+  if (isProd) {
+    console.log("✅ Seed de produção concluído (tenant, admin e permissões).");
+    process.exit(0);
   }
 
   // 4. Seed Mockup Products (from reference RF-01 screen)
