@@ -1,5 +1,4 @@
-import * as React from "react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { ShieldX } from "lucide-react";
 
 export function Forbidden({ module }: { module?: string }) {
@@ -17,14 +16,12 @@ export function Forbidden({ module }: { module?: string }) {
           : "Seu papel não possui permissão para acessar esta área."}{" "}
         Solicite acesso ao administrador do sistema.
       </p>
-      <Button
-        variant="secondary"
-        size="md"
-        className="mt-6"
-        onClick={() => (window.location.href = "/produtos")}
+      <Link
+        href="/produtos"
+        className="mt-6 inline-flex items-center justify-center h-9 px-3.5 rounded text-body-md font-medium bg-carbon-800 hover:bg-carbon-700 active:bg-carbon-900 text-titanium-light hover:text-ice-white border border-titanium-steel/30 hover:border-titanium-steel/60 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core"
       >
         Voltar para a Operação
-      </Button>
+      </Link>
     </div>
   );
 }

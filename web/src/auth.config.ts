@@ -29,6 +29,7 @@ export const authConfig: NextAuthConfig = {
         token.id = user.id;
         token.role = (user as unknown as { role: string }).role;
         token.tenantId = (user as unknown as { tenantId: string }).tenantId;
+        token.rememberMe = (user as unknown as { rememberMe?: boolean }).rememberMe === true;
       }
       return token;
     },

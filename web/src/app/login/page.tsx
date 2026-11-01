@@ -29,6 +29,12 @@ function LoginForm() {
         redirect: false,
       });
 
+      if (res?.code === "rate_limited") {
+        toast.error("Muitas tentativas de acesso. Aguarde 15 minutos e tente novamente.");
+        setLoading(false);
+        return;
+      }
+
       if (res?.error) {
         toast.error("Credenciais inválidas. Verifique seu e-mail e senha corporativa.");
         setLoading(false);
