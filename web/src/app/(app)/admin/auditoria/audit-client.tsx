@@ -6,14 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatNumberBR } from "@/lib/utils";
-import {
-  FileText,
-  ChevronDown,
-  ChevronRight,
-  PlusCircle,
-  Pencil,
-  Search,
-} from "lucide-react";
+import { FileText, ChevronDown, ChevronRight, PlusCircle, Pencil, Search } from "lucide-react";
 
 const ENTITY_LABELS: Record<string, string> = {
   products: "Produtos",
@@ -67,8 +60,7 @@ export function AuditClient({ initialEntries }: { initialEntries: any[] }) {
   function summarize(record: any): string {
     if (!record) return "—";
     if (record.sku) return String(record.sku);
-    if (record.commercialDescription)
-      return String(record.commercialDescription).slice(0, 60);
+    if (record.commercialDescription) return String(record.commercialDescription).slice(0, 60);
     if (record.legalName) return String(record.legalName);
     if (record.name) return String(record.name);
     if (record.email) return String(record.email);
@@ -177,8 +169,8 @@ export function AuditClient({ initialEntries }: { initialEntries: any[] }) {
                           isOpen
                             ? "bg-carbon-800/70"
                             : idx % 2 === 0
-                            ? "bg-carbon-900/50 hover:bg-carbon-800/40"
-                            : "bg-carbon-950/40 hover:bg-carbon-800/40"
+                              ? "bg-carbon-900/50 hover:bg-carbon-800/40"
+                              : "bg-carbon-950/40 hover:bg-carbon-800/40"
                         }`}
                       >
                         <td className="py-2 px-2 align-top text-titanium-muted">
@@ -211,8 +203,8 @@ export function AuditClient({ initialEntries }: { initialEntries: any[] }) {
                           {e.action === "insert"
                             ? summarize(e.after)
                             : e.action === "delete"
-                            ? summarize(e.before)
-                            : `${summarize(e.before)} → ${summarize(e.after)}`}
+                              ? summarize(e.before)
+                              : `${summarize(e.before)} → ${summarize(e.after)}`}
                         </td>
                         <td className="py-2.5 px-3 align-top font-mono text-label-code text-titanium-dark">
                           {String(e.entityId).slice(0, 8)}…
@@ -227,7 +219,9 @@ export function AuditClient({ initialEntries }: { initialEntries: any[] }) {
                                   Estado Anterior (before)
                                 </span>
                                 <pre className="bg-carbon-900 border border-carbon-800 rounded p-3 font-mono text-label-code text-titanium-muted overflow-x-auto max-h-48">
-{e.before ? JSON.stringify(e.before, null, 2) : "null (registro criado)"}
+                                  {e.before
+                                    ? JSON.stringify(e.before, null, 2)
+                                    : "null (registro criado)"}
                                 </pre>
                               </div>
                               <div>
@@ -235,7 +229,9 @@ export function AuditClient({ initialEntries }: { initialEntries: any[] }) {
                                   Estado Resultante (after)
                                 </span>
                                 <pre className="bg-carbon-900 border border-carbon-800 rounded p-3 font-mono text-label-code text-ice-white overflow-x-auto max-h-48">
-{e.after ? JSON.stringify(e.after, null, 2) : "null (registro removido)"}
+                                  {e.after
+                                    ? JSON.stringify(e.after, null, 2)
+                                    : "null (registro removido)"}
                                 </pre>
                               </div>
                             </div>

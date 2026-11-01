@@ -57,13 +57,9 @@ export function FormDrawer({
         {/* Header */}
         <div className="p-4 border-b border-carbon-800 flex items-center justify-between bg-carbon-950/60">
           <div>
-            <h2 className="text-headline-sm font-headline-sm text-ice-white">
-              {title}
-            </h2>
+            <h2 className="text-headline-sm font-headline-sm text-ice-white">{title}</h2>
             {subtitle && (
-              <p className="text-body-sm font-body-sm text-titanium-muted">
-                {subtitle}
-              </p>
+              <p className="text-body-sm font-body-sm text-titanium-muted">{subtitle}</p>
             )}
           </div>
           <button

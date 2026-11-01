@@ -36,11 +36,7 @@ export async function saveCustomer(input: CustomerInput) {
   };
 
   if (input.id) {
-    const [existing] = await db
-      .select()
-      .from(customers)
-      .where(eq(customers.id, input.id))
-      .limit(1);
+    const [existing] = await db.select().from(customers).where(eq(customers.id, input.id)).limit(1);
 
     if (!existing) throw new Error("Cliente não encontrado.");
 
@@ -123,11 +119,7 @@ export async function toggleCustomerStatus(customerId: string, currentStatus: bo
   const user = await getCurrentUser();
   await requirePermission("cadastros_clientes", "write");
 
-  const [existing] = await db
-    .select()
-    .from(customers)
-    .where(eq(customers.id, customerId))
-    .limit(1);
+  const [existing] = await db.select().from(customers).where(eq(customers.id, customerId)).limit(1);
 
   if (!existing) throw new Error("Cliente não encontrado.");
 

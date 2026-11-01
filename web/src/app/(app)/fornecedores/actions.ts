@@ -37,11 +37,7 @@ export async function saveSupplier(input: SupplierInput) {
   };
 
   if (input.id) {
-    const [existing] = await db
-      .select()
-      .from(suppliers)
-      .where(eq(suppliers.id, input.id))
-      .limit(1);
+    const [existing] = await db.select().from(suppliers).where(eq(suppliers.id, input.id)).limit(1);
 
     if (!existing) throw new Error("Fornecedor não encontrado.");
 
@@ -79,11 +75,7 @@ export async function saveSupplier(input: SupplierInput) {
     return { success: true, supplier: updated };
   } else {
     // Check CNPJ duplication
-    const [dup] = await db
-      .select()
-      .from(suppliers)
-      .where(eq(suppliers.cnpj, input.cnpj))
-      .limit(1);
+    const [dup] = await db.select().from(suppliers).where(eq(suppliers.cnpj, input.cnpj)).limit(1);
 
     if (dup) throw new Error("Já existe um fornecedor cadastrado com este CNPJ.");
 
@@ -126,11 +118,7 @@ export async function toggleSupplierStatus(supplierId: string, currentStatus: bo
   const user = await getCurrentUser();
   await requirePermission("cadastros_fornecedores", "write");
 
-  const [existing] = await db
-    .select()
-    .from(suppliers)
-    .where(eq(suppliers.id, supplierId))
-    .limit(1);
+  const [existing] = await db.select().from(suppliers).where(eq(suppliers.id, supplierId)).limit(1);
 
   if (!existing) throw new Error("Fornecedor não encontrado.");
 

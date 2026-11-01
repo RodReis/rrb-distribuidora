@@ -31,32 +31,21 @@ export async function getCurrentUser(): Promise<CurrentUserSession> {
   };
 }
 
-export async function checkPermission(
-  module: Module,
-  action: "read" | "write"
-): Promise<boolean> {
+export async function checkPermission(module: Module, action: "read" | "write"): Promise<boolean> {
   const user = await getCurrentUser();
   if (user.role === "admin") return true;
 
   const [perm] = await db
     .select()
     .from(rolePermissions)
-    .where(
-      and(
-        eq(rolePermissions.role, user.role),
-        eq(rolePermissions.module, module)
-      )
-    )
+    .where(and(eq(rolePermissions.role, user.role), eq(rolePermissions.module, module)))
     .limit(1);
 
   if (!perm) return false;
   return action === "read" ? perm.canRead : perm.canWrite;
 }
 
-export async function requirePermission(
-  module: Module,
-  action: "read" | "write" = "read"
-) {
+export async function requirePermission(module: Module, action: "read" | "write" = "read") {
   const hasPerm = await checkPermission(module, action);
   if (!hasPerm) {
     throw new Error("FORBIDDEN: Sem permissão para esta operação.");

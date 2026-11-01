@@ -86,8 +86,7 @@ export function MaquinasClient({ initialMachines }: { initialMachines: any[] }) 
               setDrawerOpen(true);
             }}
           >
-            <Plus className="w-3.5 h-3.5 mr-1 text-white" />
-            + Nova Máquina
+            <Plus className="w-3.5 h-3.5 mr-1 text-white" />+ Nova Máquina
           </Button>
         }
       />
@@ -105,9 +104,7 @@ export function MaquinasClient({ initialMachines }: { initialMachines: any[] }) 
                 </span>
                 <StatusBadge status={m.active ? "ativo" : "inativo"} />
               </div>
-              <h3 className="text-body-md font-semibold text-ice-white mt-2">
-                {m.name}
-              </h3>
+              <h3 className="text-body-md font-semibold text-ice-white mt-2">{m.name}</h3>
               <div className="mt-3 pt-2 border-t border-carbon-800/80 space-y-1 font-mono text-label-code text-titanium-muted">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">

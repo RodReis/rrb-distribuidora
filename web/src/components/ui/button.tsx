@@ -1,8 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "ghost" | "terminal";
   size?: "sm" | "md" | "lg" | "icon";
 }
@@ -17,10 +16,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         "bg-carmine-core hover:bg-carmine-signal active:bg-carmine-deep text-ice-white shadow-md border-t border-white/10",
       secondary:
         "bg-carbon-800 hover:bg-carbon-700 active:bg-carbon-900 text-titanium-light hover:text-ice-white border border-titanium-steel/30 hover:border-titanium-steel/60",
-      danger:
-        "bg-red-950/60 hover:bg-red-900/80 text-signal-risk border border-signal-risk/40",
-      ghost:
-        "bg-transparent hover:bg-carbon-800 text-titanium-muted hover:text-ice-white",
+      danger: "bg-red-950/60 hover:bg-red-900/80 text-signal-risk border border-signal-risk/40",
+      ghost: "bg-transparent hover:bg-carbon-800 text-titanium-muted hover:text-ice-white",
       terminal:
         "bg-carbon-900 hover:bg-carbon-800 text-ice-white border border-carbon-700 font-mono",
     };
@@ -33,11 +30,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
-        ref={ref}
-        className={cn(base, variants[variant], sizes[size], className)}
-        {...props}
-      >
+      <button ref={ref} className={cn(base, variants[variant], sizes[size], className)} {...props}>
         {children}
       </button>
     );

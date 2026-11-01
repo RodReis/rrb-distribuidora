@@ -110,7 +110,11 @@ export function SupplierDrawer({ isOpen, onClose, supplier }: SupplierDrawerProp
     <FormDrawer
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? `Edição de Fornecedor — ${supplier.tradeName || supplier.legalName}` : "+ Cadastrar Novo Fornecedor / Usina"}
+      title={
+        isEditing
+          ? `Edição de Fornecedor — ${supplier.tradeName || supplier.legalName}`
+          : "+ Cadastrar Novo Fornecedor / Usina"
+      }
       subtitle="Parâmetros de homologação de usina, lead time de entrega e compras RF-02"
       footer={
         <>

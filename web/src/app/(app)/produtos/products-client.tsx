@@ -159,18 +159,10 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
               <FileSpreadsheet className="w-3.5 h-3.5 mr-1.5 text-titanium-muted" />
               Gerar Relatório Analítico
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => router.push("/importar")}
-            >
+            <Button variant="secondary" size="sm" onClick={() => router.push("/importar")}>
               Importar Catálogo (CSV)
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => router.push("/admin/auditoria")}
-            >
+            <Button variant="secondary" size="sm" onClick={() => router.push("/admin/auditoria")}>
               <History className="w-3.5 h-3.5 mr-1.5 text-titanium-muted" />
               Logs de Auditoria
             </Button>
@@ -196,12 +188,12 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
             <span className="font-mono text-metric-display font-semibold text-ice-white">
               {totalCount}
             </span>
-            <span className="font-mono text-label-code text-signal-buy">
-              +14 novos este mês
-            </span>
+            <span className="font-mono text-label-code text-signal-buy">+14 novos este mês</span>
           </div>
           <div className="mt-2 font-mono text-label-code text-titanium-muted">
-            {activeCount} Ativos ({totalCount > 0 ? ((activeCount / totalCount) * 100).toFixed(1) : 0}%) • {inactiveCount} Inativos
+            {activeCount} Ativos (
+            {totalCount > 0 ? ((activeCount / totalCount) * 100).toFixed(1) : 0}%) • {inactiveCount}{" "}
+            Inativos
           </div>
         </div>
 
@@ -214,12 +206,8 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
             <SlidersHorizontal className="w-4 h-4 text-titanium-dark" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-mono text-metric-display font-semibold text-ice-white">
-              5
-            </span>
-            <span className="text-headline-sm font-semibold text-ice-white">
-              Famílias
-            </span>
+            <span className="font-mono text-metric-display font-semibold text-ice-white">5</span>
+            <span className="text-headline-sm font-semibold text-ice-white">Famílias</span>
           </div>
           <div className="mt-2 font-mono text-label-code text-titanium-muted">
             Chapas: 42% • Bobinas: 28% • Tubos/Outros: 30%
@@ -386,8 +374,7 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
                   <input
                     type="checkbox"
                     checked={
-                      filteredProducts.length > 0 &&
-                      selectedIds.length === filteredProducts.length
+                      filteredProducts.length > 0 && selectedIds.length === filteredProducts.length
                     }
                     onChange={handleSelectAll}
                     className="accent-carmine-core rounded bg-carbon-950 border-carbon-700 cursor-pointer"
@@ -427,8 +414,8 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
                         isSelected
                           ? "bg-carbon-800/70"
                           : idx % 2 === 0
-                          ? "bg-carbon-900/50 hover:bg-carbon-800/40"
-                          : "bg-carbon-950/40 hover:bg-carbon-800/40"
+                            ? "bg-carbon-900/50 hover:bg-carbon-800/40"
+                            : "bg-carbon-950/40 hover:bg-carbon-800/40"
                       }`}
                     >
                       {/* Checkbox */}

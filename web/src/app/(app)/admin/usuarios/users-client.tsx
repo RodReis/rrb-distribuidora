@@ -185,8 +185,7 @@ export function UsersClient({
         }
         actions={
           <Button variant="primary" size="sm" onClick={openNew}>
-            <UserPlus className="w-3.5 h-3.5 mr-1 text-white" />
-            + Convidar Usuário
+            <UserPlus className="w-3.5 h-3.5 mr-1 text-white" />+ Convidar Usuário
           </Button>
         }
       />
@@ -204,9 +203,7 @@ export function UsersClient({
             <span className="font-mono text-metric-display font-semibold text-ice-white">
               {users.length}
             </span>
-            <span className="font-mono text-label-code text-signal-buy">
-              {activeCount} ativos
-            </span>
+            <span className="font-mono text-label-code text-signal-buy">{activeCount} ativos</span>
           </div>
         </div>
         <div className="bg-carbon-900 border border-carbon-800 p-3.5 rounded">
@@ -328,8 +325,8 @@ export function UsersClient({
                           u.id === currentUserId
                             ? "Não é possível desativar o próprio acesso"
                             : u.active
-                            ? "Desativar usuário"
-                            : "Reativar usuário"
+                              ? "Desativar usuário"
+                              : "Reativar usuário"
                         }
                         className="p-1 rounded hover:bg-carbon-700 text-titanium-muted hover:text-signal-risk transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                       >
@@ -352,11 +349,7 @@ export function UsersClient({
       <FormDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title={
-          editing
-            ? `Edição de Usuário — ${editing.name}`
-            : "+ Convidar Novo Usuário"
-        }
+        title={editing ? `Edição de Usuário — ${editing.name}` : "+ Convidar Novo Usuário"}
         subtitle={
           editing
             ? "Alteração de nome e papel de acesso (RBAC)"
@@ -476,9 +469,7 @@ export function UsersClient({
         description={`Tem certeza que deseja ${
           toggleTarget?.active ? "desativar" : "reativar"
         } o acesso de ${toggleTarget?.name}? ${
-          toggleTarget?.active
-            ? "As sessões ativas deixam de autenticar novas operações."
-            : ""
+          toggleTarget?.active ? "As sessões ativas deixam de autenticar novas operações." : ""
         }`}
         confirmLabel={toggleTarget?.active ? "Desativar" : "Reativar"}
         cancelLabel="Cancelar"

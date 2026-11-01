@@ -5,6 +5,8 @@ export default defineConfig({
   out: "./src/lib/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL || "postgresql://metalagents:metalagents_secret@localhost:5432/metalagents",
+    url:
+      process.env.DATABASE_URL ||
+      "postgresql://metalagents:metalagents_secret@localhost:5432/metalagents",
   },
 });

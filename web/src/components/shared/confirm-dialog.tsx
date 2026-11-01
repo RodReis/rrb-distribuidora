@@ -41,22 +41,13 @@ export function ConfirmDialog({
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div className="flex-1">
-            <h3 className="text-headline-sm font-headline-sm text-ice-white">
-              {title}
-            </h3>
-            <p className="mt-1.5 text-body-md font-body-md text-titanium-muted">
-              {description}
-            </p>
+            <h3 className="text-headline-sm font-headline-sm text-ice-white">{title}</h3>
+            <p className="mt-1.5 text-body-md font-body-md text-titanium-muted">{description}</p>
           </div>
         </div>
 
         <div className="mt-6 flex items-center justify-end gap-2.5">
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={onCancel}
-            disabled={loading}
-          >
+          <Button variant="secondary" size="md" onClick={onCancel} disabled={loading}>
             {cancelLabel}
           </Button>
           <Button

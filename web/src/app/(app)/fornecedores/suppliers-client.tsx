@@ -11,16 +11,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { SupplierDrawer } from "./supplier-drawer";
 import { toggleSupplierStatus } from "./actions";
 import { toast } from "sonner";
-import {
-  Plus,
-  Search,
-  Truck,
-  Edit2,
-  Trash2,
-  Clock,
-  MapPin,
-  CheckCircle2,
-} from "lucide-react";
+import { Plus, Search, Truck, Edit2, Trash2, Clock, MapPin, CheckCircle2 } from "lucide-react";
 
 export interface SuppliersClientProps {
   initialSuppliers: any[];
@@ -113,8 +104,7 @@ export function SuppliersClient({ initialSuppliers }: SuppliersClientProps) {
         }
         actions={
           <Button variant="primary" size="sm" onClick={handleNew}>
-            <Plus className="w-3.5 h-3.5 mr-1 text-white" />
-            + Novo Fornecedor
+            <Plus className="w-3.5 h-3.5 mr-1 text-white" />+ Novo Fornecedor
           </Button>
         }
       />
@@ -132,9 +122,7 @@ export function SuppliersClient({ initialSuppliers }: SuppliersClientProps) {
             <span className="font-mono text-metric-display font-semibold text-ice-white">
               {totalCount}
             </span>
-            <span className="font-mono text-label-code text-signal-buy">
-              Homologados
-            </span>
+            <span className="font-mono text-label-code text-signal-buy">Homologados</span>
           </div>
         </div>
 
@@ -149,9 +137,7 @@ export function SuppliersClient({ initialSuppliers }: SuppliersClientProps) {
             <span className="font-mono text-metric-display font-semibold text-ice-white">
               {usinasCount}
             </span>
-            <span className="text-headline-sm font-semibold text-titanium-muted">
-              Usinas
-            </span>
+            <span className="text-headline-sm font-semibold text-titanium-muted">Usinas</span>
           </div>
         </div>
 
@@ -163,9 +149,7 @@ export function SuppliersClient({ initialSuppliers }: SuppliersClientProps) {
             <Clock className="w-4 h-4 text-signal-hold" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-mono text-metric-display font-semibold text-signal-hold">
-              21
-            </span>
+            <span className="font-mono text-metric-display font-semibold text-signal-hold">21</span>
             <span className="text-headline-sm font-semibold text-titanium-muted">
               dias corridos
             </span>
@@ -243,12 +227,11 @@ export function SuppliersClient({ initialSuppliers }: SuppliersClientProps) {
                         <span className="text-body-sm font-semibold text-ice-white">
                           {s.tradeName || s.legalName}
                         </span>
-                        <span className="text-body-sm text-titanium-muted">
-                          {s.legalName}
-                        </span>
+                        <span className="text-body-sm text-titanium-muted">{s.legalName}</span>
                         {s.contacts?.contactName && (
                           <span className="font-mono text-label-code text-titanium-dark mt-0.5">
-                            Contato: {s.contacts.contactName} ({s.contacts.email || s.contacts.phone || "s/ tel"})
+                            Contato: {s.contacts.contactName} (
+                            {s.contacts.email || s.contacts.phone || "s/ tel"})
                           </span>
                         )}
                       </div>

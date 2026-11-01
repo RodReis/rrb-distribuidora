@@ -147,7 +147,9 @@ export function ProductDrawer({ isOpen, onClose, product }: ProductDrawerProps) 
     <FormDrawer
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? `Edição de Produto — ${product?.sku}` : "+ Cadastrar Novo Produto Metálico"}
+      title={
+        isEditing ? `Edição de Produto — ${product?.sku}` : "+ Cadastrar Novo Produto Metálico"
+      }
       subtitle="Parâmetros técnicos, tolerâncias e cálculo automático de massa teórica"
       footer={
         <>
@@ -273,7 +275,9 @@ export function ProductDrawer({ isOpen, onClose, product }: ProductDrawerProps) 
                     type="number"
                     step="0.01"
                     value={thicknessMm}
-                    onChange={(e) => setThicknessMm(e.target.value ? parseFloat(e.target.value) : "")}
+                    onChange={(e) =>
+                      setThicknessMm(e.target.value ? parseFloat(e.target.value) : "")
+                    }
                     placeholder="12.7"
                     className="font-mono"
                   />
@@ -317,7 +321,9 @@ export function ProductDrawer({ isOpen, onClose, product }: ProductDrawerProps) 
                     type="number"
                     step="0.1"
                     value={diameterMm}
-                    onChange={(e) => setDiameterMm(e.target.value ? parseFloat(e.target.value) : "")}
+                    onChange={(e) =>
+                      setDiameterMm(e.target.value ? parseFloat(e.target.value) : "")
+                    }
                     placeholder="50.8"
                     className="font-mono"
                   />
@@ -409,8 +415,8 @@ export function ProductDrawer({ isOpen, onClose, product }: ProductDrawerProps) 
                 {calculated.weightPerSquareMeter
                   ? `${calculated.weightPerSquareMeter} kg/m² • `
                   : calculated.weightPerMeter
-                  ? `${calculated.weightPerMeter} kg/m • `
-                  : ""}
+                    ? `${calculated.weightPerMeter} kg/m • `
+                    : ""}
                 Total: {calculated.weightPerUnit} kg / unidade
               </span>
             </div>

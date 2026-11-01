@@ -102,8 +102,7 @@ export function CustomersClient({ initialCustomers }: CustomersClientProps) {
         }
         actions={
           <Button variant="primary" size="sm" onClick={handleNew}>
-            <Plus className="w-3.5 h-3.5 mr-1 text-white" />
-            + Novo Cliente
+            <Plus className="w-3.5 h-3.5 mr-1 text-white" />+ Novo Cliente
           </Button>
         }
       />
@@ -121,9 +120,7 @@ export function CustomersClient({ initialCustomers }: CustomersClientProps) {
             <span className="font-mono text-metric-display font-semibold text-ice-white">
               {totalCount}
             </span>
-            <span className="font-mono text-label-code text-signal-buy">
-              {activeCount} Ativos
-            </span>
+            <span className="font-mono text-label-code text-signal-buy">{activeCount} Ativos</span>
           </div>
         </div>
 
@@ -135,12 +132,8 @@ export function CustomersClient({ initialCustomers }: CustomersClientProps) {
             <Building className="w-4 h-4 text-titanium-dark" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-mono text-metric-display font-semibold text-ice-white">
-              3
-            </span>
-            <span className="text-headline-sm font-semibold text-titanium-muted">
-              Segmentos
-            </span>
+            <span className="font-mono text-metric-display font-semibold text-ice-white">3</span>
+            <span className="text-headline-sm font-semibold text-titanium-muted">Segmentos</span>
           </div>
         </div>
 
@@ -155,9 +148,7 @@ export function CustomersClient({ initialCustomers }: CustomersClientProps) {
             <span className="font-mono text-metric-display font-semibold text-signal-buy">
               100%
             </span>
-            <span className="font-mono text-label-code text-titanium-muted">
-              Sintegra / CCC
-            </span>
+            <span className="font-mono text-label-code text-titanium-muted">Sintegra / CCC</span>
           </div>
         </div>
       </div>
@@ -218,12 +209,11 @@ export function CustomersClient({ initialCustomers }: CustomersClientProps) {
                         <span className="text-body-sm font-semibold text-ice-white">
                           {c.tradeName || c.legalName}
                         </span>
-                        <span className="text-body-sm text-titanium-muted">
-                          {c.legalName}
-                        </span>
+                        <span className="text-body-sm text-titanium-muted">{c.legalName}</span>
                         {c.contacts?.contactName && (
                           <span className="font-mono text-label-code text-titanium-dark mt-0.5">
-                            Contato: {c.contacts.contactName} ({c.contacts.phone || c.contacts.email || "s/ tel"})
+                            Contato: {c.contacts.contactName} (
+                            {c.contacts.phone || c.contacts.email || "s/ tel"})
                           </span>
                         )}
                       </div>

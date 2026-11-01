@@ -107,12 +107,21 @@ function deaccent(s: string): string {
 }
 
 function autoGuess(header: string, fieldKey: string): boolean {
-  const h = deaccent(header).replace(/[\s\-\.]+/g, "_").replace(/[^a-z0-9_]/g, "");
+  const h = deaccent(header)
+    .replace(/[\s\-\.]+/g, "_")
+    .replace(/[^a-z0-9_]/g, "");
   const aliases: Record<string, string[]> = {
     sku: ["sku", "codigo_sku", "cod_sku"],
     erp_code: ["erp_code", "codigo_erp", "cod_erp", "erp"],
     family: ["family", "familia", "família", "grupo", "tipo_produto"],
-    commercial_description: ["commercial_description", "descricao", "descricao_comercial", "desc_comercial", "produto", "descricao_produto"],
+    commercial_description: [
+      "commercial_description",
+      "descricao",
+      "descricao_comercial",
+      "desc_comercial",
+      "produto",
+      "descricao_produto",
+    ],
     fiscal_description: ["fiscal_description", "descricao_fiscal", "desc_fiscal"],
     norm: ["norm", "norma", "norma_tecnica", "especificacao"],
     ncm: ["ncm", "codigo_ncm"],
@@ -123,7 +132,15 @@ function autoGuess(header: string, fieldKey: string): boolean {
     wall_mm: ["wall_mm", "parede", "parede_mm"],
     density_g_cm3: ["density_g_cm3", "densidade", "densidade_gcm3"],
     unit: ["unit", "unidade", "und", "um"],
-    replacement_cost_base: ["replacement_cost_base", "custo", "preco", "preco_base", "custo_reposicao", "custo_base", "preco_kg"],
+    replacement_cost_base: [
+      "replacement_cost_base",
+      "custo",
+      "preco",
+      "preco_base",
+      "custo_reposicao",
+      "custo_base",
+      "preco_kg",
+    ],
     status: ["status", "situacao"],
     legal_name: ["legal_name", "razao_social", "razao", "nome"],
     trade_name: ["trade_name", "nome_fantasia", "fantasia"],
@@ -189,7 +206,9 @@ export function ImportClient() {
       delimiter: "",
       transformHeader: (h) => h.trim(),
       complete: (results) => {
-        const data = results.data.filter((r) => Object.values(r).some((v) => (v || "").trim() !== ""));
+        const data = results.data.filter((r) =>
+          Object.values(r).some((v) => (v || "").trim() !== "")
+        );
         if (data.length === 0) {
           toast.error("O arquivo não contém linhas de dados válidas.");
           return;
@@ -399,14 +418,8 @@ export function ImportClient() {
                 </label>
                 <Select
                   value={mapping[field.key] || ""}
-                  onChange={(e) =>
-                    setMapping((m) => ({ ...m, [field.key]: e.target.value }))
-                  }
-                  className={
-                    field.required && !mapping[field.key]
-                      ? "border-signal-hold/60"
-                      : ""
-                  }
+                  onChange={(e) => setMapping((m) => ({ ...m, [field.key]: e.target.value }))}
+                  className={field.required && !mapping[field.key] ? "border-signal-hold/60" : ""}
                 >
                   <option value="">— não mapeado —</option>
                   {headers.map((h) => (
@@ -474,22 +487,12 @@ export function ImportClient() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleDryRun}
-              disabled={busy}
-            >
+            <Button variant="primary" size="md" onClick={handleDryRun} disabled={busy}>
               <ScanSearch className="w-4 h-4 mr-2" />
               {busy ? "Validando..." : "Executar Dry-Run"}
             </Button>
             {errors && errors.length === 0 && (
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleCommit}
-                disabled={busy}
-              >
+              <Button variant="primary" size="md" onClick={handleCommit} disabled={busy}>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
                 Confirmar Importação ({validCount} linhas)
               </Button>
@@ -506,7 +509,8 @@ export function ImportClient() {
             <div className="flex items-center gap-2 bg-signal-buy/10 border border-signal-buy/30 rounded p-3">
               <CheckCircle2 className="w-5 h-5 text-signal-buy" />
               <span className="text-body-sm text-signal-buy">
-                Todas as {validCount} linhas são válidas. A importação será transacional (rollback total se algo falhar).
+                Todas as {validCount} linhas são válidas. A importação será transacional (rollback
+                total se algo falhar).
               </span>
             </div>
           )}
@@ -564,8 +568,8 @@ export function ImportClient() {
             <span className="text-body-sm text-signal-buy">{commitResult}</span>
           </div>
           <p className="text-body-sm text-titanium-muted">
-            Os dados já estão disponíveis nos módulos correspondentes e cada operação foi
-            registrada na Trilha de Auditoria.
+            Os dados já estão disponíveis nos módulos correspondentes e cada operação foi registrada
+            na Trilha de Auditoria.
           </p>
         </div>
       )}

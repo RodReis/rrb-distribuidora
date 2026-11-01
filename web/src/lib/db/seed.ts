@@ -110,14 +110,7 @@ async function runSeed() {
     "auditoria",
   ] as const;
 
-  const roles = [
-    "admin",
-    "diretor",
-    "comprador",
-    "vendedor",
-    "estoque",
-    "financeiro",
-  ] as const;
+  const roles = ["admin", "diretor", "comprador", "vendedor", "estoque", "financeiro"] as const;
 
   console.log("Seeding role permissions matrix...");
   for (const r of roles) {

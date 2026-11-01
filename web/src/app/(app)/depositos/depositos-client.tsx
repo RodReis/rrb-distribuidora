@@ -82,8 +82,7 @@ export function DepositosClient({ initialWarehouses }: { initialWarehouses: any[
               setDrawerOpen(true);
             }}
           >
-            <Plus className="w-3.5 h-3.5 mr-1 text-white" />
-            + Novo Depósito
+            <Plus className="w-3.5 h-3.5 mr-1 text-white" />+ Novo Depósito
           </Button>
         }
       />
@@ -101,9 +100,7 @@ export function DepositosClient({ initialWarehouses }: { initialWarehouses: any[
                 </span>
                 <StatusBadge status={w.active ? "ativo" : "inativo"} />
               </div>
-              <h3 className="text-headline-sm font-semibold text-ice-white mt-2">
-                {w.name}
-              </h3>
+              <h3 className="text-headline-sm font-semibold text-ice-white mt-2">{w.name}</h3>
               <p className="text-body-sm text-titanium-muted mt-1 flex items-start gap-1.5">
                 <MapPin className="w-4 h-4 shrink-0 text-titanium-dark mt-0.5" />
                 <span>{w.address || "Endereço não informado"}</span>

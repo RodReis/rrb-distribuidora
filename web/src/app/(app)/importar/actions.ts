@@ -1,18 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import {
-  products,
-  suppliers,
-  customers,
-  importJobs,
-  auditLog,
-} from "@/lib/db/schema";
+import { products, suppliers, customers, importJobs, auditLog } from "@/lib/db/schema";
 import { getCurrentUser } from "@/lib/auth/rbac";
-import {
-  calculateTheoreticalWeight,
-  getDefaultDensity,
-} from "@/lib/metallurgy/weight";
+import { calculateTheoreticalWeight, getDefaultDensity } from "@/lib/metallurgy/weight";
 import { eq, and, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -98,11 +89,7 @@ async function requireAdminForImport() {
   return user;
 }
 
-async function generateNextSkuTx(
-  tx: any,
-  family: string,
-  tenantId: string
-): Promise<string> {
+async function generateNextSkuTx(tx: any, family: string, tenantId: string): Promise<string> {
   const prefixMap: Record<string, string> = {
     chapa_grossa: "CG",
     bobina: "BOB",
@@ -120,17 +107,32 @@ async function generateNextSkuTx(
 }
 
 // ---------- product validation ----------
-function validateProductRow(row: Row, rowIndex: number): {
+function validateProductRow(
+  row: Row,
+  rowIndex: number
+): {
   ok?: any;
   error?: ImportError;
 } {
   const family = normalizeFamily(row.family);
   if (!family)
-    return { error: { row: rowIndex, field: "family", message: "Família inválida (use: chapa grossa, bobina, tubo, perfil ou barra)" } };
+    return {
+      error: {
+        row: rowIndex,
+        field: "family",
+        message: "Família inválida (use: chapa grossa, bobina, tubo, perfil ou barra)",
+      },
+    };
 
   const commercialDescription = clean(row.commercial_description);
   if (commercialDescription.length < 3)
-    return { error: { row: rowIndex, field: "commercial_description", message: "Descrição comercial obrigatória" } };
+    return {
+      error: {
+        row: rowIndex,
+        field: "commercial_description",
+        message: "Descrição comercial obrigatória",
+      },
+    };
 
   const fiscalDescription = clean(row.fiscal_description) || commercialDescription;
 
@@ -140,15 +142,25 @@ function validateProductRow(row: Row, rowIndex: number): {
 
   const ncm = digits(row.ncm);
   if (ncm.length !== 8)
-    return { error: { row: rowIndex, field: "ncm", message: "NCM deve conter exatamente 8 dígitos" } };
+    return {
+      error: { row: rowIndex, field: "ncm", message: "NCM deve conter exatamente 8 dígitos" },
+    };
 
   const unit = normalizeUnit(row.unit);
   if (!unit)
-    return { error: { row: rowIndex, field: "unit", message: "Unidade inválida (use: kg, m, un ou t)" } };
+    return {
+      error: { row: rowIndex, field: "unit", message: "Unidade inválida (use: kg, m, un ou t)" },
+    };
 
   const replacementCostBase = parseNum(row.replacement_cost_base);
   if (replacementCostBase === null || replacementCostBase < 0)
-    return { error: { row: rowIndex, field: "replacement_cost_base", message: "Custo de reposição base inválido" } };
+    return {
+      error: {
+        row: rowIndex,
+        field: "replacement_cost_base",
+        message: "Custo de reposição base inválido",
+      },
+    };
 
   const densityInput = parseNum(row.density_g_cm3);
   const density = densityInput && densityInput > 0 ? densityInput : getDefaultDensity(family, norm);
@@ -171,7 +183,13 @@ function validateProductRow(row: Row, rowIndex: number): {
   });
 
   if (!weightPerUnit || weightPerUnit <= 0)
-    return { error: { row: rowIndex, field: "dimensions", message: "Dimensões insuficientes para calcular o peso teórico" } };
+    return {
+      error: {
+        row: rowIndex,
+        field: "dimensions",
+        message: "Dimensões insuficientes para calcular o peso teórico",
+      },
+    };
 
   return {
     ok: {
@@ -196,7 +214,10 @@ function validateProductRow(row: Row, rowIndex: number): {
   };
 }
 
-function validateSupplierRow(row: Row, rowIndex: number): {
+function validateSupplierRow(
+  row: Row,
+  rowIndex: number
+): {
   ok?: any;
   error?: ImportError;
 } {
@@ -230,7 +251,10 @@ function validateSupplierRow(row: Row, rowIndex: number): {
   };
 }
 
-function validateCustomerRow(row: Row, rowIndex: number): {
+function validateCustomerRow(
+  row: Row,
+  rowIndex: number
+): {
   ok?: any;
   error?: ImportError;
 } {
@@ -240,7 +264,13 @@ function validateCustomerRow(row: Row, rowIndex: number): {
 
   const document = digits(row.document);
   if (document.length !== 11 && document.length !== 14)
-    return { error: { row: rowIndex, field: "document", message: "CPF (11) ou CNPJ (14 dígitos) inválido" } };
+    return {
+      error: {
+        row: rowIndex,
+        field: "document",
+        message: "CPF (11) ou CNPJ (14 dígitos) inválido",
+      },
+    };
 
   return {
     ok: {
@@ -261,7 +291,10 @@ function validateCustomerRow(row: Row, rowIndex: number): {
   };
 }
 
-function validateRows(entity: string, rows: Row[]): {
+function validateRows(
+  entity: string,
+  rows: Row[]
+): {
   valid: any[];
   errors: ImportError[];
 } {
@@ -342,9 +375,7 @@ export async function commitImport(
           [existing] = await tx
             .select()
             .from(products)
-            .where(
-              and(eq(products.tenantId, user.tenantId), eq(products.erpCode, data.erpCode))
-            )
+            .where(and(eq(products.tenantId, user.tenantId), eq(products.erpCode, data.erpCode)))
             .limit(1);
         }
 

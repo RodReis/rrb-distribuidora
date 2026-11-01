@@ -59,9 +59,7 @@ function LoginForm() {
               GATEWAY // SECURE-NODE-04
             </span>
           </div>
-          <span className="font-mono text-label-code text-titanium-dark">
-            BUILD 2.8.4_PROD
-          </span>
+          <span className="font-mono text-label-code text-titanium-dark">BUILD 2.8.4_PROD</span>
         </div>
 
         {/* Main Card */}
@@ -144,11 +142,7 @@ function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-2.5 p-1 text-titanium-muted hover:text-ice-white transition-colors cursor-pointer"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -184,8 +178,7 @@ function LoginForm() {
         <div className="bg-carbon-900 border border-carbon-800 rounded-md p-3.5 shadow-md flex flex-col gap-2">
           <div className="flex items-center justify-between text-titanium-muted pb-1 border-b border-carbon-800/80">
             <span className="text-label-caps font-semibold uppercase tracking-wider flex items-center gap-1.5 text-titanium-light">
-              <span className="w-2 h-2 rounded-full bg-carmine-signal" /> Telemetria
-              de Conexão
+              <span className="w-2 h-2 rounded-full bg-carmine-signal" /> Telemetria de Conexão
             </span>
             <span className="font-mono text-label-code text-signal-buy flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-signal-buy" /> OPERACIONAL

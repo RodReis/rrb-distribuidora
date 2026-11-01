@@ -51,10 +51,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // Update last login
-        await db
-          .update(users)
-          .set({ lastLoginAt: new Date() })
-          .where(eq(users.id, user.id));
+        await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
 
         return {
           id: user.id,

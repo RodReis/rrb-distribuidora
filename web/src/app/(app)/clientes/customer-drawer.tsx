@@ -105,7 +105,11 @@ export function CustomerDrawer({ isOpen, onClose, customer }: CustomerDrawerProp
     <FormDrawer
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? `Edição de Cliente — ${customer.tradeName || customer.legalName}` : "+ Cadastrar Novo Cliente / Indústria"}
+      title={
+        isEditing
+          ? `Edição de Cliente — ${customer.tradeName || customer.legalName}`
+          : "+ Cadastrar Novo Cliente / Indústria"
+      }
       subtitle="Dados de faturamento, contato de suprimentos e orçamento RF-03"
       footer={
         <>

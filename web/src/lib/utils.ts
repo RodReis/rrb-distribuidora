@@ -17,10 +17,7 @@ export function formatCurrencyBRL(value: number | string | null | undefined): st
   });
 }
 
-export function formatNumberBR(
-  value: number | string | null | undefined,
-  decimals = 2
-): string {
+export function formatNumberBR(value: number | string | null | undefined, decimals = 2): string {
   if (value === null || value === undefined || value === "") return "0";
   const num = typeof value === "string" ? parseFloat(value) : value;
   if (isNaN(num)) return "0";

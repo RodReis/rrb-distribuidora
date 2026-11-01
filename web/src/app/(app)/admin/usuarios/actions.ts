@@ -137,10 +137,7 @@ export async function resetUserPassword(userId: string) {
   const tempPassword = generateTempPassword();
   const passwordHash = await argon2.hash(tempPassword, { type: argon2.argon2id });
 
-  await db
-    .update(users)
-    .set({ passwordHash, updatedAt: new Date() })
-    .where(eq(users.id, userId));
+  await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, userId));
 
   const emailSent = await sendInviteEmail(existing.email, existing.name, tempPassword);
 

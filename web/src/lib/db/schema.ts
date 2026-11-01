@@ -54,30 +54,13 @@ export const productFamilyEnum = pgEnum("product_family", [
   "barra",
 ]);
 
-export const productUnitEnum = pgEnum("product_unit", [
-  "kg",
-  "m",
-  "un",
-  "t",
-]);
+export const productUnitEnum = pgEnum("product_unit", ["kg", "m", "un", "t"]);
 
-export const productStatusEnum = pgEnum("product_status", [
-  "ativo",
-  "inativo",
-  "homologacao",
-]);
+export const productStatusEnum = pgEnum("product_status", ["ativo", "inativo", "homologacao"]);
 
-export const supplierTypeEnum = pgEnum("supplier_type", [
-  "usina",
-  "distribuidor",
-  "trader",
-]);
+export const supplierTypeEnum = pgEnum("supplier_type", ["usina", "distribuidor", "trader"]);
 
-export const warehouseTypeEnum = pgEnum("warehouse_type", [
-  "matriz",
-  "filial",
-  "patio",
-]);
+export const warehouseTypeEnum = pgEnum("warehouse_type", ["matriz", "filial", "patio"]);
 
 export const machineTypeEnum = pgEnum("machine_type", [
   "laser",
@@ -88,11 +71,7 @@ export const machineTypeEnum = pgEnum("machine_type", [
   "slitter",
 ]);
 
-export const auditActionEnum = pgEnum("audit_action", [
-  "insert",
-  "update",
-  "delete",
-]);
+export const auditActionEnum = pgEnum("audit_action", ["insert", "update", "delete"]);
 
 export const importJobStatusEnum = pgEnum("import_job_status", [
   "pending",
@@ -105,7 +84,9 @@ export const importJobStatusEnum = pgEnum("import_job_status", [
 // 1. TENANTS
 // ==========================================
 export const tenants = pgTable("tenants", {
-  id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+  id: uuid("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   active: boolean("active").default(true).notNull(),
@@ -118,7 +99,9 @@ export const tenants = pgTable("tenants", {
 export const users = pgTable(
   "users",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -140,7 +123,9 @@ export const users = pgTable(
 // 3. SESSIONS (Auth.js session support)
 // ==========================================
 export const sessions = pgTable("sessions", {
-  id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+  id: uuid("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -171,7 +156,9 @@ export const rolePermissions = pgTable(
 export const products = pgTable(
   "products",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -187,9 +174,7 @@ export const products = pgTable(
     lengthMm: numeric("length_mm", { precision: 12, scale: 4 }),
     diameterMm: numeric("diameter_mm", { precision: 12, scale: 4 }),
     wallMm: numeric("wall_mm", { precision: 12, scale: 4 }),
-    densityGCm3: numeric("density_g_cm3", { precision: 12, scale: 4 })
-      .default("7.85")
-      .notNull(),
+    densityGCm3: numeric("density_g_cm3", { precision: 12, scale: 4 }).default("7.85").notNull(),
     unit: productUnitEnum("unit").default("kg").notNull(),
     weightPerUnit: numeric("weight_per_unit", { precision: 12, scale: 4 }).notNull(),
     replacementCostBase: numeric("replacement_cost_base", {
@@ -215,7 +200,9 @@ export const products = pgTable(
 export const suppliers = pgTable(
   "suppliers",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -250,7 +237,9 @@ export const suppliers = pgTable(
 export const customers = pgTable(
   "customers",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -284,7 +273,9 @@ export const customers = pgTable(
 export const warehouses = pgTable(
   "warehouses",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -306,7 +297,9 @@ export const warehouses = pgTable(
 export const machines = pgTable(
   "machines",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -345,7 +338,9 @@ export const auditLog = pgTable(
 );
 
 export const importJobs = pgTable("import_jobs", {
-  id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+  id: uuid("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
   tenantId: uuid("tenant_id")
     .notNull()
     .references(() => tenants.id, { onDelete: "cascade" }),
