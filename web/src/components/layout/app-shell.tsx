@@ -23,6 +23,7 @@ import {
   FileText,
   LogOut,
   Search,
+  FileUp,
 } from "lucide-react";
 
 interface NavItem {
@@ -108,6 +109,7 @@ const NAVIGATION: NavGroup[] = [
       { label: "Clientes & Indústrias", href: "/clientes", icon: Users },
       { label: "Depósitos & Armazéns", href: "/depositos", icon: Warehouse },
       { label: "Máquinas de Corte", href: "/maquinas", icon: Cog },
+      { label: "Importador CSV (Catálogo)", href: "/importar", icon: FileUp },
     ],
   },
   {

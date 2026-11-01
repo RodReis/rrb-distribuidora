@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export interface ProductsClientProps {
 }
 
 export function ProductsClient({ initialProducts }: ProductsClientProps) {
+  const router = useRouter();
   const [products, setProducts] = React.useState(initialProducts);
   const [search, setSearch] = React.useState("");
   const [familyFilter, setFamilyFilter] = React.useState("todas");
@@ -160,14 +162,14 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => toast.info("Módulo de importação XML NF-e disponível em /importar.")}
+              onClick={() => router.push("/importar")}
             >
-              Importar XML / NF-e
+              Importar Catálogo (CSV)
             </Button>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => toast.info("Redirecionando para Trilha de Auditoria...")}
+              onClick={() => router.push("/admin/auditoria")}
             >
               <History className="w-3.5 h-3.5 mr-1.5 text-titanium-muted" />
               Logs de Auditoria
