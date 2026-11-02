@@ -35,7 +35,7 @@ async function closesFor(assetId: string, limit = 80): Promise<number[]> {
   return rows.reverse().map((r) => Number(r.close));
 }
 
-async function currentSpreadPct(tenantId: string): Promise<number | null> {
+export async function currentSpreadPct(tenantId: string): Promise<number | null> {
   const [fob, ptax] = await Promise.all([
     getLastClose(ASSET_SYMBOLS.HRC_CN),
     getLastClose(ASSET_SYMBOLS.PTAX),

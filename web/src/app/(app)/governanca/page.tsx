@@ -1,75 +1,74 @@
 import { getCurrentUser } from "@/lib/auth/rbac";
-import { db } from "@/lib/db";
-import { agentActions, users } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { Breadcrumbs } from "@/components/shared/breadcrumbs";
+import { PageHeader } from "@/components/shared/page-header";
+import { Tabs, type TabItem } from "@/components/ui/tabs";
+import { PoliciesTab } from "@/components/features/governance/policies-tab";
+import { AuditSummaryStrip, AuditTrail } from "@/components/features/governance/audit-trail";
+import { getAuditPage, getAuditSummary } from "@/lib/governance/audit-query";
+import { parseAuditFilters } from "@/lib/governance/filters";
 
 export const dynamic = "force-dynamic";
 
-export default async function GovernancaPage() {
+export default async function GovernancaPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getCurrentUser();
-  const rows = await db
-    .select({
-      id: agentActions.id,
-      agentName: agentActions.agentName,
-      userPrompt: agentActions.userPrompt,
-      agentResponse: agentActions.agentResponse,
-      toolsExecuted: agentActions.toolsExecuted,
-      promptTokens: agentActions.promptTokens,
-      completionTokens: agentActions.completionTokens,
-      latencyMs: agentActions.latencyMs,
-      feedbackScore: agentActions.feedbackScore,
-      createdAt: agentActions.createdAt,
-      userName: users.name,
-    })
-    .from(agentActions)
-    .leftJoin(users, eq(users.id, agentActions.userId))
-    .where(eq(agentActions.tenantId, user.tenantId))
-    .orderBy(desc(agentActions.createdAt))
-    .limit(100);
+  const params = (searchParams ? await searchParams : {}) ?? {};
+
+  // A trilha mostra a pergunta de todos os usuários: só admin e diretor (mesma regra de /admin/auditoria).
+  const canSeeTrail = user.role === "admin" || user.role === "diretor";
+  const requested = Array.isArray(params.tab) ? params.tab[0] : params.tab;
+  const active = canSeeTrail && requested === "auditoria" ? "auditoria" : "politicas";
+
+  const tabs: TabItem[] = [{ key: "politicas", label: "Políticas", href: "/governanca?tab=politicas" }];
+
+  let trail: React.ReactNode = null;
+  if (canSeeTrail) {
+    const summary = await getAuditSummary(user.tenantId);
+    tabs.push({
+      key: "auditoria",
+      label: "Trilha de Auditoria de IA",
+      href: "/governanca?tab=auditoria",
+      count: summary.total,
+    });
+
+    if (active === "auditoria") {
+      const filters = parseAuditFilters(params);
+      const page = await getAuditPage(user.tenantId, filters);
+      trail = (
+        <div className="space-y-3">
+          <AuditSummaryStrip summary={summary} />
+          <AuditTrail filters={filters} page={page} />
+        </div>
+      );
+    }
+  }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Governança de IA & Auditoria</h1>
-      <section className="rounded-lg border border-carbon-800 p-4 bg-carbon-900">
-        <h2 className="text-lg font-semibold mb-2 text-ice-white">Políticas Ativas</h2>
-        <ul className="list-disc pl-5 text-sm space-y-1">
-          <li>Human-in-the-loop: nenhuma ação autônoma de compra sem aprovação humana.</li>
-          <li>Somente-leitura: o Copiloto não altera dados.</li>
-          <li>LGPD: nenhum dado de cliente é utilizado para treinamento de modelos públicos.</li>
-          <li>Proibido Text-to-SQL livre; acesso apenas via ferramentas auditadas.</li>
-        </ul>
-      </section>
-      <section className="rounded-lg border border-carbon-800 p-4 bg-carbon-900">
-        <h2 className="text-lg font-semibold mb-2 text-ice-white">Trilha de Auditoria de IA</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="p-2">Data/Hora</th>
-                <th className="p-2">Usuário</th>
-                <th className="p-2">Agente</th>
-                <th className="p-2">Prompt</th>
-                <th className="p-2">Ferramentas</th>
-                <th className="p-2">Tokens</th>
-                <th className="p-2">Latência (ms)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} className="border-b align-top">
-                  <td className="p-2 whitespace-nowrap">{r.createdAt.toISOString()}</td>
-                  <td className="p-2">{r.userName}</td>
-                  <td className="p-2">{r.agentName}</td>
-                  <td className="p-2 max-w-xs truncate">{r.userPrompt}</td>
-                  <td className="p-2">{(r.toolsExecuted as { toolName: string }[] | null)?.map((t) => t.toolName).join(", ")}</td>
-                  <td className="p-2">{(r.promptTokens ?? 0) + (r.completionTokens ?? 0)}</td>
-                  <td className="p-2">{r.latencyMs}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+    <div className="mx-auto max-w-7xl space-y-4">
+      <Breadcrumbs
+        items={[
+          { label: "Início", href: "/dashboard" },
+          { label: "Governança & Admin" },
+          { label: "Governança de IA" },
+        ]}
+      />
+
+      <PageHeader
+        title="Governança de IA & Auditoria"
+        description="Como o Copiloto e o briefing operam, o que eles podem consultar e o registro de cada interação."
+        badge={
+          <span className="rounded border border-carbon-700 bg-carbon-900 px-2 py-0.5 font-mono text-label-code uppercase text-signal-hold">
+            Human-in-the-loop
+          </span>
+        }
+      />
+
+      {tabs.length > 1 && <Tabs items={tabs} active={active} />}
+
+      {active === "auditoria" ? trail : <PoliciesTab />}
     </div>
   );
 }

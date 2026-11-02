@@ -1,8 +1,9 @@
-import { streamText, convertToModelMessages } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { streamText, convertToModelMessages, isStepCount } from "ai";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/rbac";
 import { createCopilotTools } from "@/lib/ai/tools";
+import { extractPromptText } from "@/lib/ai/prompt-text";
+import { COPILOT_MAX_STEPS, COPILOT_SYSTEM_PROMPT, copilotModel } from "@/lib/ai/copilot-config";
 import { db } from "@/lib/db";
 import { agentActions } from "@/lib/db/schema";
 
@@ -20,20 +21,19 @@ export async function POST(req: Request) {
   const uiMessages = body.messages ?? [];
   const messages = await convertToModelMessages(uiMessages);
   const startedAt = Date.now();
+  const actionId = crypto.randomUUID();
 
   const tools = createCopilotTools(user.tenantId);
 
   const toolsExecuted: { toolName: string; params: Record<string, unknown>; resultSummary: string }[] = [];
 
   const result = streamText({
-    model: openai(process.env.OPENAI_MODEL || "gpt-4o-mini"),
-    system: `Você é o Copiloto Executivo do MetalAgents, assistente de inteligência industrial para distribuidora de metal.
-Responda sempre em PT-BR, de forma objetiva e embasada em dados reais obtidos via ferramentas.
-NUNCA invente números, SKUs ou preços. Use as ferramentas disponíveis para consultar dados.
-NUNCA gere SQL ou acesse dados fora das ferramentas. Se não houver ferramenta adequada, informe que não pode responder.
-Quando usar uma ferramenta, explique brevemente quais filtros foram aplicados.`,
+    model: copilotModel(),
+    system: COPILOT_SYSTEM_PROMPT,
     messages,
     tools,
+    // Sem isso o laço para após a 1ª ferramenta e a resposta final nunca é escrita.
+    stopWhen: isStepCount(COPILOT_MAX_STEPS),
     onStepFinish: ({ toolCalls, toolResults }) => {
       if (toolCalls) {
         for (const tc of toolCalls) {
@@ -46,19 +46,20 @@ Quando usar uma ferramenta, explique brevemente quais filtros foram aplicados.`,
         }
       }
     },
-    onFinish: async ({ text, usage }) => {
+    onFinish: async ({ text, totalUsage }) => {
       try {
         const lastUserMsg = [...messages].reverse().find((m: { role: string }) => m.role === "user");
-        const prompt = typeof lastUserMsg?.content === "string" ? lastUserMsg.content : JSON.stringify(lastUserMsg?.content);
+        const prompt = extractPromptText(lastUserMsg?.content);
         await db.insert(agentActions).values({
+          id: actionId,
           tenantId: user.tenantId,
           userId: user.id,
           agentName: "copilot_chat",
           userPrompt: prompt,
           toolsExecuted: toolsExecuted.length ? toolsExecuted : null,
           agentResponse: text,
-          promptTokens: usage?.inputTokens ?? null,
-          completionTokens: usage?.outputTokens ?? null,
+          promptTokens: totalUsage?.inputTokens ?? null,
+          completionTokens: totalUsage?.outputTokens ?? null,
           latencyMs: Date.now() - startedAt,
         });
       } catch (e) {
@@ -67,5 +68,7 @@ Quando usar uma ferramenta, explique brevemente quais filtros foram aplicados.`,
     },
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    messageMetadata: ({ part }) => (part.type === "start" ? { actionId } : undefined),
+  });
 }
