@@ -68,7 +68,7 @@ Depois rode o recálculo (`POST /api/internal/jobs/calculate-predictive-stock`).
 - ⬜ Tabela de peso de usina com 10–20 SKUs reais (OR6).
 
 ### M3: Orçamentos
-- ⬜ **Decisão:** confirmar que só `enviado` e `em_negociacao` expiram sozinhos (OR4).
+- ✅ Expiração confirmada pelo PI: só `enviado` e `em_negociacao` expiram sozinhos (OR4).
 - ⬜ Dados reais de cliente e orçamento para homologar preço e margem.
 
 ### Produção (Railway)
@@ -82,6 +82,12 @@ Depois rode o recálculo (`POST /api/internal/jobs/calculate-predictive-stock`).
 - ✅ Termos de uso: versão 1.0 aprovada pelo PI (`termos-de-uso-ia.md`), aceite no primeiro acesso e aba na governança (spec M4 §10.9).
 - ⬜ O PI revisar as 20 perguntas da bateria do Copiloto.
 
+## Decisões do PI (02/11/2026)
+
+1. **Expiração automática confirmada:** só `enviado` e `em_negociacao` expiram sozinhos; `rascunho`, `bloqueado_margem` e `aprovado` só mudam de status por ação de alguém.
+2. **Impacto de insumo corrigido:** a ferramenta `calcular_impacto_aumento_insumo` agora soma apenas propostas abertas **com itens da família pedida** (antes somava todas as propostas abertas, de qualquer família). O gabarito da bateria recebeu a mesma regra; teste de integração cobre o caso e a exclusão de proposta encerrada.
+3. **Copiloto:** todos os usuários logados podem usar; sem limite de uso por enquanto — o consumo é medido na trilha e o limite será decidido com uso real.
+
 ## Achados que pedem decisão sua
-1. `calcular_impacto_aumento_insumo` soma todas as cotações abertas, de qualquer família, ao valor de estoque da família pedida. Corrigir muda uma regra de cálculo.
-2. Opcional: aviso de "valor suspeito" no campo de custo do lote.
+
+1. Opcional: aviso de "valor suspeito" no campo de custo do lote (o reparo de custo já usa R$ 150/kg como referência para sugerir conversão).

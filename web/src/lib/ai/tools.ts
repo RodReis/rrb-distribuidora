@@ -6,13 +6,14 @@ import {
   stockPredictiveMetrics,
   marketAssets,
   marketPriceSeries,
+  quoteItems,
   quotes,
   users,
   stockRemnants,
   stockLots,
   suppliers,
 } from "@/lib/db/schema";
-import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
+import { and, desc, eq, exists, gte, inArray, lte, sql } from "drizzle-orm";
 import { ASSET_SYMBOLS } from "@/lib/market/asset-symbols";
 import { resolveAssetSymbol } from "./asset-alias";
 import { valueAtCostPerKg } from "@/lib/stock/units";
@@ -373,7 +374,7 @@ export function createCopilotTools(tenantId: string) {
 
     calcular_impacto_aumento_insumo: tool({
       description:
-        "Calcula o impacto financeiro de um aumento de insumo (metal) sobre uma família de produtos, com base no estoque e propostas abertas.",
+        "Calcula o impacto financeiro de um aumento de insumo (metal) sobre uma família de produtos, com base no estoque da família e nas propostas abertas que tenham itens dessa família (decisão do PI: propostas sem itens da família pedida não entram).",
       inputSchema: z.object({
         percentual_alta: z.number().describe("Percentual de alta do insumo (ex: 5 para 5%)"),
         familia_produto: z.string().describe("Família de produto afetada"),
@@ -402,6 +403,7 @@ export function createCopilotTools(tenantId: string) {
             )
           );
 
+        // Decisão do PI (02/11/2026): só propostas abertas com itens da família pedida.
         const [open] = await db
           .select({
             total: sql<string>`coalesce(sum(${quotes.totalAmount}::numeric),0)`,
@@ -410,7 +412,19 @@ export function createCopilotTools(tenantId: string) {
           .where(
             and(
               eq(quotes.tenantId, tenantId),
-              inArray(quotes.status, ["enviado", "em_negociacao", "bloqueado_margem"])
+              inArray(quotes.status, ["enviado", "em_negociacao", "bloqueado_margem"]),
+              exists(
+                db
+                  .select({ one: sql`1` })
+                  .from(quoteItems)
+                  .innerJoin(products, eq(products.id, quoteItems.productId))
+                  .where(
+                    and(
+                      eq(quoteItems.quoteId, quotes.id),
+                      eq(products.family, familia_produto as never)
+                    )
+                  )
+              )
             )
           );
 
