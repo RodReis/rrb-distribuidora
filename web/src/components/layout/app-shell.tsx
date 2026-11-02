@@ -62,8 +62,6 @@ const NAVIGATION: NavGroup[] = [
         label: "Estoque & Retalhos",
         href: "/estoque",
         icon: Boxes,
-        disabled: true,
-        badge: "M2",
       },
       {
         label: "Compras & RFQ Auto",

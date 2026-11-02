@@ -471,3 +471,185 @@ export const marketAlertNotifications = pgTable(
     userReadIdx: index("market_notifications_user_idx").on(t.userId, t.read, t.createdAt),
   })
 );
+
+// ==========================================
+// 12. ESTOQUE PREVENTIVO & RETALHOS (MVP-02)
+// ==========================================
+
+// Lotes de Produto
+export const stockLots = pgTable(
+  "stock_lots",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    lotNumber: varchar("lot_number", { length: 50 }).notNull(),
+    heatNumber: varchar("heat_number", { length: 50 }), // Número de corrida da usina
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    quantityInitial: numeric("quantity_initial", { precision: 12, scale: 4 }).notNull(),
+    quantityCurrent: numeric("quantity_current", { precision: 12, scale: 4 }).notNull(),
+    unitCost: numeric("unit_cost", { precision: 12, scale: 4 }).notNull(),
+    locationAddress: varchar("location_address", { length: 50 }), // Rua A, Prateleira 2
+    entryDate: timestamp("entry_date", { withTimezone: true }).defaultNow().notNull(),
+    status: varchar("status", { length: 20 }).default("ativo").notNull(), // 'ativo', 'esgotado', 'bloqueado'
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    lotTenantProductIdx: index("idx_stock_lots_tenant_product").on(t.tenantId, t.productId),
+    lotWarehouseIdx: index("idx_stock_lots_warehouse").on(t.warehouseId),
+    lotStatusIdx: index("idx_stock_lots_status").on(t.status),
+  })
+);
+
+// Movimentações de Estoque
+export const stockMovements = pgTable(
+  "stock_movements",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    lotId: uuid("lot_id").references(() => stockLots.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    movementType: varchar("movement_type", { length: 30 }).notNull(), // 'ENTRADA_COMPRA', 'SAIDA_VENDA', 'CORTE_CONSUMO', 'RETALHO_ENTRADA', 'AJUSTE_INVENTARIO'
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(), // Positivo para entrada, negativo para saída
+    unitCost: numeric("unit_cost", { precision: 12, scale: 4 }).notNull(),
+    totalCost: numeric("total_cost", { precision: 14, scale: 2 }).notNull(),
+    referenceDocument: varchar("reference_document", { length: 100 }), // Chave NFe, Pedido Venda #1020, OS #50
+    notes: text("notes"),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    movementTenantProductIdx: index("idx_stock_movements_tenant_product").on(
+      t.tenantId,
+      t.productId
+    ),
+    movementLotIdx: index("idx_stock_movements_lot").on(t.lotId),
+    movementCreatedIdx: index("idx_stock_movements_created").on(t.createdAt),
+  })
+);
+
+// Catálogo de Retalhos Sobressalentes (Offcuts)
+export const stockRemnants = pgTable(
+  "stock_remnants",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 30 }).notNull().unique(), // ex: 'RET-00492'
+    parentLotId: uuid("parent_lot_id").references(() => stockLots.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    thicknessMm: numeric("thickness_mm", { precision: 8, scale: 2 }).notNull(),
+    widthMm: numeric("width_mm", { precision: 8, scale: 2 }),
+    lengthMm: numeric("length_mm", { precision: 8, scale: 2 }),
+    diameterMm: numeric("diameter_mm", { precision: 8, scale: 2 }),
+    weightKg: numeric("weight_kg", { precision: 10, scale: 3 }).notNull(),
+    locationAddress: varchar("location_address", { length: 50 }).notNull(),
+    status: varchar("status", { length: 20 }).default("disponivel").notNull(), // 'disponivel', 'reservado', 'consumido', 'descarte'
+    reservedForQuoteId: uuid("reserved_for_quote_id"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    remnantTenantProductIdx: index("idx_stock_remnants_tenant_product").on(t.tenantId, t.productId),
+    remnantStatusIdx: index("idx_stock_remnants_status").on(t.status),
+    remnantDimensionsIdx: index("idx_stock_remnants_dimensions").on(
+      t.thicknessMm,
+      t.widthMm,
+      t.lengthMm
+    ),
+  })
+);
+
+// Cache / Métricas de Previsão de Demanda e Cobertura
+export const stockPredictiveMetrics = pgTable(
+  "stock_predictive_metrics",
+  {
+    productId: uuid("product_id")
+      .primaryKey()
+      .references(() => products.id, { onDelete: "cascade" }),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    currentStockQty: numeric("current_stock_qty", { precision: 12, scale: 4 }).notNull(),
+    avgDailyConsumption30d: numeric("avg_daily_consumption_30d", {
+      precision: 10,
+      scale: 4,
+    }).notNull(),
+    leadTimeDays: integer("lead_time_days").default(15).notNull(),
+    coverageDays: numeric("coverage_days", { precision: 8, scale: 1 }).notNull(),
+    safetyStockQty: numeric("safety_stock_qty", { precision: 12, scale: 4 }).notNull(),
+    reorderPointQty: numeric("reorder_point_qty", { precision: 12, scale: 4 }).notNull(),
+    predictiveStatus: varchar("predictive_status", { length: 30 }).notNull(), // 'CRITICAL_RUPTURE', 'WARNING', 'HEALTHY', 'EXCESS'
+    suggestedPurchaseQty: numeric("suggested_purchase_qty", { precision: 12, scale: 4 })
+      .default("0")
+      .notNull(),
+    suggestedPurchaseDate: timestamp("suggested_purchase_date", { withTimezone: true }),
+    curveAbc: varchar("curve_abc", { length: 1 }).default("B").notNull(),
+    curveXyz: varchar("curve_xyz", { length: 1 }).default("Y").notNull(),
+    calculatedAt: timestamp("calculated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    predictiveTenantIdx: index("idx_stock_predictive_tenant").on(t.tenantId, t.predictiveStatus),
+  })
+);
+
+// Inventário Cíclico Dirigido por Risco
+export const stockCycleCounts = pgTable(
+  "stock_cycle_counts",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    lotId: uuid("lot_id").references(() => stockLots.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    systemQty: numeric("system_qty", { precision: 12, scale: 4 }).notNull(),
+    countedQty: numeric("counted_qty", { precision: 12, scale: 4 }).notNull(),
+    differenceQty: numeric("difference_qty", { precision: 12, scale: 4 }).notNull(),
+    adjusted: boolean("adjusted").default(false).notNull(),
+    justification: text("justification"),
+    countedBy: uuid("counted_by").references(() => users.id),
+    countedAt: timestamp("counted_at", { withTimezone: true }).defaultNow().notNull(),
+    status: varchar("status", { length: 20 }).default("conferido").notNull(), // 'pendente', 'conferido', 'ajustado'
+  },
+  (t) => ({
+    cycleCountTenantIdx: index("idx_stock_cycle_counts_tenant").on(t.tenantId, t.countedAt),
+    cycleCountProductIdx: index("idx_stock_cycle_counts_product").on(t.productId),
+  })
+);

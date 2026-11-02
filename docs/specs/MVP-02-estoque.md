@@ -231,3 +231,73 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 6. **Módulo de Inventário Cíclico:** Endpoint e interface mobile para lançamento de contagens físicas diárias.
 7. **Importador CSV de Estoque Inicial:** Parser com validação transacional e criação automática dos lotes iniciais.
 8. **Worker de Recálculo Noturno:** Configurar agendamento diário às 04h00 para atualizar métricas de todos os produtos ativos.
+
+---
+
+## 10. Estado da implementação (02/11/2026)
+
+> **Situação:** 🟡 implementado em ambiente local, **aguardando homologação**. Lint, `tsc`, `pnpm build` e 33 testes Vitest passam. **Não** houve comparação lado a lado com o `screen.png`, nem smoke ao vivo com login (Playwright). O checklist da seção 8 **não foi validado ponta a ponta**.
+
+### 10.1 Tarefas da seção 9
+
+| # | Tarefa | Estado |
+|---|---|---|
+| 1 | Migrations | ✅ `0003_hesitant_namora.sql` (`stock_lots`, `stock_movements`, `stock_remnants`, `stock_predictive_metrics` + `stock_cycle_counts`) |
+| 2 | Motor estatístico | ✅ `lib/stock/predictive-engine.ts` (consumo ponderado 50/30/20, σ, SS, ROP, cobertura, status, ABC/XYZ) |
+| 3 | Matriz de ruptura | 🟡 tabela com tags e filtro Críticos/Todos; **sem ordenação por clique no cabeçalho, sem paginação** |
+| 4 | Módulo de retalhos | 🟡 cards com SVG, cadastro em `FormDrawer`, busca dimensional na API e no simulador; **sem editar, detalhe nem excluir** |
+| 5 | Ações de movimentação | 🟡 entrada de compra e saída (server actions/API) ok; **drawer não permite saída/descarte** (só informa um toast) |
+| 6 | Inventário cíclico | ✅ `lib/stock/cycle-count.ts`, API e aba (responsiva) |
+| 7 | Importador CSV | ✅ `lib/stock/import-stock.ts` (validação atômica, reconciliação) + aba "Carga Inicial" |
+| 8 | Worker 04h00 | ⬜ **só o endpoint** `POST /api/internal/jobs/calculate-predictive-stock` existe; **não há agendamento** no `market-worker` nem cron no Railway |
+
+### 10.2 Desvios e decisões em relação à spec
+
+| Tema | Spec | Implementado | Motivo |
+|---|---|---|---|
+| Tabela extra | 4 tabelas | + `stock_cycle_counts`; coluna `stock_remnants.notes` | persistir contagens/acuracidade e a origem do retalho |
+| Consumo | média 30/60/90 | média ponderada 50% / 30% / 20% | pesos não definidos na spec — **confirmar com o PI** |
+| Lead time | do fornecedor homologado | `suppliers.lead_time_days` do **primeiro lote com fornecedor**; padrão 15 d | não há fornecedor padrão por produto no M0 |
+| Curva ABC | faturamento/valor imobilizado | valor imobilizado (saldo × `replacement_cost_base`), cortes 80/95% | não há vendas antes do M3 |
+| Rotas | `/estoque/retalhos`, `/estoque/lotes` | redirecionam para `/estoque?tab=…` | `regras-frontend.md` §7 (abas com URL) |
+| Rotas extras | — | `GET /api/stock/lots`, `GET /api/stock/movements` | apoiar as abas |
+| Reposição | `RETALHO_ENTRADA`, lote mínimo | lote mínimo **não** modelado; sugestão = ROP − saldo + 30 dias de consumo | sem regra de lote mínimo definida — **pergunta em aberto ao PI** |
+| Permissões | — | escrita exige `estoque_retalhos`; **leitura (APIs GET) só exige sessão**, sem `checkPermission` | a corrigir |
+| Cron | `CRON_SECRET` | job só valida o segredo **se** a variável existir | evita 503 local; **em produção deve ser obrigatório** |
+
+### 10.3 Dados de demonstração (não são cálculo real)
+
+Os itens abaixo são **valores fixos de protótipo** copiados do mockup e **não derivam do banco**:
+
+- KPIs: "Déficit Potencial R$ 380k", "Retalhos Reclassificados 42,8 t / R$ 248.500", "Capital Parado R$ 94.200 / 18,2 t", "Giro Médio 41 dias", "Lead Time Médio 14,2 dias", "Matching Taxa Sucesso 88,6%" e "Último ciclo 06:00".
+- Banner de matching: pedido `#PV-4491`, chapa 6000×2400, R$ 8.920 / R$ 4.290 e `RET-8941 + RET-8920`; "Aprovar matching" reserva apenas o `RET-8941`. O M3 (orçamentos) ainda não existe, então a US-04 está **só no simulador manual**.
+- Modal "Gerar PO": **não persiste nada** (apenas toast); a fornecedor é inferido pelo `erpCode`.
+- Etiqueta/ZPL, "Nesting", "Mill Cert" e "RFQ disparado": apenas toast.
+- `seed-stock.ts` grava métricas preditivas com valores do mockup; elas só passam a ser reais após o recálculo (botão "Simular reposição" ou job).
+
+### 10.4 Não conformidades com `regras-frontend.md` (a corrigir)
+
+- Sem `DataTable`/`SearchFilterBar`/`Pagination`/`MetricTile` compartilhados; tabelas e filtros montados na tela.
+- Cor fora da paleta: `blue-400`/`blue-500` no status EXCESSO (usar token do projeto).
+- Inputs e `textarea` com estilo repetido, sem componente `ui/`; ícones `lucide` no lugar de Material Symbols nas ações.
+- Matriz sem os 4 estados completos (skeleton/erro com retry); sem 403 amigável.
+- CRUD de retalhos incompleto (§8): falta editar, detalhe, excluir/descarte pela UI e coluna "Ações" com tooltip.
+- Breadcrumb em `/estoque` usa "Início / Estoque & Retalhos / …" (ok), mas a ordenação por urgência da matriz não é por clique.
+
+### 10.5 Pendências para aceitar o MVP-02
+
+1. **Agendar o recálculo às 04h00** (`cron.schedule` no worker ou cron do Railway) e tornar `CRON_SECRET` obrigatório em produção.
+2. Trocar os valores fixos da §10.3 por consultas reais (KPIs, DIO, capital parado > 180 dias, valor recuperado).
+3. Aplicar `checkPermission("estoque_retalhos", "read")` nas rotas GET e nas páginas.
+4. Implementar saída/descarte no drawer de movimentação e CRUD completo de retalhos (§8 das regras).
+5. Migrar tabelas para `DataTable` padrão, remover cores fora da paleta e comparar com `screen.png`.
+6. Gerar o código do retalho por sequência (hoje `RET-` + número aleatório de 4 dígitos, sujeito a colisão; coluna `code` é `unique`).
+7. `recalculatePredictiveMetricsForTenant` roda para **todo o tenant a cada movimento**; avaliar execução assíncrona/fila se o volume crescer.
+8. Validar a US-04 de verdade quando o M3 entregar o orçamento sob medida (reserva com `reserved_for_quote_id`).
+9. Homologar os critérios da seção 8 com massa de dados real e registrar evidências.
+
+### 10.6 Evidências
+
+- `pnpm lint`, `pnpm build` e `pnpm test` (33 testes: 10 do M1 + 23 do M2) passam.
+- Testes do M2: consumo ponderado, σ, SS (`Z=1,645`), ROP, cobertura, transições de status, sugestão de compra, XYZ, peso teórico, encaixe direto/rotacionado, ordenação por menor desperdício e importador CSV (com `db` mockado).
+- **Não cobertos por teste:** transações de `movements.ts` (bloqueio de saldo negativo), `cycle-count.ts` e as rotas/telas.

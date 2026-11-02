@@ -118,6 +118,8 @@ GitHub (main)
 
 **Aceite:** alerta de ruptura dispara em 100% dos SKUs testados, com sugestão de reposição quantificada.
 
+> **Status (02/11/2026):** 🟡 implementado localmente, ainda não integrado nem homologado. Motor preditivo, retalhos, movimentos, inventário cíclico e importador CSV prontos; faltam agendamento 04h00, dados reais nos KPIs, permissões de leitura e CRUD completo. Detalhes na seção 10 da spec.
+
 **Telas:** `metalagents_estoque_preventivo_cat_logo_de_retalhos`.
 
 ### 💰 M3 — Orçamento de Corte (~4 semanas) — [`specs/MVP-03-orcamentos.md`](./specs/MVP-03-orcamentos.md)
