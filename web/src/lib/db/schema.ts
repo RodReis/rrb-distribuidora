@@ -15,6 +15,7 @@ import {
   pgEnum,
   primaryKey,
   index,
+  unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -879,5 +880,24 @@ export const dailyBriefings = pgTable(
   },
   (t) => ({
     briefingTenantDateIdx: index("idx_daily_briefings_tenant_date").on(t.tenantId, t.briefingDate),
+  })
+);
+
+// Aceite dos Termos de Uso da IA: um registro por usuário e versão do termo.
+export const aiTermsAcceptances = pgTable(
+  "ai_terms_acceptances",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    version: varchar("version", { length: 20 }).notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    aiTermsUserVersionUq: unique("ai_terms_acceptances_user_version_uq").on(t.userId, t.version),
   })
 );

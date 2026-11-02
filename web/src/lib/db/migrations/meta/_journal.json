@@ -64,6 +64,13 @@
       "when": 1793641162243,
       "tag": "0008_remnant_code_seq",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793645602218,
+      "tag": "0009_abnormal_smasher",
+      "breakpoints": true
     }
   ]
 }

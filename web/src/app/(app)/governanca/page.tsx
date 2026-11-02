@@ -3,6 +3,7 @@ import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { PageHeader } from "@/components/shared/page-header";
 import { Tabs, type TabItem } from "@/components/ui/tabs";
 import { PoliciesTab } from "@/components/features/governance/policies-tab";
+import { TermsDocument } from "@/components/features/terms/terms-document";
 import { AuditSummaryStrip, AuditTrail } from "@/components/features/governance/audit-trail";
 import { getAuditPage, getAuditSummary } from "@/lib/governance/audit-query";
 import { parseAuditFilters } from "@/lib/governance/filters";
@@ -20,10 +21,16 @@ export default async function GovernancaPage({
   // A trilha mostra a pergunta de todos os usuários: só admin e diretor (mesma regra de /admin/auditoria).
   const canSeeTrail = user.role === "admin" || user.role === "diretor";
   const requested = Array.isArray(params.tab) ? params.tab[0] : params.tab;
-  const active = canSeeTrail && requested === "auditoria" ? "auditoria" : "politicas";
+  const active =
+    canSeeTrail && requested === "auditoria"
+      ? "auditoria"
+      : requested === "termos"
+        ? "termos"
+        : "politicas";
 
   const tabs: TabItem[] = [
     { key: "politicas", label: "Políticas", href: "/governanca?tab=politicas" },
+    { key: "termos", label: "Termos de Uso da IA", href: "/governanca?tab=termos" },
   ];
 
   let trail: React.ReactNode = null;
@@ -70,7 +77,15 @@ export default async function GovernancaPage({
 
       {tabs.length > 1 && <Tabs items={tabs} active={active} />}
 
-      {active === "auditoria" ? trail : <PoliciesTab />}
+      {active === "auditoria" ? (
+        trail
+      ) : active === "termos" ? (
+        <div className="rounded border border-carbon-800 bg-carbon-900 p-5">
+          <TermsDocument />
+        </div>
+      ) : (
+        <PoliciesTab />
+      )}
     </div>
   );
 }
