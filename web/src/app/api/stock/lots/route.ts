@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { stockLots, products, suppliers, warehouses } from "@/lib/db/schema";
-import { getCurrentUser } from "@/lib/auth/rbac";
+import { guardStock } from "@/lib/stock/api-auth";
 import { and, desc, eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
   try {
-    const user = await getCurrentUser();
+    const guard = await guardStock("read");
+    if (guard.error) return guard.error;
+    const user = guard.user;
     const { searchParams } = new URL(req.url);
     const productId = searchParams.get("productId");
     const status = searchParams.get("status") || "todos";

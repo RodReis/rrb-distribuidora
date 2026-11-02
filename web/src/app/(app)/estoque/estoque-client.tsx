@@ -9,7 +9,6 @@ import { Tabs } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   QrCode,
-  Radar,
   Recycle,
   Hourglass,
   Verified,
@@ -34,6 +33,11 @@ import { RemnantDrawer } from "@/components/features/stock/remnant-drawer";
 import { PurchaseSuggestionModal } from "@/components/features/stock/purchase-suggestion-modal";
 import { LabelPreviewModal } from "@/components/features/stock/label-preview-modal";
 import { recalculateMetricsAction } from "./actions";
+import type { StockKpis } from "@/lib/stock/kpis";
+
+function formatBrl(value: number) {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 export interface EstoqueClientProps {
   initialTab?: string;
@@ -45,7 +49,8 @@ export interface EstoqueClientProps {
   warehouses: any[];
   suppliers: any[];
   cycleCountCandidates: any[];
-  accuracyPct: number;
+  accuracyPct: number | null;
+  kpis: StockKpis;
 }
 
 export function EstoqueClient({
@@ -59,6 +64,7 @@ export function EstoqueClient({
   suppliers,
   cycleCountCandidates,
   accuracyPct,
+  kpis,
 }: EstoqueClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState(initialTab);
@@ -74,15 +80,6 @@ export function EstoqueClient({
   const [poModalItem, setPoModalItem] = React.useState<any | null>(null);
   const [labelModalRemnant, setLabelModalRemnant] = React.useState<any | null>(null);
   const [recalculating, setRecalculating] = React.useState(false);
-
-  // KPI calculations
-  const criticalItems = matrixItems.filter(
-    (i) =>
-      i.predictiveStatus === "CRITICAL_RUPTURE" || Number(i.coverageDays) < Number(i.leadTimeDays)
-  );
-  const criticalCount = criticalItems.length;
-
-  const totalRemnantsWeight = remnants.reduce((acc, r) => acc + (Number(r.weightKg) || 0), 0);
 
   async function handleRecalculate() {
     setRecalculating(true);
@@ -172,26 +169,26 @@ export function EstoqueClient({
           </h1>
 
           <div className="flex flex-wrap items-center gap-3 mt-1 font-mono text-label-code text-titanium-muted">
-            <span className="flex items-center gap-1 text-titanium-light">
-              <Radar className="w-3.5 h-3.5 text-tertiary" />
-              Varredura de Galpão:{" "}
-              <span className="text-tertiary font-semibold">Ativa (LIDAR + RFID)</span>
-            </span>
-            <span className="text-carbon-700">•</span>
             <span>
-              Giro Médio (DIO): <strong className="text-ice-white font-mono">41 dias</strong>
+              Giro Médio (DIO):{" "}
+              <strong className="text-ice-white font-mono">
+                {kpis.dioDays === null ? "—" : `${kpis.dioDays} dias`}
+              </strong>
             </span>
             <span className="text-carbon-700">•</span>
             <span>
               Retalhos Rastreados:{" "}
               <strong className="text-signal-buy font-mono">
-                {remnants.length} itens ({(totalRemnantsWeight / 1000).toFixed(1)} t)
+                {kpis.remnantsTrackedCount} itens (
+                {(kpis.remnantsTrackedWeightKg / 1000).toFixed(1)} t)
               </strong>
             </span>
             <span className="text-carbon-700">•</span>
             <span>
               Lead Time Médio Fornecedores:{" "}
-              <strong className="text-titanium-light font-mono">14.2 dias</strong>
+              <strong className="text-titanium-light font-mono">
+                {kpis.avgLeadTimeDays === null ? "—" : `${kpis.avgLeadTimeDays} dias`}
+              </strong>
             </span>
           </div>
         </div>
@@ -264,7 +261,7 @@ export function EstoqueClient({
           <div className="my-1.5">
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-metric-display text-carmine-signal font-bold">
-                {criticalCount} SKUs
+                {kpis.criticalCount} SKUs
               </span>
               <span className="font-mono text-label-code text-titanium-muted">Críticos</span>
             </div>
@@ -273,7 +270,9 @@ export function EstoqueClient({
             </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
-            <span className="text-titanium-muted">Déficit Potencial: R$ 380k</span>
+            <span className="text-titanium-muted">
+              Déficit Potencial: {formatBrl(kpis.potentialDeficitBrl)}
+            </span>
             <span className="text-carmine-signal font-semibold">AÇÃO IMEDIATA</span>
           </div>
         </div>
@@ -290,19 +289,29 @@ export function EstoqueClient({
           <div className="my-1.5">
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-metric-display text-signal-buy font-bold">
-                42.8 t
+                {(kpis.remnantsMonthWeightKg / 1000).toFixed(1)} t
               </span>
-              <span className="font-mono text-label-code text-signal-buy font-semibold">
-                +18% vs mês ant.
-              </span>
+              {kpis.remnantsMonthVariationPct !== null && (
+                <span
+                  className={cn(
+                    "font-mono text-label-code font-semibold",
+                    kpis.remnantsMonthVariationPct >= 0 ? "text-signal-buy" : "text-signal-hold"
+                  )}
+                >
+                  {kpis.remnantsMonthVariationPct >= 0 ? "+" : ""}
+                  {kpis.remnantsMonthVariationPct}% vs mês ant.
+                </span>
+              )}
             </div>
             <div className="text-body-sm text-titanium-light mt-0.5">
-              Salvas de sucata primária p/ OPs ativas
+              Retalhos reservados ou consumidos no mês
             </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
             <span className="text-titanium-muted">Valor Recuperado:</span>
-            <span className="text-ice-white font-semibold">R$ 248.500,00</span>
+            <span className="text-ice-white font-semibold">
+              {formatBrl(kpis.remnantsMonthValueBrl)}
+            </span>
           </div>
         </div>
 
@@ -317,25 +326,28 @@ export function EstoqueClient({
           <div className="my-1.5">
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-metric-display text-signal-hold font-bold">
-                R$ 94.200
+                {formatBrl(kpis.agedCapitalBrl)}
               </span>
-              <span className="font-mono text-label-code text-titanium-muted">18.2 t</span>
+              <span className="font-mono text-label-code text-titanium-muted">
+                {kpis.agedLotsCount} lotes
+              </span>
             </div>
             <div className="text-body-sm text-titanium-light mt-0.5">
-              Sobras em risco de oxidação severa
+              Lotes ativos com entrada há mais de 180 dias
             </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
-            <span className="text-signal-buy">Redução de -24% pós IA</span>
-            <span
+            <span className="text-titanium-muted">Saldo × custo unitário do lote</span>
+            <button
+              type="button"
               onClick={() => {
-                setActiveTab("retalhos");
-                router.push("/estoque?tab=retalhos");
+                setActiveTab("lotes");
+                router.push("/estoque?tab=lotes");
               }}
               className="text-titanium-light underline cursor-pointer hover:text-ice-white"
             >
-              Liquidar em OP
-            </span>
+              Ver lotes
+            </button>
           </div>
         </div>
 
@@ -350,11 +362,18 @@ export function EstoqueClient({
           <div className="my-1.5">
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-metric-display text-ice-white font-bold">
-                {accuracyPct.toFixed(1)}%
+                {accuracyPct === null ? "—" : `${accuracyPct.toFixed(1)}%`}
               </span>
-              <span className="font-mono text-label-code text-signal-buy font-semibold">
-                ALTO RIGOR
-              </span>
+              {accuracyPct !== null && (
+                <span
+                  className={cn(
+                    "font-mono text-label-code font-semibold",
+                    accuracyPct >= 98 ? "text-signal-buy" : "text-signal-hold"
+                  )}
+                >
+                  {accuracyPct >= 98 ? "ALTO RIGOR" : "ATENÇÃO"}
+                </span>
+              )}
             </div>
             <div className="text-body-sm text-titanium-light mt-0.5">
               Auditoria algorítmica sem parada fabril
@@ -362,7 +381,16 @@ export function EstoqueClient({
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
             <span className="text-titanium-muted">Último Ciclo Auditado:</span>
-            <span className="text-titanium-light">Hoje, 06:00 BRT</span>
+            <span className="text-titanium-light">
+              {kpis.lastCycleCountAt
+                ? new Date(kpis.lastCycleCountAt).toLocaleString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Nenhum ciclo"}
+            </span>
           </div>
         </div>
       </div>

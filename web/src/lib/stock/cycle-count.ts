@@ -200,7 +200,7 @@ export async function submitCycleCount(input: SubmitCountInput) {
  * Computes historical cycle inventory accuracy rate %
  */
 export async function getCycleInventoryAccuracy(tenantId: string): Promise<{
-  accuracyPct: number;
+  accuracyPct: number | null;
   totalCounted: number;
   accurateCounted: number;
   divergentCounted: number;
@@ -214,7 +214,7 @@ export async function getCycleInventoryAccuracy(tenantId: string): Promise<{
 
   if (counts.length === 0) {
     return {
-      accuracyPct: 99.4, // baseline
+      accuracyPct: null,
       totalCounted: 0,
       accurateCounted: 0,
       divergentCounted: 0,

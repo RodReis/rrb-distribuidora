@@ -1,13 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { approveMatchingAction } from "@/app/(app)/estoque/actions";
+import { reserveRemnantAction } from "@/app/(app)/estoque/actions";
 import { findMatchingRemnants } from "@/lib/stock/remnants-engine";
-import { Bot, CheckCircle2, TrendingUp, Sliders, ArrowRight, Sparkles } from "lucide-react";
+import { Bot, Sliders, Sparkles, Info } from "lucide-react";
 
 export interface AutoMatchingBannerProps {
   availableRemnants?: any[];
@@ -19,8 +17,7 @@ export function AutoMatchingBanner({
   onRemnantApproved,
 }: AutoMatchingBannerProps) {
   const [isSimulatorOpen, setIsSimulatorOpen] = React.useState(false);
-  const [approving, setApproving] = React.useState(false);
-  const [approved, setApproved] = React.useState(false);
+  const [reservingId, setReservingId] = React.useState<string | null>(null);
 
   // Simulator inputs
   const [simThickness, setSimThickness] = React.useState("12.7");
@@ -28,17 +25,17 @@ export function AutoMatchingBanner({
   const [simLength, setSimLength] = React.useState("1500");
   const [simResults, setSimResults] = React.useState<any[] | null>(null);
 
-  async function handleApprove() {
-    setApproving(true);
+  async function handleReserve(remnant: { id: string; code: string }) {
+    setReservingId(remnant.id);
     try {
-      await approveMatchingAction(["RET-8941"], "PV-4491");
-      setApproved(true);
-      toast.success("Matching aprovado! Retalho #RET-8941 alocado para o Pedido #PV-4491.");
+      await reserveRemnantAction(remnant.id);
+      toast.success(`Retalho #${remnant.code} reservado com sucesso.`);
+      setSimResults((prev) => prev?.filter((r) => r.remnant.id !== remnant.id) ?? null);
       onRemnantApproved?.();
     } catch (err: any) {
-      toast.error(err.message || "Erro ao aprovar matching.");
+      toast.error(err.message || "Não foi possível reservar o retalho.");
     } finally {
-      setApproving(false);
+      setReservingId(null);
     }
   }
 
@@ -52,11 +49,14 @@ export function AutoMatchingBanner({
       return;
     }
 
-    const matches = findMatchingRemnants(availableRemnants, {
-      thicknessMm: t,
-      minWidthMm: w,
-      minLengthMm: l,
-    });
+    const matches = findMatchingRemnants(
+      availableRemnants.filter((r) => r.status === "disponivel"),
+      {
+        thicknessMm: t,
+        minWidthMm: w,
+        minLengthMm: l,
+      }
+    );
 
     setSimResults(matches);
     if (matches.length === 0) {
@@ -93,102 +93,30 @@ export function AutoMatchingBanner({
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-label-code text-titanium-muted">
-            Matching IA Taxa Sucesso:
-          </span>
-          <span className="font-mono text-metric-regular text-signal-buy font-bold">88.6%</span>
-        </div>
       </div>
 
-      {/* Active Match Showcase Banner (Mockup 1:1) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 bg-carbon-950 border border-carbon-800 p-3.5 rounded items-center">
-        {/* Left: Client & Order */}
-        <div className="lg:col-span-4 flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className="bg-carbon-800 text-titanium-light px-2 py-0.5 rounded font-mono text-label-code border border-carbon-700">
-              NOVO MATCH ENCONTRADO
-            </span>
-            <span className="text-signal-buy font-mono text-label-code font-bold">
-              ECONOMIA DIRETA
-            </span>
-          </div>
-          <div className="text-body-lg text-ice-white font-semibold">Pedido de Venda #PV-4491</div>
-          <div className="text-body-sm text-titanium-muted">
-            Cliente: <span className="text-ice-white font-medium">Metalúrgica Alvorada</span> |
-            Item: 38 Flanges 400x500 mm em A36 1/2&quot; (12.7mm).
-          </div>
-        </div>
-
-        {/* Center: Comparison Avoided vs Allocated */}
-        <div className="lg:col-span-5 flex flex-col sm:flex-row items-center gap-4 bg-carbon-900/90 border border-carbon-800 p-3 rounded">
-          <div className="flex flex-col text-center sm:text-left">
-            <span className="font-mono text-label-code text-titanium-muted uppercase">
-              Solução Convencional Evitada:
-            </span>
-            <span className="text-body-sm text-carmine-signal line-through font-semibold">
-              1 Chapa Virgem 6.000 x 2.400 mm
-            </span>
-            <span className="font-mono text-label-code text-titanium-muted">
-              Custo Chapa Nova: R$ 8.920,00
-            </span>
-          </div>
-
-          <div className="text-signal-buy">
-            <ArrowRight className="w-5 h-5" />
-          </div>
-
-          <div className="flex flex-col text-center sm:text-left">
-            <span className="font-mono text-label-code text-signal-buy uppercase font-semibold">
-              Solução MetalAgents Alocada:
-            </span>
-            <span className="text-body-sm text-ice-white font-semibold">
-              Retalhos #RET-8941 + #RET-8920
-            </span>
-            <span className="font-mono text-label-code text-tertiary">
-              Aproveitamento Mecânico: 94.2%
-            </span>
-          </div>
-        </div>
-
-        {/* Right: Preserved Cost & Actions */}
-        <div className="lg:col-span-3 flex flex-col items-end justify-center gap-2">
-          <div className="text-right">
-            <span className="font-mono text-label-code text-titanium-muted">
-              Custo Preservado em Estoque:
-            </span>
-            <div className="font-mono text-metric-display text-signal-buy font-bold leading-tight">
-              R$ 4.290,00
+      {/* Estado: sem pedidos sob medida (M3 ainda não entregue) */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-carbon-950 border border-carbon-800 p-3.5 rounded">
+        <div className="flex items-start gap-2.5">
+          <Info className="w-4 h-4 text-titanium-muted mt-0.5 shrink-0" />
+          <div>
+            <div className="text-body-md text-ice-white font-semibold">
+              Nenhum pedido sob medida em análise
+            </div>
+            <div className="text-body-sm text-titanium-muted">
+              O matching automático passa a rodar quando o módulo de Orçamentos (M3) estiver ativo.
+              Enquanto isso, use o simulador para buscar um retalho compatível com uma medida.
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleApprove}
-              disabled={approving || approved}
-              className={cn(
-                "px-3 py-1.5 rounded font-mono text-label-caps transition-colors flex items-center gap-1.5 font-semibold",
-                approved
-                  ? "bg-signal-buy/20 text-signal-buy border border-signal-buy/40"
-                  : "bg-tertiary-container hover:bg-signal-buy-dark text-ice-white"
-              )}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              {approved ? "MATCHING APROVADO" : approving ? "ALOCANDO..." : "APROVAR MATCHING"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsSimulatorOpen(!isSimulatorOpen)}
-              className="bg-carbon-800 hover:bg-carbon-700 text-titanium-light hover:text-ice-white px-2.5 py-1.5 rounded font-mono text-label-caps border border-carbon-700 transition-colors flex items-center gap-1"
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              <span>{isSimulatorOpen ? "FECHAR" : "SIMULAR"}</span>
-            </button>
-          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsSimulatorOpen(!isSimulatorOpen)}
+          className="bg-carbon-800 hover:bg-carbon-700 active:bg-carbon-900 text-titanium-light hover:text-ice-white px-2.5 py-1.5 rounded font-mono text-label-caps border border-carbon-700 transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core"
+        >
+          <Sliders className="w-3.5 h-3.5" />
+          <span>{isSimulatorOpen ? "FECHAR" : "SIMULAR"}</span>
+        </button>
       </div>
 
       {/* Expandable Simulator Bar */}
@@ -288,14 +216,11 @@ export function AutoMatchingBanner({
                         </span>
                         <button
                           type="button"
-                          onClick={() => {
-                            toast.success(
-                              `Retalho #${res.remnant.code} vinculado à simulação de corte!`
-                            );
-                          }}
-                          className="bg-carmine-core hover:bg-carmine-signal text-ice-white px-2 py-0.5 rounded font-mono text-label-code"
+                          disabled={reservingId === res.remnant.id}
+                          onClick={() => handleReserve(res.remnant)}
+                          className="bg-carmine-core hover:bg-carmine-signal active:bg-carmine-deep disabled:opacity-50 text-ice-white px-2 py-0.5 rounded font-mono text-label-code focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core"
                         >
-                          Vincular
+                          {reservingId === res.remnant.id ? "Reservando..." : "Reservar"}
                         </button>
                       </div>
                     </div>

@@ -1,8 +1,5 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { stockRemnants } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, requirePermission } from "@/lib/auth/rbac";
 import {
@@ -179,25 +176,4 @@ export async function recalculateMetricsAction() {
   const results = await recalculatePredictiveMetricsForTenant(user.tenantId);
   revalidatePath("/estoque");
   return { success: true, count: results.length };
-}
-
-export async function approveMatchingAction(remnantCodes: string[], quoteRef: string) {
-  const user = await getCurrentUser();
-  await requirePermission("estoque_retalhos", "write");
-
-  // Reserve remnants for this matching order
-  for (const code of remnantCodes) {
-    const [rem] = await db
-      .select()
-      .from(stockRemnants)
-      .where(and(eq(stockRemnants.tenantId, user.tenantId), eq(stockRemnants.code, code)))
-      .limit(1);
-
-    if (rem && rem.status === "disponivel") {
-      await reserveRemnant(rem.id, user.tenantId, quoteRef, user.id);
-    }
-  }
-
-  revalidatePath("/estoque");
-  return { success: true, message: `Matching aprovado. Retalhos alocados para ${quoteRef}.` };
 }

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { stockMovements, products, stockLots, warehouses, users } from "@/lib/db/schema";
-import { getCurrentUser, requirePermission } from "@/lib/auth/rbac";
+import { guardStock } from "@/lib/stock/api-auth";
 import { and, desc, eq } from "drizzle-orm";
 import { recordStockEntry, recordStockOut } from "@/lib/stock/movements";
 
 export async function GET(req: Request) {
   try {
-    const user = await getCurrentUser();
+    const guard = await guardStock("read");
+    if (guard.error) return guard.error;
+    const user = guard.user;
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get("limit") || "50", 10);
 
@@ -48,8 +50,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = await getCurrentUser();
-    await requirePermission("estoque_retalhos", "write");
+    const guard = await guardStock("write");
+    if (guard.error) return guard.error;
+    const user = guard.user;
 
     const body = await req.json();
 

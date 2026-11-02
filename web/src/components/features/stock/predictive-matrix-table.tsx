@@ -44,13 +44,18 @@ export function PredictiveMatrixTable({
   const [filter, setFilter] = React.useState<"criticos" | "todos">("criticos");
   const [search, setSearch] = React.useState("");
 
-  const criticalCount = items.filter(
-    (i) =>
-      i.predictiveStatus === "CRITICAL_RUPTURE" || Number(i.coverageDays) < Number(i.leadTimeDays)
-  ).length;
+  const criticalCount = items.filter((i) => i.predictiveStatus === "CRITICAL_RUPTURE").length;
 
   const filteredItems = React.useMemo(() => {
-    return items.filter((item) => {
+    const urgencyRank: Record<string, number> = {
+      CRITICAL_RUPTURE: 0,
+      WARNING: 1,
+      HEALTHY: 2,
+      EXCESS: 3,
+    };
+    const margin = (i: PredictiveMatrixItem) => Number(i.coverageDays) - Number(i.leadTimeDays);
+
+    const visible = items.filter((item) => {
       const matchSearch =
         search === "" ||
         item.sku.toLowerCase().includes(search.toLowerCase()) ||
@@ -59,15 +64,16 @@ export function PredictiveMatrixTable({
 
       if (!matchSearch) return false;
 
-      if (filter === "criticos") {
-        return (
-          item.predictiveStatus === "CRITICAL_RUPTURE" ||
-          Number(item.coverageDays) < Number(item.leadTimeDays)
-        );
-      }
+      if (filter === "criticos") return item.predictiveStatus === "CRITICAL_RUPTURE";
 
       return true;
     });
+
+    return visible.sort(
+      (a, b) =>
+        (urgencyRank[a.predictiveStatus] ?? 9) - (urgencyRank[b.predictiveStatus] ?? 9) ||
+        margin(a) - margin(b)
+    );
   }, [items, filter, search]);
 
   return (
@@ -159,10 +165,9 @@ export function PredictiveMatrixTable({
 
                   // Delta between coverage and lead time
                   const deltaDays = Math.round(coverage - leadTime);
-                  const isRupture = coverage < leadTime;
-                  const isWarning =
-                    !isRupture && (coverage <= leadTime * 1.3 || status === "WARNING");
-                  const isExcess = coverage > 180;
+                  const isRupture = status === "CRITICAL_RUPTURE";
+                  const isWarning = status === "WARNING";
+                  const isExcess = status === "EXCESS";
 
                   return (
                     <tr
@@ -205,7 +210,7 @@ export function PredictiveMatrixTable({
                             isRupture && "text-carmine-signal",
                             isWarning && "text-signal-hold",
                             !isRupture && !isWarning && !isExcess && "text-signal-buy",
-                            isExcess && "text-blue-400"
+                            isExcess && "text-titanium-light"
                           )}
                         >
                           {coverage >= 999 ? ">180d" : `${coverage} dias`}
@@ -230,7 +235,7 @@ export function PredictiveMatrixTable({
                             PONTO DE PEDIDO ({deltaDays}d)
                           </span>
                         ) : isExcess ? (
-                          <span className="inline-flex items-center gap-1 bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-mono text-label-code font-semibold">
+                          <span className="inline-flex items-center gap-1 bg-titanium-steel/20 text-titanium-light px-2 py-0.5 rounded font-mono text-label-code font-semibold">
                             EXCESSO (&gt;180d)
                           </span>
                         ) : (
@@ -251,7 +256,8 @@ export function PredictiveMatrixTable({
                             }}
                             className="bg-carmine-core hover:bg-carmine-signal text-ice-white px-2.5 py-1 rounded font-mono text-label-code font-semibold transition-colors shadow-sm"
                           >
-                            Gerar PO {Number(item.suggestedPurchaseQty) || 45}t
+                            Comprar {Number(item.suggestedPurchaseQty).toLocaleString("pt-BR")}{" "}
+                            {item.unit}
                           </button>
                         ) : isWarning ? (
                           <button
@@ -262,7 +268,7 @@ export function PredictiveMatrixTable({
                             }}
                             className="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2.5 py-1 rounded font-mono text-label-code font-semibold transition-colors border border-carbon-700"
                           >
-                            RFQ disparado (5 usinas)
+                            Ver sugestão de compra
                           </button>
                         ) : (
                           <span className="font-mono text-label-code text-titanium-muted">
@@ -286,7 +292,7 @@ export function PredictiveMatrixTable({
           homologado e desvio padrão Z=1.645 (95%).
         </span>
         <span className="text-tertiary flex items-center gap-1">
-          <Zap className="w-3 h-3 text-tertiary" /> Lead Time Dinâmico Ativo
+          <Zap className="w-3 h-3 text-tertiary" /> Lead time do fornecedor do lote
         </span>
       </div>
     </div>
