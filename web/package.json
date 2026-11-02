@@ -14,6 +14,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "db:seed-market": "tsx src/lib/market/seed-market.ts",
+    "db:seed-stock": "tsx src/lib/stock/seed-stock.ts",
     "worker:market": "tsx src/worker/market-worker.ts"
   },
   "dependencies": {

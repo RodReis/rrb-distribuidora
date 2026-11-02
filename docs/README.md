@@ -7,7 +7,7 @@ SaaS de inteligência preventiva para distribuidoras de ferro, aço e alumínio.
 |---|---|
 | M0 — Fundação | ✅ implementado e em produção (débitos em [`debitos-tecnicos.md`](./debitos-tecnicos.md)) |
 | M1 — Inteligência de Mercado | 🟡 implementado e integrado na `main` (PRs #1 e #2); **aguardando homologação** — pendências em [`specs/MVP-01-mercado.md`](./specs/MVP-01-mercado.md#10-estado-da-implementação-02112026) |
-| M2 — Estoque Preventivo | ⬜ não iniciado |
+| M2 — Estoque Preventivo | 🟡 implementado localmente (lint, build e 33 testes ok); **aguardando homologação** — agendamento 04h00 ausente, KPIs/matching com valores de protótipo e CRUD incompleto; ver [`specs/MVP-02-estoque.md`](./specs/MVP-02-estoque.md#10-estado-da-implementação-02112026) |
 | M3 — Orçamento de Corte | ⬜ não iniciado |
 | M4 — Copiloto + Governança | ⬜ não iniciado |
 
