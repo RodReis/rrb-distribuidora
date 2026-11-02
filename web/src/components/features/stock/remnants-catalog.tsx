@@ -327,10 +327,7 @@ export function RemnantsCatalog({
 
                     <div className="flex flex-col font-mono text-label-code overflow-hidden leading-tight">
                       <span className="text-titanium-muted truncate">
-                        Origem:{" "}
-                        <strong className="text-titanium-light">
-                          {rem.notes || "—"}
-                        </strong>
+                        Origem: <strong className="text-titanium-light">{rem.notes || "—"}</strong>
                       </span>
                       <span className="text-titanium-muted truncate mt-0.5">
                         Local: <strong className="text-ice-white">{rem.locationAddress}</strong>

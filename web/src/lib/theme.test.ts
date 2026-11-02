@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { THEME_INIT_SCRIPT, THEME_STORAGE_KEY, parseTheme, readAppliedTheme, themeColor } from "./theme";
+import {
+  THEME_INIT_SCRIPT,
+  THEME_STORAGE_KEY,
+  parseTheme,
+  readAppliedTheme,
+  themeColor,
+} from "./theme";
 
 describe("parseTheme", () => {
   it("só reconhece light; qualquer outra coisa vira o padrão escuro", () => {
@@ -33,7 +39,9 @@ describe("THEME_INIT_SCRIPT", () => {
         },
       };
       const localStorage = { getItem: () => stored };
-      new Function("localStorage", "document", THEME_INIT_SCRIPT)(localStorage, { documentElement });
+      new Function("localStorage", "document", THEME_INIT_SCRIPT)(localStorage, {
+        documentElement,
+      });
       return [...classes];
     };
     expect(run("light")).toEqual(["light"]);

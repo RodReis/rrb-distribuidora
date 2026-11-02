@@ -29,7 +29,14 @@ async function main() {
 
   const proposals = rows
     .map((r) => ({ row: r, proposal: proposeRepair(r) }))
-    .filter((x): x is { row: (typeof rows)[number]; proposal: NonNullable<ReturnType<typeof proposeRepair>> } => !!x.proposal);
+    .filter(
+      (
+        x
+      ): x is {
+        row: (typeof rows)[number];
+        proposal: NonNullable<ReturnType<typeof proposeRepair>>;
+      } => !!x.proposal
+    );
 
   const fixes = proposals.filter((x) => x.proposal.kind === "fix");
   const reviews = proposals.filter((x) => x.proposal.kind === "review");
@@ -39,12 +46,17 @@ async function main() {
       `${fixes.length} a converter, ${reviews.length} para revisar.`
   );
   for (const { proposal: p } of fixes) {
-    if (p.kind === "fix") console.log(`  CONVERTER ${p.sku}: R$ ${p.from} → R$ ${p.to}/kg (${p.reason})`);
+    if (p.kind === "fix")
+      console.log(`  CONVERTER ${p.sku}: R$ ${p.from} → R$ ${p.to}/kg (${p.reason})`);
   }
   for (const { proposal: p } of reviews) console.log(`  REVISAR   ${p.sku}: ${p.reason}`);
 
   if (!apply) {
-    console.log(fixes.length ? "\nDry-run: nada foi alterado. Rode com --apply para converter." : "\nNada a converter.");
+    console.log(
+      fixes.length
+        ? "\nDry-run: nada foi alterado. Rode com --apply para converter."
+        : "\nNada a converter."
+    );
     return;
   }
 
@@ -61,11 +73,16 @@ async function main() {
         entityId: row.id,
         action: "update",
         before: { replacementCostBase: String(p.from) },
-        after: { replacementCostBase: String(p.to), motivo: "reparo: custo por unidade convertido para R$/kg" },
+        after: {
+          replacementCostBase: String(p.to),
+          motivo: "reparo: custo por unidade convertido para R$/kg",
+        },
       });
     });
   }
-  console.log(`\n${fixes.length} produto(s) convertido(s). Rode o recálculo de estoque para atualizar os indicadores.`);
+  console.log(
+    `\n${fixes.length} produto(s) convertido(s). Rode o recálculo de estoque para atualizar os indicadores.`
+  );
 }
 
 main()

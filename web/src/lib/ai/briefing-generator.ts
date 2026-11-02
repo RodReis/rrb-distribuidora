@@ -153,7 +153,13 @@ ${JSON.stringify(dataContext, null, 2)}`;
     summaryText = result.text;
     usage = result.totalUsage;
   } catch (err) {
-    await logBriefingAudit(tenantId, audit, briefingFailureResponse(err), undefined, Date.now() - startedAt);
+    await logBriefingAudit(
+      tenantId,
+      audit,
+      briefingFailureResponse(err),
+      undefined,
+      Date.now() - startedAt
+    );
     throw err;
   }
   await logBriefingAudit(tenantId, audit, summaryText, usage, Date.now() - startedAt);
@@ -188,7 +194,9 @@ ${JSON.stringify(dataContext, null, 2)}`;
   const [existing] = await db
     .select({ id: dailyBriefings.id })
     .from(dailyBriefings)
-    .where(and(eq(dailyBriefings.tenantId, tenantId), eq(dailyBriefings.briefingDate, briefingDate)))
+    .where(
+      and(eq(dailyBriefings.tenantId, tenantId), eq(dailyBriefings.briefingDate, briefingDate))
+    )
     .limit(1);
 
   const [row] = existing
@@ -197,7 +205,10 @@ ${JSON.stringify(dataContext, null, 2)}`;
         .set({ ...values, sentViaEmailAt: null, createdAt: new Date() })
         .where(eq(dailyBriefings.id, existing.id))
         .returning()
-    : await db.insert(dailyBriefings).values({ tenantId, briefingDate, ...values }).returning();
+    : await db
+        .insert(dailyBriefings)
+        .values({ tenantId, briefingDate, ...values })
+        .returning();
 
   const directors = await db
     .select({ email: users.email })

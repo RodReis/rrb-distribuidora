@@ -25,7 +25,11 @@ export async function POST(req: Request) {
 
   const tools = createCopilotTools(user.tenantId);
 
-  const toolsExecuted: { toolName: string; params: Record<string, unknown>; resultSummary: string }[] = [];
+  const toolsExecuted: {
+    toolName: string;
+    params: Record<string, unknown>;
+    resultSummary: string;
+  }[] = [];
 
   const result = streamText({
     model: copilotModel(),
@@ -41,14 +45,18 @@ export async function POST(req: Request) {
           toolsExecuted.push({
             toolName: tc.toolName,
             params: ((tc as { input?: unknown }).input ?? {}) as Record<string, unknown>,
-            resultSummary: tr ? JSON.stringify((tr as { output?: unknown }).output).slice(0, 500) : "",
+            resultSummary: tr
+              ? JSON.stringify((tr as { output?: unknown }).output).slice(0, 500)
+              : "",
           });
         }
       }
     },
     onFinish: async ({ text, totalUsage }) => {
       try {
-        const lastUserMsg = [...messages].reverse().find((m: { role: string }) => m.role === "user");
+        const lastUserMsg = [...messages]
+          .reverse()
+          .find((m: { role: string }) => m.role === "user");
         const prompt = extractPromptText(lastUserMsg?.content);
         await db.insert(agentActions).values({
           id: actionId,

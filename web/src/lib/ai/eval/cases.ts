@@ -22,7 +22,10 @@ const MARKET_TOOL = ["consultar_cotacao_mercado"];
 const QUOTES_TOOL = ["consultar_orcamentos_pendentes"];
 
 function countChecks(label: string, count: number, extra: Check[] = []): Check[] {
-  return [count === 0 ? { kind: "zero", label } : { kind: "number", label, value: count }, ...extra];
+  return [
+    count === 0 ? { kind: "zero", label } : { kind: "number", label, value: count },
+    ...extra,
+  ];
 }
 
 function variationChecks(label: string, value: number): Check[] {
@@ -157,7 +160,12 @@ export function buildCases(t: Truth): { cases: EvalCase[]; skipped: SkippedCase[
   ) => {
     const v = pick(m);
     if (v == null) return skip(id, `sem série de ${needs}`);
-    add({ id, category: "Mercado", question, checks: [{ kind: "tool", anyOf: MARKET_TOOL }, ...build(v)] });
+    add({
+      id,
+      category: "Mercado",
+      question,
+      checks: [{ kind: "tool", anyOf: MARKET_TOOL }, ...build(v)],
+    });
   };
 
   market(
@@ -173,7 +181,14 @@ export function buildCases(t: Truth): { cases: EvalCase[]; skipped: SkippedCase[
     "Qual o último fechamento do alumínio LME?",
     t.market.aluminium,
     (m) => m.last,
-    (v) => [{ kind: "number", label: "último fechamento do alumínio", value: v, tol: { abs: 0.06, rel: 0.001 } }],
+    (v) => [
+      {
+        kind: "number",
+        label: "último fechamento do alumínio",
+        value: v,
+        tol: { abs: 0.06, rel: 0.001 },
+      },
+    ],
     "alumínio LME"
   );
   market(
@@ -188,11 +203,17 @@ export function buildCases(t: Truth): { cases: EvalCase[]; skipped: SkippedCase[
     add({
       id: "mer-04",
       category: "Mercado",
-      question: "Qual o último fechamento do HRC (bobina a quente) e como ele variou nos últimos 7 dias?",
+      question:
+        "Qual o último fechamento do HRC (bobina a quente) e como ele variou nos últimos 7 dias?",
       checks: [
         { kind: "tool", anyOf: MARKET_TOOL },
         daysCheck(7),
-        { kind: "number", label: "último fechamento do HRC", value: t.market.hrc.last, tol: { abs: 0.06, rel: 0.001 } },
+        {
+          kind: "number",
+          label: "último fechamento do HRC",
+          value: t.market.hrc.last,
+          tol: { abs: 0.06, rel: 0.001 },
+        },
         ...variationChecks("variação do HRC em 7d (%)", t.market.hrc.change7d),
       ],
     });
@@ -220,7 +241,12 @@ export function buildCases(t: Truth): { cases: EvalCase[]; skipped: SkippedCase[
       checks: [
         { kind: "tool", anyOf: QUOTES_TOOL },
         statusCheck("aprovado"),
-        { kind: "number", label: "margem média (%)", value: t.quotes.approvedAvgMargin, tol: { abs: 0.06 } },
+        {
+          kind: "number",
+          label: "margem média (%)",
+          value: t.quotes.approvedAvgMargin,
+          tol: { abs: 0.06 },
+        },
       ],
     });
   } else {
@@ -269,7 +295,10 @@ export function buildCases(t: Truth): { cases: EvalCase[]; skipped: SkippedCase[
           tool: "consultar_orcamentos_pendentes",
           key: "vendedor",
           describe: `nome contendo "${first}"`,
-          test: (v) => String(v ?? "").toLowerCase().includes(first),
+          test: (v) =>
+            String(v ?? "")
+              .toLowerCase()
+              .includes(first),
         },
         ...countChecks("orçamentos do vendedor", t.quotes.seller.count),
       ],
@@ -345,7 +374,12 @@ export function buildCases(t: Truth): { cases: EvalCase[]; skipped: SkippedCase[
         },
         total === 0
           ? { kind: "zero", label: "impacto total" }
-          : { kind: "number", label: "impacto total (R$)", value: total, tol: { abs: 1, rel: 0.005 } },
+          : {
+              kind: "number",
+              label: "impacto total (R$)",
+              value: total,
+              tol: { abs: 1, rel: 0.005 },
+            },
       ],
     });
   } else {

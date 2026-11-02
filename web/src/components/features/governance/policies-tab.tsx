@@ -61,7 +61,11 @@ export function PoliciesTab() {
 
   return (
     <div className="space-y-3">
-      <Article index="Artigo 1" tag="Natureza dos sinais" title="Apoio à decisão, não recomendação financeira">
+      <Article
+        index="Artigo 1"
+        tag="Natureza dos sinais"
+        title="Apoio à decisão, não recomendação financeira"
+      >
         <p className="text-body-md leading-relaxed text-titanium-light">
           Sinais de mercado, alertas, o briefing matinal e as respostas do Copiloto são{" "}
           <strong className="text-ice-white">apoio à decisão</strong>. Não constituem recomendação
@@ -76,12 +80,18 @@ export function PoliciesTab() {
         </div>
       </Article>
 
-      <Article index="Artigo 2" tag="Human-in-the-loop" title="Protocolo de confirmação obrigatória">
+      <Article
+        index="Artigo 2"
+        tag="Human-in-the-loop"
+        title="Protocolo de confirmação obrigatória"
+      >
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {STEPS.map(({ step, icon: Icon, iconClass, title, text }) => (
             <div key={step} className="space-y-1 rounded bg-carbon-950 p-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-label-code uppercase text-titanium-steel">{step}</span>
+                <span className="font-mono text-label-code uppercase text-titanium-steel">
+                  {step}
+                </span>
                 <Icon className={`h-4 w-4 ${iconClass}`} />
               </div>
               <span className="block text-body-md font-semibold text-ice-white">{title}</span>
@@ -106,7 +116,10 @@ export function PoliciesTab() {
         </p>
         <ul className="divide-y divide-carbon-800 rounded border border-carbon-800">
           {tools.map((tool) => (
-            <li key={tool.name} className="flex flex-col gap-1 bg-carbon-950/50 p-3 md:flex-row md:items-start md:gap-4">
+            <li
+              key={tool.name}
+              className="flex flex-col gap-1 bg-carbon-950/50 p-3 md:flex-row md:items-start md:gap-4"
+            >
               <span className="flex shrink-0 items-center gap-1.5 font-mono text-label-code font-semibold text-tertiary md:w-72">
                 <Wrench className="h-3.5 w-3.5" />
                 {tool.name}

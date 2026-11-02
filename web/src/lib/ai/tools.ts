@@ -21,9 +21,12 @@ export function createCopilotTools(tenantId: string) {
   return {
     consultar_ruptura_estoque: tool({
       description:
-        "Consulta SKUs com risco de ruptura de estoque. Devolve dois grupos juntos, cada item com o campo `status`: CRITICAL_RUPTURE (cobertura abaixo do lead time) e WARNING (em atenção, perto do ponto de pedido). Filtros opcionais: família e status. \"Risco de ruptura\" sem qualificação inclui os dois grupos: NÃO use `status` nesse caso. Use `status` só quando o usuário pedir explicitamente apenas os críticos (ruptura crítica) ou apenas os em atenção. O resultado traz `totais` (críticos, em atenção e `emRisco` = soma dos dois, já na família pedida): para \"quantos SKUs\" responda com esses totais, não com o tamanho da lista. Cada item traz `sugestaoCompra`: quanto comprar para evitar a ruptura. Dá para filtrar por `sku`. As quantidades vêm na unidade do produto (campo `unidade`).",
+        'Consulta SKUs com risco de ruptura de estoque. Devolve dois grupos juntos, cada item com o campo `status`: CRITICAL_RUPTURE (cobertura abaixo do lead time) e WARNING (em atenção, perto do ponto de pedido). Filtros opcionais: família e status. "Risco de ruptura" sem qualificação inclui os dois grupos: NÃO use `status` nesse caso. Use `status` só quando o usuário pedir explicitamente apenas os críticos (ruptura crítica) ou apenas os em atenção. O resultado traz `totais` (críticos, em atenção e `emRisco` = soma dos dois, já na família pedida): para "quantos SKUs" responda com esses totais, não com o tamanho da lista. Cada item traz `sugestaoCompra`: quanto comprar para evitar a ruptura. Dá para filtrar por `sku`. As quantidades vêm na unidade do produto (campo `unidade`).',
       inputSchema: z.object({
-        sku: z.string().optional().describe("SKU (ou trecho do SKU) para consultar um produto específico"),
+        sku: z
+          .string()
+          .optional()
+          .describe("SKU (ou trecho do SKU) para consultar um produto específico"),
         familia: z
           .string()
           .optional()
@@ -32,7 +35,13 @@ export function createCopilotTools(tenantId: string) {
           .enum(["CRITICAL_RUPTURE", "WARNING"])
           .optional()
           .describe("CRITICAL_RUPTURE = só críticos; WARNING = só em atenção; omitido = os dois"),
-        limite: z.number().int().min(1).max(100).default(20).describe("Quantidade máxima de resultados"),
+        limite: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Quantidade máxima de resultados"),
       }),
       execute: async ({ sku, familia, status, limite }) => {
         const conditions = [eq(stockPredictiveMetrics.tenantId, tenantId)];
@@ -110,26 +119,36 @@ export function createCopilotTools(tenantId: string) {
       inputSchema: z.object({
         ativo: z
           .string()
-          .describe(`Símbolo do ativo. Valores válidos: ${Object.values(ASSET_SYMBOLS).join(", ")}`),
+          .describe(
+            `Símbolo do ativo. Valores válidos: ${Object.values(ASSET_SYMBOLS).join(", ")}`
+          ),
         dias: z
           .number()
           .int()
           .min(1)
           .max(365)
           .default(15)
-          .describe("Janela da variação, em dias corridos (ex.: 7 para uma semana, 30 para um mês)"),
+          .describe(
+            "Janela da variação, em dias corridos (ex.: 7 para uma semana, 30 para um mês)"
+          ),
       }),
       execute: async ({ ativo, dias }) => {
         const symbol = resolveAssetSymbol(ativo);
         const [asset] = await db.select().from(marketAssets).where(eq(marketAssets.symbol, symbol));
         if (!asset) {
-          return { error: "Ativo não encontrado", ativo, simbolosValidos: Object.values(ASSET_SYMBOLS) };
+          return {
+            error: "Ativo não encontrado",
+            ativo,
+            simbolosValidos: Object.values(ASSET_SYMBOLS),
+          };
         }
         const from = new Date(Date.now() - dias * 86_400_000);
         const rows = await db
           .select({ timestamp: marketPriceSeries.timestamp, close: marketPriceSeries.close })
           .from(marketPriceSeries)
-          .where(and(eq(marketPriceSeries.assetId, asset.id), gte(marketPriceSeries.timestamp, from)))
+          .where(
+            and(eq(marketPriceSeries.assetId, asset.id), gte(marketPriceSeries.timestamp, from))
+          )
           .orderBy(desc(marketPriceSeries.timestamp));
         // O último fechamento não depende da janela: fim de semana e feriado não podem zerá-lo.
         const [latestOverall] = await db
@@ -166,7 +185,9 @@ export function createCopilotTools(tenantId: string) {
         status: z
           .string()
           .optional()
-          .describe("Status: rascunho, bloqueado_margem, enviado, em_negociacao, aprovado, perdido, expirado"),
+          .describe(
+            "Status: rascunho, bloqueado_margem, enviado, em_negociacao, aprovado, perdido, expirado"
+          ),
         vendedor: z.string().optional().describe("Nome ou email do vendedor"),
       }),
       execute: async ({ status, vendedor }) => {
@@ -186,7 +207,12 @@ export function createCopilotTools(tenantId: string) {
           if (sellers.length === 0) {
             return { error: "Vendedor não encontrado", vendedor };
           }
-          conditions.push(inArray(quotes.sellerId, sellers.map((s) => s.id)));
+          conditions.push(
+            inArray(
+              quotes.sellerId,
+              sellers.map((s) => s.id)
+            )
+          );
         }
 
         const [agg] = await db
@@ -238,9 +264,14 @@ export function createCopilotTools(tenantId: string) {
         liga: z.string().optional().describe("Liga/norma (ex: A36, A572)"),
       }),
       execute: async ({ espessura_min, espessura_max, liga }) => {
-        const conditions = [eq(stockRemnants.tenantId, tenantId), eq(stockRemnants.status, "disponivel")];
-        if (espessura_min != null) conditions.push(gte(stockRemnants.thicknessMm, String(espessura_min)));
-        if (espessura_max != null) conditions.push(lte(stockRemnants.thicknessMm, String(espessura_max)));
+        const conditions = [
+          eq(stockRemnants.tenantId, tenantId),
+          eq(stockRemnants.status, "disponivel"),
+        ];
+        if (espessura_min != null)
+          conditions.push(gte(stockRemnants.thicknessMm, String(espessura_min)));
+        if (espessura_max != null)
+          conditions.push(lte(stockRemnants.thicknessMm, String(espessura_max)));
         const rows = await db
           .select({
             code: stockRemnants.code,
@@ -283,7 +314,13 @@ export function createCopilotTools(tenantId: string) {
           .string()
           .optional()
           .describe("SKU ou trecho da descrição do produto (ex: chapa 1/4, CG-A36)"),
-        limite: z.number().int().min(1).max(50).default(10).describe("Quantidade máxima de resultados"),
+        limite: z
+          .number()
+          .int()
+          .min(1)
+          .max(50)
+          .default(10)
+          .describe("Quantidade máxima de resultados"),
       }),
       execute: async ({ produto, limite }) => {
         if (produto) {
@@ -325,7 +362,12 @@ export function createCopilotTools(tenantId: string) {
           .where(and(eq(suppliers.tenantId, tenantId), eq(suppliers.active, true)))
           .orderBy(suppliers.leadTimeDays)
           .limit(limite ?? 10);
-        return { filtro: null, base: "lead time padrão do cadastro", count: rows.length, items: rows };
+        return {
+          filtro: null,
+          base: "lead time padrão do cadastro",
+          count: rows.length,
+          items: rows,
+        };
       },
     }),
 
@@ -353,7 +395,12 @@ export function createCopilotTools(tenantId: string) {
           })
           .from(stockPredictiveMetrics)
           .innerJoin(products, eq(products.id, stockPredictiveMetrics.productId))
-          .where(and(eq(stockPredictiveMetrics.tenantId, tenantId), eq(products.family, familia_produto as never)));
+          .where(
+            and(
+              eq(stockPredictiveMetrics.tenantId, tenantId),
+              eq(products.family, familia_produto as never)
+            )
+          );
 
         const [open] = await db
           .select({

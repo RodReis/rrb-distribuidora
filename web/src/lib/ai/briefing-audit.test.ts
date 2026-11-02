@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { BRIEFING_AGENT_NAME, briefingFailureResponse, buildBriefingAuditEntry } from "./briefing-audit";
+import {
+  BRIEFING_AGENT_NAME,
+  briefingFailureResponse,
+  buildBriefingAuditEntry,
+} from "./briefing-audit";
 
 const input = {
   briefingDate: "2026-11-02",
@@ -32,7 +36,9 @@ describe("buildBriefingAuditEntry", () => {
 
   it("marca como indisponível o dado de mercado ausente, em vez de gravar zero", () => {
     const e = buildBriefingAuditEntry({ ...input, usdRate: null, lmeAluRate: null });
-    expect(e.toolsExecuted[2].resultSummary).toBe("USD-BRL-PTAX indisponível; LME-ALU indisponível");
+    expect(e.toolsExecuted[2].resultSummary).toBe(
+      "USD-BRL-PTAX indisponível; LME-ALU indisponível"
+    );
   });
 
   it("usa um nome de agente estável para filtrar na governança", () => {

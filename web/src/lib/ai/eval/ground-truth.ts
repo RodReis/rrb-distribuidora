@@ -55,7 +55,10 @@ async function marketTruth(symbol: string): Promise<MarketTruth> {
 }
 
 export async function buildTruth(tenantId: string): Promise<Truth> {
-  const skuRows = await db.select({ sku: products.sku }).from(products).where(eq(products.tenantId, tenantId));
+  const skuRows = await db
+    .select({ sku: products.sku })
+    .from(products)
+    .where(eq(products.tenantId, tenantId));
 
   const riskRows = await db
     .select({
@@ -86,7 +89,9 @@ export async function buildTruth(tenantId: string): Promise<Truth> {
     .select({
       total: sql<number>`count(*)`,
       approved: sql<number>`count(*) filter (where ${quotes.status} = 'aprovado')`,
-      approvedAvg: sql<string | null>`avg(${quotes.grossMarginPct}) filter (where ${quotes.status} = 'aprovado')`,
+      approvedAvg: sql<
+        string | null
+      >`avg(${quotes.grossMarginPct}) filter (where ${quotes.status} = 'aprovado')`,
       sent: sql<number>`count(*) filter (where ${quotes.status} = 'enviado')`,
       sentTotal: sql<string>`coalesce(sum(${quotes.totalAmount}) filter (where ${quotes.status} = 'enviado'), 0)`,
       blocked: sql<number>`count(*) filter (where ${quotes.status} = 'bloqueado_margem')`,
@@ -110,13 +115,16 @@ export async function buildTruth(tenantId: string): Promise<Truth> {
     .where(and(eq(stockRemnants.tenantId, tenantId), eq(stockRemnants.status, "disponivel")));
 
   const supplierRows = await db
-    .select({ legal: suppliers.legalName, trade: suppliers.tradeName, lead: suppliers.leadTimeDays })
+    .select({
+      legal: suppliers.legalName,
+      trade: suppliers.tradeName,
+      lead: suppliers.leadTimeDays,
+    })
     .from(suppliers)
     .where(and(eq(suppliers.tenantId, tenantId), eq(suppliers.active, true)))
     .orderBy(asc(suppliers.leadTimeDays));
   const minLead = supplierRows[0]?.lead;
-  const topSuppliers =
-    minLead == null ? null : supplierRows.filter((s) => s.lead === minLead);
+  const topSuppliers = minLead == null ? null : supplierRows.filter((s) => s.lead === minLead);
 
   const [stockValue] = await db
     .select({
@@ -155,6 +163,10 @@ export async function buildTruth(tenantId: string): Promise<Truth> {
           names: topSuppliers.flatMap((s) => [s.legal, s.trade].filter((n): n is string => !!n)),
         }
       : null,
-    impact: { family: IMPACT_FAMILY, pct: IMPACT_PCT, total: Number((impactBase * (IMPACT_PCT / 100)).toFixed(2)) },
+    impact: {
+      family: IMPACT_FAMILY,
+      pct: IMPACT_PCT,
+      total: Number((impactBase * (IMPACT_PCT / 100)).toFixed(2)),
+    },
   };
 }

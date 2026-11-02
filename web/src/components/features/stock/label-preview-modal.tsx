@@ -82,11 +82,7 @@ export function LabelPreviewModal({ isOpen, onClose, remnant }: LabelPreviewModa
 
             {/* QR Code */}
             <div className="w-12 h-12 bg-paper p-0.5 border border-ink rounded flex items-center justify-center">
-              <svg
-                className="w-full h-full text-ink"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-full h-full text-ink" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z" />
               </svg>
             </div>

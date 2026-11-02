@@ -62,9 +62,7 @@ export function MetricTile({
         {badge}
       </div>
 
-      {footer && (
-        <div className="font-mono text-label-code text-titanium-muted">{footer}</div>
-      )}
+      {footer && <div className="font-mono text-label-code text-titanium-muted">{footer}</div>}
     </div>
   );
 }

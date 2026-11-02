@@ -10,7 +10,15 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { auditLog, products, quotes, stockRemnants, tenants, users, warehouses } from "@/lib/db/schema";
+import {
+  auditLog,
+  products,
+  quotes,
+  stockRemnants,
+  tenants,
+  users,
+  warehouses,
+} from "@/lib/db/schema";
 import { createRemnant } from "@/lib/stock/movements";
 import { expireOverdueQuotes } from "./service";
 
@@ -47,7 +55,11 @@ describe.skipIf(!enabled)("expiração de propostas e retalhos (Postgres real)",
       .where(and(eq(products.tenantId, tenantId), eq(products.status, "ativo")))
       .limit(1);
     productId = product.id;
-    const [warehouse] = await db.select().from(warehouses).where(eq(warehouses.tenantId, tenantId)).limit(1);
+    const [warehouse] = await db
+      .select()
+      .from(warehouses)
+      .where(eq(warehouses.tenantId, tenantId))
+      .limit(1);
     warehouseId = warehouse.id;
     const [quote] = await db.select().from(quotes).where(eq(quotes.tenantId, tenantId)).limit(1);
     if (!quote) throw new Error("Precisa de ao menos 1 proposta no banco para servir de modelo.");
@@ -57,13 +69,17 @@ describe.skipIf(!enabled)("expiração de propostas e retalhos (Postgres real)",
   afterAll(async () => {
     if (!enabled) return;
     // Limpa por marca (não só pelos ids guardados): se um teste falhar no meio, nada fica órfão.
-    const tagged = await db.select({ id: stockRemnants.id }).from(stockRemnants).where(eq(stockRemnants.notes, TAG));
+    const tagged = await db
+      .select({ id: stockRemnants.id })
+      .from(stockRemnants)
+      .where(eq(stockRemnants.notes, TAG));
     tagged.forEach((r) => {
       if (!remnantIds.includes(r.id)) remnantIds.push(r.id);
     });
     const entityIds = [...quoteIds, ...remnantIds];
     if (entityIds.length) await db.delete(auditLog).where(inArray(auditLog.entityId, entityIds));
-    if (remnantIds.length) await db.delete(stockRemnants).where(inArray(stockRemnants.id, remnantIds));
+    if (remnantIds.length)
+      await db.delete(stockRemnants).where(inArray(stockRemnants.id, remnantIds));
     if (quoteIds.length) await db.delete(quotes).where(inArray(quotes.id, quoteIds));
   });
 
@@ -117,7 +133,10 @@ describe.skipIf(!enabled)("expiração de propostas e retalhos (Postgres real)",
     expect(await status(approved.id)).toBe("aprovado");
     expect(await status(draft.id)).toBe("rascunho");
 
-    const [remnant] = await db.select().from(stockRemnants).where(eq(stockRemnants.id, remnantIds[0]));
+    const [remnant] = await db
+      .select()
+      .from(stockRemnants)
+      .where(eq(stockRemnants.id, remnantIds[0]));
     expect(remnant.status).toBe("disponivel");
     expect(remnant.reservedForQuoteId).toBeNull();
 

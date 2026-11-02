@@ -29,7 +29,9 @@ export function parsePtNumber(raw: string): number | null {
 /** Números do texto, em pt-BR (1.234,56) ou com ponto decimal. Ignora hífen de SKU (SKU-A-476). */
 export function extractNumbers(text: string): number[] {
   const matches =
-    text.match(/(?<![\w])-?(?:\d{1,3}(?:,\d{3})+\.\d+|\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?)/g) ?? [];
+    text.match(
+      /(?<![\w])-?(?:\d{1,3}(?:,\d{3})+\.\d+|\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?)/g
+    ) ?? [];
   return matches.map(parsePtNumber).filter((n): n is number => n !== null);
 }
 

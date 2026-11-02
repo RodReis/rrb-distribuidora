@@ -7,7 +7,9 @@ describe("proposeRepair", () => {
   it("não mexe em valor plausível como R$/kg", () => {
     expect(proposeRepair({ ...base, unit: "kg", replacementCostBase: "5.36" })).toBeNull();
     expect(proposeRepair({ ...base, unit: "t", replacementCostBase: "5.42" })).toBeNull();
-    expect(proposeRepair({ ...base, unit: "un", replacementCostBase: SUSPICIOUS_COST_PER_KG_BRL })).toBeNull();
+    expect(
+      proposeRepair({ ...base, unit: "un", replacementCostBase: SUSPICIOUS_COST_PER_KG_BRL })
+    ).toBeNull();
   });
 
   it("converte preço por tonelada para R$/kg", () => {
@@ -37,8 +39,12 @@ describe("proposeRepair", () => {
   });
 
   it("valor alto em kg ou m só é sinalizado para revisão", () => {
-    expect(proposeRepair({ ...base, unit: "kg", replacementCostBase: "900" })).toMatchObject({ kind: "review" });
-    expect(proposeRepair({ ...base, unit: "m", replacementCostBase: "900" })).toMatchObject({ kind: "review" });
+    expect(proposeRepair({ ...base, unit: "kg", replacementCostBase: "900" })).toMatchObject({
+      kind: "review",
+    });
+    expect(proposeRepair({ ...base, unit: "m", replacementCostBase: "900" })).toMatchObject({
+      kind: "review",
+    });
   });
 
   it("valor inválido é ignorado", () => {

@@ -34,9 +34,9 @@ describe("parsePtNumber", () => {
 
 describe("extractNumbers", () => {
   it("extrai números de uma frase em pt-BR", () => {
-    expect(extractNumbers("O dólar subiu 7,6% e fechou em R$ 5,4212 (2.783,91 no alumínio).")).toEqual([
-      7.6, 5.4212, 2783.91,
-    ]);
+    expect(
+      extractNumbers("O dólar subiu 7,6% e fechou em R$ 5,4212 (2.783,91 no alumínio).")
+    ).toEqual([7.6, 5.4212, 2783.91]);
   });
 
   it("não trata hífen de SKU como sinal negativo", () => {
@@ -60,7 +60,9 @@ describe("containsNumber", () => {
   });
 
   it("pode ignorar o sinal quando o texto diz subiu/caiu", () => {
-    expect(containsNumber("o alumínio caiu 1,6%", -1.6, { abs: 0.06, ignoreSign: true })).toBe(true);
+    expect(containsNumber("o alumínio caiu 1,6%", -1.6, { abs: 0.06, ignoreSign: true })).toBe(
+      true
+    );
     expect(containsNumber("o alumínio caiu 1,6%", -1.6, { abs: 0.06 })).toBe(false);
   });
 

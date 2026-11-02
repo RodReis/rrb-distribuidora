@@ -4,7 +4,16 @@ import * as React from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, getToolName, isToolUIPart, type UIMessage } from "ai";
 import { toast } from "sonner";
-import { AlertTriangle, Check, Loader2, Send, Terminal, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Loader2,
+  Send,
+  Terminal,
+  ThumbsDown,
+  ThumbsUp,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { InlineMarkdown } from "@/components/shared/inline-markdown";
 import {
@@ -22,7 +31,9 @@ function formatToolInput(input: unknown): string {
   const entries = Object.entries(input as Record<string, unknown>).filter(
     ([, v]) => v !== undefined && v !== null && v !== ""
   );
-  return entries.map(([k, v]) => `${k}=${typeof v === "object" ? JSON.stringify(v) : String(v)}`).join(" · ");
+  return entries
+    .map(([k, v]) => `${k}=${typeof v === "object" ? JSON.stringify(v) : String(v)}`)
+    .join(" · ");
 }
 
 export function CopilotDrawer() {
@@ -32,7 +43,9 @@ export function CopilotDrawer() {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const endRef = React.useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, error, regenerate } = useChat<CopilotMessage>({ transport });
+  const { messages, sendMessage, status, error, regenerate } = useChat<CopilotMessage>({
+    transport,
+  });
   const busy = status === "submitted" || status === "streaming";
 
   const send = React.useCallback(
@@ -138,8 +151,8 @@ export function CopilotDrawer() {
             {messages.length === 0 && (
               <div className="space-y-2">
                 <p className="text-body-sm text-titanium-muted">
-                  Pergunte sobre estoque, mercado, orçamentos, retalhos e fornecedores. Se não houver
-                  ferramenta para a pergunta, o Copiloto avisa em vez de inventar.
+                  Pergunte sobre estoque, mercado, orçamentos, retalhos e fornecedores. Se não
+                  houver ferramenta para a pergunta, o Copiloto avisa em vez de inventar.
                 </p>
                 <div className="flex flex-col gap-1.5">
                   {COPILOT_QUICK_PROMPTS.map((p) => (
@@ -163,7 +176,10 @@ export function CopilotDrawer() {
               const textParts = m.parts.filter((p) => p.type === "text");
               const toolParts = m.parts.filter(isToolUIPart);
               return (
-                <div key={m.id} className={cn("flex flex-col gap-1.5", isUser ? "items-end" : "items-start")}>
+                <div
+                  key={m.id}
+                  className={cn("flex flex-col gap-1.5", isUser ? "items-end" : "items-start")}
+                >
                   {toolParts.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {toolParts.map((p, i) => {
@@ -225,7 +241,11 @@ export function CopilotDrawer() {
                               (score === 1 ? "text-signal-buy" : "text-carmine-signal")
                           )}
                         >
-                          {score === 1 ? <ThumbsUp className="h-3.5 w-3.5" /> : <ThumbsDown className="h-3.5 w-3.5" />}
+                          {score === 1 ? (
+                            <ThumbsUp className="h-3.5 w-3.5" />
+                          ) : (
+                            <ThumbsDown className="h-3.5 w-3.5" />
+                          )}
                         </button>
                       ))}
                     </div>

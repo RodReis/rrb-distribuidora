@@ -35,7 +35,9 @@ export function buildBriefingAuditEntry(input: BriefingAuditInput): {
 } {
   const market: string[] = [];
   market.push(
-    input.usdRate != null ? `${ASSET_SYMBOLS.PTAX}=${input.usdRate}` : `${ASSET_SYMBOLS.PTAX} indisponível`
+    input.usdRate != null
+      ? `${ASSET_SYMBOLS.PTAX}=${input.usdRate}`
+      : `${ASSET_SYMBOLS.PTAX} indisponível`
   );
   market.push(
     input.lmeAluRate != null

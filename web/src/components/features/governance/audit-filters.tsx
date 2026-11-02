@@ -7,13 +7,7 @@ import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { PAGE_SIZES, type AuditFilters } from "@/lib/governance/filters";
 
-export function AuditFiltersBar({
-  filters,
-  agents,
-}: {
-  filters: AuditFilters;
-  agents: string[];
-}) {
+export function AuditFiltersBar({ filters, agents }: { filters: AuditFilters; agents: string[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const [q, setQ] = React.useState(filters.q);
@@ -65,7 +59,11 @@ export function AuditFiltersBar({
         </Select>
       </div>
       <div className="w-full lg:w-44">
-        <Select value={feedback} onChange={(e) => setFeedback(e.target.value)} aria-label="Avaliação">
+        <Select
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+          aria-label="Avaliação"
+        >
           <option value="todos">Avaliação: todas</option>
           <option value="positivo">Útil</option>
           <option value="negativo">Não útil</option>
@@ -73,7 +71,11 @@ export function AuditFiltersBar({
         </Select>
       </div>
       <div className="w-full lg:w-32">
-        <Select value={size} onChange={(e) => setSize(e.target.value)} aria-label="Itens por página">
+        <Select
+          value={size}
+          onChange={(e) => setSize(e.target.value)}
+          aria-label="Itens por página"
+        >
           {PAGE_SIZES.map((s) => (
             <option key={s} value={s}>
               {s} / pág.

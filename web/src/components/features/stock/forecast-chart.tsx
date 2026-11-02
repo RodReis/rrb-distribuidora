@@ -164,16 +164,40 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
               </>
             )}
 
-            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={X0} y="128">
+            <text
+              className="fill-titanium-muted"
+              fontFamily="JetBrains Mono"
+              fontSize="8"
+              x={X0}
+              y="128"
+            >
               Hoje
             </text>
-            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={xAt(15) - 8} y="128">
+            <text
+              className="fill-titanium-muted"
+              fontFamily="JetBrains Mono"
+              fontSize="8"
+              x={xAt(15) - 8}
+              y="128"
+            >
               +15d
             </text>
-            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={xAt(30) - 8} y="128">
+            <text
+              className="fill-titanium-muted"
+              fontFamily="JetBrains Mono"
+              fontSize="8"
+              x={xAt(30) - 8}
+              y="128"
+            >
               +30d
             </text>
-            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={X1 - 16} y="128">
+            <text
+              className="fill-titanium-muted"
+              fontFamily="JetBrains Mono"
+              fontSize="8"
+              x={X1 - 16}
+              y="128"
+            >
               +45d
             </text>
           </svg>

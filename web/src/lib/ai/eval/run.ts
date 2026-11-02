@@ -103,7 +103,9 @@ function reportMarkdown(params: {
     "",
     `- **Resultado:** ${verdict.toUpperCase()} — ${passed}/${executed} (${pct.toFixed(0)}%). Critério: ${ACCEPTANCE_QUESTIONS} perguntas e acerto acima de ${ACCEPTANCE_ACCURACY * 100}%.`,
     ...(infra > 0
-      ? [`- **Atenção:** ${infra} pergunta(s) descartada(s) por falha de ambiente (ferramenta lançou erro), fora da acurácia. Rode de novo.`]
+      ? [
+          `- **Atenção:** ${infra} pergunta(s) descartada(s) por falha de ambiente (ferramenta lançou erro), fora da acurácia. Rode de novo.`,
+        ]
       : []),
     `- **Modelo:** ${model} · **Empresa:** ${tenant}`,
     `- **Gabarito:** calculado direto do banco, sem usar as ferramentas do Copiloto.`,
@@ -125,7 +127,11 @@ function reportMarkdown(params: {
     for (const { c, run, outcome } of failed) {
       lines.push(`### ${c.id} — ${c.question}`, "");
       for (const f of outcome.failures) lines.push(`- ${f}`);
-      lines.push("", "> " + (run?.answer.replace(/\n/g, "\n> ").slice(0, 600) || "(sem resposta)"), "");
+      lines.push(
+        "",
+        "> " + (run?.answer.replace(/\n/g, "\n> ").slice(0, 600) || "(sem resposta)"),
+        ""
+      );
     }
   }
 
@@ -148,7 +154,9 @@ async function main() {
   const only = option("only")?.split(",");
   const cases = only ? built.cases.filter((c) => only.includes(c.id)) : built.cases;
 
-  console.log(`Empresa: ${tenant.name} · perguntas montadas: ${built.cases.length} · puladas: ${built.skipped.length}`);
+  console.log(
+    `Empresa: ${tenant.name} · perguntas montadas: ${built.cases.length} · puladas: ${built.skipped.length}`
+  );
   for (const s of built.skipped) console.log(`  (pulada) ${s.id}: ${s.reason}`);
 
   if (flag("dry")) {
@@ -171,12 +179,19 @@ async function main() {
       run = await ask(c.question, tenant.id);
       outcome = evaluateCase(c, run, truth.skus);
     } catch (err) {
-      outcome = { passed: false, failures: [`erro ao consultar o modelo: ${err instanceof Error ? err.message : String(err)}`] };
+      outcome = {
+        passed: false,
+        failures: [
+          `erro ao consultar o modelo: ${err instanceof Error ? err.message : String(err)}`,
+        ],
+      };
     }
     const ms = Date.now() - started;
     rows.push({ c, run, outcome, ms });
     const tag = outcome.infra ? "INFRA" : outcome.passed ? "OK   " : "FAIL ";
-    console.log(`${tag}${c.id} (${ms} ms)${outcome.passed ? "" : " — " + outcome.failures.join("; ")}`);
+    console.log(
+      `${tag}${c.id} (${ms} ms)${outcome.passed ? "" : " — " + outcome.failures.join("; ")}`
+    );
   }
 
   const summary = summarize(rows.map((r) => r.outcome));
@@ -185,11 +200,15 @@ async function main() {
     `\nResultado: ${summary.passed}/${summary.executed} (${(summary.accuracy * 100).toFixed(0)}%) — ${verdict.toUpperCase()}`
   );
   if (summary.infra > 0) {
-    console.log(`${summary.infra} pergunta(s) descartada(s) por falha de ambiente (ferramenta lançou erro). Rode de novo.`);
+    console.log(
+      `${summary.infra} pergunta(s) descartada(s) por falha de ambiente (ferramenta lançou erro). Rode de novo.`
+    );
   }
 
   if (!only) {
-    const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+    const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(
+      new Date()
+    );
     const file = path.resolve(process.cwd(), "..", "docs", "evals", `copilot-${date}.md`);
     mkdirSync(path.dirname(file), { recursive: true });
     writeFileSync(

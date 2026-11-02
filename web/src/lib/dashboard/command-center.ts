@@ -127,7 +127,9 @@ export async function getCommandCenterData(tenantId: string): Promise<CommandCen
   const today = saoPauloToday(now);
   const monthStart = monthStartSp(today.year, today.month);
   const prevMonthStart =
-    today.month === 1 ? monthStartSp(today.year - 1, 12) : monthStartSp(today.year, today.month - 1);
+    today.month === 1
+      ? monthStartSp(today.year - 1, 12)
+      : monthStartSp(today.year, today.month - 1);
   const since24h = new Date(now.getTime() - 24 * 3_600_000);
 
   const open = sql`${quotes.status} in ('enviado','em_negociacao','bloqueado_margem')`;
@@ -141,8 +143,12 @@ export async function getCommandCenterData(tenantId: string): Promise<CommandCen
       blockedCount: sql<number>`count(*) filter (where ${quotes.status} = 'bloqueado_margem')`,
       blockedTotal: sql<string>`coalesce(sum(${quotes.totalAmount}) filter (where ${quotes.status} = 'bloqueado_margem'), 0)`,
       approvedMonthCount: sql<number>`count(*) filter (where ${quotes.status} = 'aprovado' and ${quotes.updatedAt} >= ${monthIso}::timestamptz)`,
-      marginMonth: sql<string | null>`avg(${quotes.grossMarginPct}) filter (where ${quotes.status} = 'aprovado' and ${quotes.updatedAt} >= ${monthIso}::timestamptz)`,
-      marginPrev: sql<string | null>`avg(${quotes.grossMarginPct}) filter (where ${quotes.status} = 'aprovado' and ${quotes.updatedAt} >= ${prevIso}::timestamptz and ${quotes.updatedAt} < ${monthIso}::timestamptz)`,
+      marginMonth: sql<
+        string | null
+      >`avg(${quotes.grossMarginPct}) filter (where ${quotes.status} = 'aprovado' and ${quotes.updatedAt} >= ${monthIso}::timestamptz)`,
+      marginPrev: sql<
+        string | null
+      >`avg(${quotes.grossMarginPct}) filter (where ${quotes.status} = 'aprovado' and ${quotes.updatedAt} >= ${prevIso}::timestamptz and ${quotes.updatedAt} < ${monthIso}::timestamptz)`,
     })
     .from(quotes)
     .where(eq(quotes.tenantId, tenantId));
@@ -280,7 +286,10 @@ export async function getCommandCenterData(tenantId: string): Promise<CommandCen
     key: "propostas",
     title: "Propostas & Margem",
     level: quotesLevel(blockedCount),
-    badge: blockedCount > 0 ? `${blockedCount} bloqueada${blockedCount > 1 ? "s" : ""}` : "Sem bloqueios",
+    badge:
+      blockedCount > 0
+        ? `${blockedCount} bloqueada${blockedCount > 1 ? "s" : ""}`
+        : "Sem bloqueios",
     text:
       blockedCount > 0
         ? `${brl(blockedTotal)} em propostas aguardando liberação do diretor por margem ou custo de reposição.`
@@ -308,7 +317,10 @@ export async function getCommandCenterData(tenantId: string): Promise<CommandCen
     title: "Câmbio PTAX",
     level: ptax ? "info" : "nodata",
     badge: ptax?.change7d != null ? `${pct(ptax.change7d)} em 7d` : "Sem série",
-    text: ptax?.last != null ? `PTAX em R$ ${ptax.last.toFixed(4).replace(".", ",")}.` : "Sem cotação do BCB.",
+    text:
+      ptax?.last != null
+        ? `PTAX em R$ ${ptax.last.toFixed(4).replace(".", ",")}.`
+        : "Sem cotação do BCB.",
     next: { label: "Abrir paridade de importação", href: "/mercado?tab=paridade" },
   });
 

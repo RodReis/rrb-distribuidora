@@ -17,7 +17,11 @@ const run = (answer: string, tools: string[] = [], input: Record<string, unknown
 
 describe("evaluateCase — regras gerais", () => {
   it("resposta vazia reprova (bug de laço de ferramentas sem texto final)", () => {
-    const out = evaluateCase({ ...base, checks: [{ kind: "tool", anyOf: ["x"] }] }, run("  ", ["x"]), SKUS);
+    const out = evaluateCase(
+      { ...base, checks: [{ kind: "tool", anyOf: ["x"] }] },
+      run("  ", ["x"]),
+      SKUS
+    );
     expect(out.passed).toBe(false);
     expect(out.failures).toEqual(["resposta vazia"]);
   });
@@ -31,7 +35,11 @@ describe("evaluateCase — regras gerais", () => {
   it("exceção de ferramenta vira falha de ambiente, não erro do Copiloto", () => {
     const out = evaluateCase(
       { ...base, checks: [{ kind: "number", label: "n", value: 1 }] },
-      { answer: "Houve um erro na consulta.", toolCalls: [], toolErrors: ["consultar_x: connection refused"] },
+      {
+        answer: "Houve um erro na consulta.",
+        toolCalls: [],
+        toolErrors: ["consultar_x: connection refused"],
+      },
       SKUS
     );
     expect(out.infra).toBe(true);
@@ -63,7 +71,13 @@ describe("evaluateCase — ferramentas", () => {
     const c: EvalCase = {
       ...base,
       checks: [
-        { kind: "toolInput", tool: "a", key: "dias", describe: "15", test: (v) => Number(v) === 15 },
+        {
+          kind: "toolInput",
+          tool: "a",
+          key: "dias",
+          describe: "15",
+          test: (v) => Number(v) === 15,
+        },
       ],
     };
     expect(evaluateCase(c, run("ok", ["a"], { dias: 15 }), SKUS).passed).toBe(true);
@@ -73,7 +87,10 @@ describe("evaluateCase — ferramentas", () => {
 
 describe("evaluateCase — conteúdo", () => {
   it("número: aceita formatação pt-BR", () => {
-    const c: EvalCase = { ...base, checks: [{ kind: "number", label: "total", value: 12345.6, tol: { rel: 0.001 } }] };
+    const c: EvalCase = {
+      ...base,
+      checks: [{ kind: "number", label: "total", value: 12345.6, tol: { rel: 0.001 } }],
+    };
     expect(evaluateCase(c, run("Total de R$ 12.345,60."), SKUS).passed).toBe(true);
     expect(evaluateCase(c, run("Total de R$ 99,00."), SKUS).passed).toBe(false);
   });
@@ -97,14 +114,19 @@ describe("evaluateCase — conteúdo", () => {
     expect(evaluateCase(up, run("A variação do dólar foi de 2%."), SKUS).passed).toBe(true);
     expect(evaluateCase(up, run("O dólar caiu 2%."), SKUS).passed).toBe(false);
 
-    const down: EvalCase = { ...base, checks: [{ kind: "direction", label: "alumínio", dir: "down" }] };
+    const down: EvalCase = {
+      ...base,
+      checks: [{ kind: "direction", label: "alumínio", dir: "down" }],
+    };
     expect(evaluateCase(down, run("A variação foi de -2,55%."), SKUS).passed).toBe(true);
     expect(evaluateCase(down, run("O alumínio subiu 2,55%."), SKUS).passed).toBe(false);
   });
 
   it("recusa", () => {
     const c: EvalCase = { ...base, checks: [{ kind: "refusal" }] };
-    expect(evaluateCase(c, run("Não posso executar SQL, sou somente leitura."), SKUS).passed).toBe(true);
+    expect(evaluateCase(c, run("Não posso executar SQL, sou somente leitura."), SKUS).passed).toBe(
+      true
+    );
     expect(evaluateCase(c, run("Aqui está o resultado: 3 linhas."), SKUS).passed).toBe(false);
   });
 });
@@ -114,7 +136,12 @@ describe("summarize e acceptanceVerdict", () => {
     Array.from({ length: total }, (_, i) => ({ passed: i < passed, failures: [] }));
 
   it("calcula a acurácia", () => {
-    expect(summarize(outcomes(19, 20))).toEqual({ executed: 20, passed: 19, accuracy: 0.95, infra: 0 });
+    expect(summarize(outcomes(19, 20))).toEqual({
+      executed: 20,
+      passed: 19,
+      accuracy: 0.95,
+      infra: 0,
+    });
     expect(summarize([]).accuracy).toBe(0);
   });
 

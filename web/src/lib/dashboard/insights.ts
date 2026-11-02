@@ -57,9 +57,7 @@ export interface Recommendation {
 }
 
 export function rankRecommendations(items: Recommendation[], limit = 8): Recommendation[] {
-  return [...items]
-    .sort((a, b) => (b.amountBrl ?? -1) - (a.amountBrl ?? -1))
-    .slice(0, limit);
+  return [...items].sort((a, b) => (b.amountBrl ?? -1) - (a.amountBrl ?? -1)).slice(0, limit);
 }
 
 export type BriefingSectionKey = "attention" | "market" | "quotes";
@@ -86,9 +84,10 @@ export function splitBriefingSections(text: string): BriefingSection[] {
 
   for (const line of text.split("\n")) {
     const clean = line.replace(/[#*_`]/g, "").trim();
-    const hit = clean.length > 0 && clean.length < 90
-      ? SECTION_MATCHERS.find((s) => s.match.test(clean))
-      : undefined;
+    const hit =
+      clean.length > 0 && clean.length < 90
+        ? SECTION_MATCHERS.find((s) => s.match.test(clean))
+        : undefined;
     if (hit) {
       current = { key: hit.key, title: clean, lines: [] };
       sections.push(current);

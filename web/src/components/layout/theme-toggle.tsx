@@ -31,9 +31,7 @@ export function ThemeToggle() {
             onClick={() => applyTheme(value)}
             className={cn(
               "flex h-6 w-6 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core",
-              active
-                ? "bg-carbon-800 text-ice-white"
-                : "text-titanium-muted hover:text-ice-white"
+              active ? "bg-carbon-800 text-ice-white" : "text-titanium-muted hover:text-ice-white"
             )}
           >
             <Icon className="h-3.5 w-3.5" />

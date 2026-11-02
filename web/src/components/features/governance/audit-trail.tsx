@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { ChevronRight, ChevronLeft, MessageSquareOff, ThumbsDown, ThumbsUp, Wrench } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  MessageSquareOff,
+  ThumbsDown,
+  ThumbsUp,
+  Wrench,
+} from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { cn } from "@/lib/utils";
 import type { AuditFilters } from "@/lib/governance/filters";
@@ -34,10 +41,14 @@ function pageHref(filters: AuditFilters, page: number): string {
 }
 
 function formatParams(params: Record<string, unknown>): string {
-  const entries = Object.entries(params ?? {}).filter(([, v]) => v !== undefined && v !== null && v !== "");
+  const entries = Object.entries(params ?? {}).filter(
+    ([, v]) => v !== undefined && v !== null && v !== ""
+  );
   return entries.length === 0
     ? "sem filtros"
-    : entries.map(([k, v]) => `${k}=${typeof v === "object" ? JSON.stringify(v) : String(v)}`).join(" · ");
+    : entries
+        .map(([k, v]) => `${k}=${typeof v === "object" ? JSON.stringify(v) : String(v)}`)
+        .join(" · ");
 }
 
 export function AuditSummaryStrip({ summary }: { summary: Summary }) {
@@ -61,14 +72,17 @@ export function AuditSummaryStrip({ summary }: { summary: Summary }) {
     {
       label: "Avaliação dos usuários",
       value: rated > 0 ? `${Math.round((summary.positive / rated) * 100)}% úteis` : "—",
-      sub: rated > 0 ? `${summary.positive} úteis · ${summary.negative} não úteis` : "Sem avaliações",
+      sub:
+        rated > 0 ? `${summary.positive} úteis · ${summary.negative} não úteis` : "Sem avaliações",
     },
   ];
   return (
     <div className="grid grid-cols-2 gap-3 rounded-md border border-carbon-800 bg-carbon-950 p-3 md:grid-cols-4">
       {cells.map((c) => (
         <div key={c.label} className="space-y-0.5">
-          <span className="block text-label-caps font-semibold uppercase text-titanium-steel">{c.label}</span>
+          <span className="block text-label-caps font-semibold uppercase text-titanium-steel">
+            {c.label}
+          </span>
           <span className="block font-mono text-metric-regular text-ice-white">{c.value}</span>
           <span className="block font-mono text-label-code text-titanium-muted">{c.sub}</span>
         </div>
@@ -77,13 +91,7 @@ export function AuditSummaryStrip({ summary }: { summary: Summary }) {
   );
 }
 
-export function AuditTrail({
-  filters,
-  page,
-}: {
-  filters: AuditFilters;
-  page: Page;
-}) {
+export function AuditTrail({ filters, page }: { filters: AuditFilters; page: Page }) {
   const hasFilters = !!(filters.q || filters.agent || filters.feedback !== "todos");
   const from = page.total === 0 ? 0 : (page.page - 1) * filters.size + 1;
   const to = Math.min(page.page * filters.size, page.total);
@@ -169,8 +177,12 @@ export function AuditTrail({
                         {row.latencyMs != null ? `${nf(row.latencyMs)} ms` : "—"}
                       </span>
                       <span className="flex items-center justify-end gap-1 text-titanium-muted">
-                        {row.feedbackScore === 1 && <ThumbsUp className="h-3.5 w-3.5 text-signal-buy" />}
-                        {row.feedbackScore === -1 && <ThumbsDown className="h-3.5 w-3.5 text-carmine-signal" />}
+                        {row.feedbackScore === 1 && (
+                          <ThumbsUp className="h-3.5 w-3.5 text-signal-buy" />
+                        )}
+                        {row.feedbackScore === -1 && (
+                          <ThumbsDown className="h-3.5 w-3.5 text-carmine-signal" />
+                        )}
                         <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
                       </span>
                     </summary>
@@ -180,7 +192,9 @@ export function AuditTrail({
                         <span className="mb-1 block font-mono text-label-code uppercase text-titanium-dark">
                           Pergunta
                         </span>
-                        <p className="whitespace-pre-wrap text-body-sm text-ice-white">{row.userPrompt || "—"}</p>
+                        <p className="whitespace-pre-wrap text-body-sm text-ice-white">
+                          {row.userPrompt || "—"}
+                        </p>
                       </div>
                       {tools.length > 0 && (
                         <div>
@@ -189,7 +203,10 @@ export function AuditTrail({
                           </span>
                           <ul className="space-y-1.5">
                             {tools.map((t, i) => (
-                              <li key={i} className="rounded border border-carbon-800 bg-carbon-900 p-2">
+                              <li
+                                key={i}
+                                className="rounded border border-carbon-800 bg-carbon-900 p-2"
+                              >
                                 <span className="font-mono text-label-code font-semibold text-tertiary">
                                   {t.toolName}
                                 </span>
@@ -210,7 +227,9 @@ export function AuditTrail({
                         <span className="mb-1 block font-mono text-label-code uppercase text-titanium-dark">
                           Resposta
                         </span>
-                        <p className="whitespace-pre-wrap text-body-sm text-titanium-light">{row.agentResponse}</p>
+                        <p className="whitespace-pre-wrap text-body-sm text-titanium-light">
+                          {row.agentResponse}
+                        </p>
                       </div>
                     </div>
                   </details>
@@ -221,8 +240,11 @@ export function AuditTrail({
 
           <div className="flex flex-col items-start justify-between gap-2 border-t border-carbon-800 bg-carbon-950 px-4 py-2.5 font-mono text-label-code text-titanium-muted sm:flex-row sm:items-center">
             <span>
-              Exibindo <span className="text-ice-white">{from}–{to}</span> de{" "}
-              <span className="text-ice-white">{nf(page.total)}</span> interações
+              Exibindo{" "}
+              <span className="text-ice-white">
+                {from}–{to}
+              </span>{" "}
+              de <span className="text-ice-white">{nf(page.total)}</span> interações
             </span>
             <nav className="flex items-center gap-2" aria-label="Paginação">
               {page.page > 1 ? (

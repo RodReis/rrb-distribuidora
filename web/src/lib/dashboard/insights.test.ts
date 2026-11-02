@@ -116,7 +116,9 @@ describe("splitBriefingSections", () => {
   });
 
   it("aceita títulos em markdown", () => {
-    const parts = splitBriefingSections("## **Atenção Imediata**\nitem A\n### Propostas Comerciais\nitem B");
+    const parts = splitBriefingSections(
+      "## **Atenção Imediata**\nitem A\n### Propostas Comerciais\nitem B"
+    );
     expect(parts.map((p) => p.key)).toEqual(["attention", "quotes"]);
   });
 

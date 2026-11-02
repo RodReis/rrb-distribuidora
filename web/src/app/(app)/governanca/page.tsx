@@ -22,7 +22,9 @@ export default async function GovernancaPage({
   const requested = Array.isArray(params.tab) ? params.tab[0] : params.tab;
   const active = canSeeTrail && requested === "auditoria" ? "auditoria" : "politicas";
 
-  const tabs: TabItem[] = [{ key: "politicas", label: "Políticas", href: "/governanca?tab=politicas" }];
+  const tabs: TabItem[] = [
+    { key: "politicas", label: "Políticas", href: "/governanca?tab=politicas" },
+  ];
 
   let trail: React.ReactNode = null;
   if (canSeeTrail) {

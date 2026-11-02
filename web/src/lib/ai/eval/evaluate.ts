@@ -13,7 +13,13 @@ export type Check =
   /** Nenhuma ferramenta foi chamada. */
   | { kind: "noTools" }
   /** O parâmetro de uma chamada satisfaz o teste. */
-  | { kind: "toolInput"; tool: string; key: string; describe: string; test: (value: unknown) => boolean }
+  | {
+      kind: "toolInput";
+      tool: string;
+      key: string;
+      describe: string;
+      test: (value: unknown) => boolean;
+    }
   /** O valor aparece na resposta (formatação pt-BR tolerada). */
   | { kind: "number"; label: string; value: number; tol?: NumberTolerance }
   /** A resposta diz que o valor é zero/nenhum. */
@@ -51,7 +57,11 @@ export interface CaseOutcome {
 const UP_WORDS = ["subiu", "alta", "aument", "valoriz", "cresc", "elev", "positiv"];
 const DOWN_WORDS = ["caiu", "queda", "reduc", "recuou", "diminu", "desvaloriz", "negativ", "baix"];
 
-export function evaluateCase(c: EvalCase, run: RunResult, knownSkus: Iterable<string>): CaseOutcome {
+export function evaluateCase(
+  c: EvalCase,
+  run: RunResult,
+  knownSkus: Iterable<string>
+): CaseOutcome {
   const failures: string[] = [];
   const answer = run.answer.trim();
 
@@ -83,12 +93,15 @@ export function evaluateCase(c: EvalCase, run: RunResult, knownSkus: Iterable<st
         }
         break;
       case "noTools":
-        if (calledTools.length > 0) failures.push(`não deveria chamar ferramentas, chamou: ${calledTools.join(", ")}`);
+        if (calledTools.length > 0)
+          failures.push(`não deveria chamar ferramentas, chamou: ${calledTools.join(", ")}`);
         break;
       case "toolInput": {
         const calls = run.toolCalls.filter((t) => t.toolName === check.tool);
         if (!calls.some((t) => check.test(t.input?.[check.key]))) {
-          failures.push(`parâmetro ${check.tool}.${check.key} incorreto (esperado ${check.describe})`);
+          failures.push(
+            `parâmetro ${check.tool}.${check.key} incorreto (esperado ${check.describe})`
+          );
         }
         break;
       }
@@ -115,7 +128,9 @@ export function evaluateCase(c: EvalCase, run: RunResult, knownSkus: Iterable<st
         const right = containsAny(answer, check.dir === "up" ? UP_WORDS : DOWN_WORDS);
         const wrong = containsAny(answer, check.dir === "up" ? DOWN_WORDS : UP_WORDS);
         if (wrong && !right) {
-          failures.push(`${check.label}: a resposta indica ${check.dir === "up" ? "queda" : "alta"}, mas houve ${check.dir === "up" ? "alta" : "queda"}`);
+          failures.push(
+            `${check.label}: a resposta indica ${check.dir === "up" ? "queda" : "alta"}, mas houve ${check.dir === "up" ? "alta" : "queda"}`
+          );
         }
         break;
       }

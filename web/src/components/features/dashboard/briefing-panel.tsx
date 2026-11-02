@@ -81,7 +81,8 @@ export function BriefingPanel({ briefing, sections, isToday }: BriefingPanelProp
               Briefing Executivo Diário — 07:00h
             </h2>
             <p className="text-body-sm text-titanium-muted">
-              Resumo gerado a partir de estoque, mercado e propostas. Não substitui a decisão humana.
+              Resumo gerado a partir de estoque, mercado e propostas. Não substitui a decisão
+              humana.
             </p>
           </div>
         </div>
@@ -134,9 +135,7 @@ export function BriefingPanel({ briefing, sections, isToday }: BriefingPanelProp
                 Propostas pendentes:{" "}
                 <span className="text-ice-white">{briefing.pendingQuotesCount}</span>
               </span>
-              {!isToday && (
-                <LevelBadge level="attention">Hoje ainda não gerado</LevelBadge>
-              )}
+              {!isToday && <LevelBadge level="attention">Hoje ainda não gerado</LevelBadge>}
             </div>
 
             {sections.length > 0 ? (

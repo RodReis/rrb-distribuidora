@@ -85,7 +85,8 @@ export function CommandHeader({
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-headline-sm font-bold tracking-tight text-ice-white">
-            Command Center <span className="font-mono text-carmine-core">{"//"}</span> Visão Executiva
+            Command Center <span className="font-mono text-carmine-core">{"//"}</span> Visão
+            Executiva
           </h1>
           <span className="rounded bg-carmine-core/15 px-2 py-0.5 font-mono text-label-code font-semibold uppercase text-carmine-signal">
             {user.role}
@@ -449,7 +450,9 @@ export function RecommendationsTable({ data }: { data: CommandCenterData }) {
                   )}
                 >
                   <td className="px-3 py-2 text-body-sm text-titanium-light">{rec.department}</td>
-                  <td className="px-3 py-2 text-body-sm font-medium text-ice-white">{rec.action}</td>
+                  <td className="px-3 py-2 text-body-sm font-medium text-ice-white">
+                    {rec.action}
+                  </td>
                   <td className="px-3 py-2 font-mono text-label-code text-titanium-muted">
                     {rec.detail}
                   </td>
