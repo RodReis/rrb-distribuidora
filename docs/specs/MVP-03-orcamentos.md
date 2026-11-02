@@ -254,7 +254,7 @@ export const salesOrders = pgTable("sales_orders", {
 | Índice por família | atualização "pelo mercado" | alumínio → `LME-ALU`; aço/inox → `CME-HRC` | únicos índices correlatos disponíveis no MVP-01 |
 | Delta de mercado | atualização pelo mercado | delta semanal limitado a ±20% | evitar preço absurdo em série curta |
 | Validade dinâmica | 5–7 dias calmo; 48–72 h volátil (> 3%/semana) | ≤ 1,5% → 7 dias (até 18h); 1,5–3% → 72 h; > 3% → 48 h | usa a maior volatilidade entre os itens do orçamento |
-| Unidade do custo de reposição | `replacement_cost_base` | normalização para R$/kg na leitura (`t`, `un`, `m`, `kg`) | o MVP-02 grava chapa em `t` e barra em `un`; o seed não foi alterado |
+| Unidade do custo de reposição | `replacement_cost_base` em R$/kg | lido direto como R$/kg; só o custo de **lote** (por unidade de estoque) é convertido, por `lib/stock/units.ts` | corrigido em 02/11/2026: o campo passou a ser sempre R$/kg (antes o M2 gravava por `t`/`un` e o M3 normalizava na leitura) |
 | `aprovado` | status do funil | significa **cliente aprovou**; a liberação interna de margem volta a `rascunho` | separa alçada interna de aceite do cliente |
 | Funil na API | spec lista os status, sem grafo de transições | `enviado → aprovado` só passa por `em_negociacao` (o atalho existia e foi fechado) | UI e API contam a mesma história; o aceite fica registrado na etapa de negociação |
 | Piso de reposição | bloqueio de margem | diretor libera margem abaixo da política, **nunca** preço abaixo do custo de reposição | proteção contra venda com prejuízo real |
@@ -268,7 +268,7 @@ export const salesOrders = pgTable("sales_orders", {
 ### 10.3 Pendências e dívidas técnicas
 
 1. **R2 real não exercitado** — sem credenciais, o smoke usou o fallback local. Homologar upload/download em bucket real e definir retenção; o fallback `.data` não deve rodar em produção sem volume persistente.
-2. **Normalização do custo de reposição** — feita apenas na borda do MVP-03 (`normalizeReplacementCostPerKg`). Corrigir a origem (cadastro/seed do MVP-02) para R$/kg e revisar relatórios que leem `replacement_cost_base`.
+2. ~~**Normalização do custo de reposição** na borda do MVP-03~~ ✅ resolvido em 02/11/2026 (débito OR2): `replacement_cost_base` é sempre R$/kg e `normalizeReplacementCostPerKg` foi removida. Conversões em `lib/stock/units.ts`.
 3. **Sem testes de integração de rota/serviço** — a cobertura é unitária (motor, precificação, delta, normalização, storage) + smoke manual. Falta automatizar reserva/consumo de retalho e conversão contra Postgres.
 4. **Edição reprecifica** — `manualUnitPrice` não é restaurado ao abrir a edição, então um preço manual do rascunho é substituído pelo preço sugerido. Se o PI quiser preço congelado, persistir o override por item.
 5. **Expiração não automática** — não há job marcando `expirado`; o vendedor precisa encerrar manualmente. Definir cron se o funil exigir.

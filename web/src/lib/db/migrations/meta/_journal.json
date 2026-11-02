@@ -43,6 +43,27 @@
       "when": 1793588655789,
       "tag": "0005_lazy_ben_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793629546084,
+      "tag": "0006_stale_mandroid",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793640193515,
+      "tag": "0007_tiresome_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793641162243,
+      "tag": "0008_remnant_code_seq",
+      "breakpoints": true
     }
   ]
 }

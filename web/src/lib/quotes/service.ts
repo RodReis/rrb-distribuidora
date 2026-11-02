@@ -15,6 +15,7 @@ import {
   inArray,
   isNotNull,
   like,
+  lt,
   lte,
   or,
   sql,
@@ -50,6 +51,7 @@ import {
   summarizeQuote,
   type QuoteSummary,
 } from "./pricing";
+import { AUTO_EXPIRE_STATUSES } from "./expiry";
 import { aggregateVolatility, getReplacementCosts } from "./replacement-cost";
 import type { QuoteInputPayload, QuoteItemPayload } from "./schemas";
 
@@ -610,7 +612,7 @@ async function syncRemnantReservations(
 async function releaseQuoteRemnants(
   tenantId: string,
   quoteId: string,
-  userId: string,
+  userId: string | null,
   reason: string
 ) {
   const rows = await db
@@ -1025,7 +1027,7 @@ export async function getQuote(tenantId: string, id: string) {
 
 export async function markQuoteLost(
   tenantId: string,
-  userId: string,
+  userId: string | null,
   id: string,
   lossReason: string
 ) {
@@ -1060,9 +1062,10 @@ export async function markQuoteLost(
   return updated;
 }
 
+/** `userId` nulo = ação automática do sistema (ex.: job de expiração). */
 export async function changeQuoteStatus(
   tenantId: string,
-  userId: string,
+  userId: string | null,
   id: string,
   status: string,
   lossReason?: string | null
@@ -1109,6 +1112,30 @@ export async function changeQuoteStatus(
   });
 
   return updated;
+}
+
+/**
+ * Job: marca como `expirado` as propostas abertas ao cliente cuja validade venceu e devolve os
+ * retalhos reservados. Roda para todas as empresas. Cada proposta é isolada: uma falha não
+ * interrompe as demais, e fica registrada na auditoria como ação do sistema (sem usuário).
+ */
+export async function expireOverdueQuotes(now: Date = new Date()) {
+  const overdue = await db
+    .select({ id: quotes.id, tenantId: quotes.tenantId })
+    .from(quotes)
+    .where(and(inArray(quotes.status, [...AUTO_EXPIRE_STATUSES]), lt(quotes.validUntil, now)));
+
+  let expired = 0;
+  const errors: string[] = [];
+  for (const quote of overdue) {
+    try {
+      await changeQuoteStatus(quote.tenantId, null, quote.id, "expirado");
+      expired += 1;
+    } catch (err) {
+      errors.push(`${quote.id}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  return { checked: overdue.length, expired, errors };
 }
 
 /**

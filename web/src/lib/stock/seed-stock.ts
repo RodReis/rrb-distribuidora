@@ -164,7 +164,7 @@ export async function seedStockData() {
         densityGCm3: "7.8500",
         unit: "t",
         weightPerUnit: "1.4355",
-        replacementCostBase: "5420.0000",
+        replacementCostBase: "5.4200", // R$/kg (o lote abaixo é R$ 5.420 por t)
         status: "ativo",
       })
       .returning();
@@ -196,7 +196,7 @@ export async function seedStockData() {
         densityGCm3: "7.8500",
         unit: "t",
         weightPerUnit: "1.0000",
-        replacementCostBase: "4710.0000",
+        replacementCostBase: "4.7100", // R$/kg (o lote abaixo é R$ 4.710 por t)
         status: "ativo",
       })
       .returning();
@@ -228,7 +228,7 @@ export async function seedStockData() {
         densityGCm3: "7.8500",
         unit: "t",
         weightPerUnit: "0.0339",
-        replacementCostBase: "6100.0000",
+        replacementCostBase: "6.1000", // R$/kg (o lote abaixo é R$ 6.100 por t)
         status: "ativo",
       })
       .returning();
@@ -260,7 +260,7 @@ export async function seedStockData() {
         densityGCm3: "7.9300",
         unit: "un",
         weightPerUnit: "14.6400",
-        replacementCostBase: "380.0000",
+        replacementCostBase: "25.9563", // R$/kg = R$ 380 por barra ÷ 14,64 kg
         status: "ativo",
       })
       .returning();

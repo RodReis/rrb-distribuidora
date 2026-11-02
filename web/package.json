@@ -15,13 +15,18 @@
     "test": "vitest run",
     "db:seed-market": "tsx src/lib/market/seed-market.ts",
     "db:seed-stock": "tsx src/lib/stock/seed-stock.ts",
-    "worker:market": "tsx src/worker/market-worker.ts"
+    "worker:market": "tsx src/worker/market-worker.ts",
+    "eval:copilot": "tsx src/lib/ai/eval/run.ts",
+    "db:fix-replacement-cost": "tsx src/lib/db/fix-replacement-cost.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^4.0.106",
+    "@ai-sdk/react": "^4.0.163",
     "@auth/drizzle-adapter": "^1.11.3",
     "@aws-sdk/client-s3": "^3.1161.0",
     "@react-pdf/renderer": "^4.9.0",
     "@sentry/nextjs": "^11.10.0",
+    "ai": "^7.0.159",
     "argon2": "^0.45.1",
     "clsx": "^2.1.1",
     "dotenv": "^18.0.9",

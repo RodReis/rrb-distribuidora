@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { CopilotDrawer } from "@/components/copilot/copilot-drawer";
 import { getCurrentUser } from "@/lib/auth/rbac";
 import { redirect } from "next/navigation";
 
@@ -19,6 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       }}
     >
       {children}
+      <CopilotDrawer />
     </AppShell>
   );
 }

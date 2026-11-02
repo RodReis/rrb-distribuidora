@@ -106,6 +106,15 @@ Também usadas **só no seed de produção** (passadas na linha de comando, nunc
 Sem nenhuma chave de provedor, em **produção** o job de metais registra erro e não grava nada (a fixture só existe fora de produção).
 A PTAX (Banco Central) não precisa de chave.
 
+### 4.1.1 Variáveis do M4 — Copiloto e briefing
+
+| Variável | Onde | Observações |
+|---|---|---|
+| `OPENAI_API_KEY` | web | Lida pelo SDK da IA. Sem ela o Copiloto e o briefing falham (o resto do sistema segue normal) |
+| `OPENAI_MODEL` | web (opcional) | Padrão `gpt-4o-mini` |
+
+Ordem completa de subida: [`roteiro-deploy-railway.md`](roteiro-deploy-railway.md).
+
 ### 4.2 Worker de mercado (serviço separado)
 
 O agendamento é um processo próprio, que apenas chama os endpoints protegidos do web:
@@ -132,6 +141,8 @@ Alternativa: usar o *Cron* do Railway chamando `POST /api/internal/jobs/ingest-p
 ### 4.2.1 Job de estoque preventivo (M2)
 
 - Endpoint: `POST /api/internal/jobs/calculate-predictive-stock` (recalcula cobertura, SS, ROP, status e ABC/XYZ de todos os tenants).
+- **Migrations novas a aplicar em produção:** `0007` (`agent_actions.user_id` anulável) e `0008` (sequência `remnant_code_seq`, código de retalho `RET-00001…`). Rode também o dry-run do §4.4.1.
+- **Expiração de propostas:** `POST /api/internal/jobs/expire-quotes`, disparado de hora em hora pelo worker (`QUOTE_EXPIRY_CRON`). Confirmar no log `[job:expire-quotes]`.
 - **Agendamento:** o `market-worker` dispara o job todos os dias às **04h00** (America/Sao_Paulo; `STOCK_PREDICTIVE_CRON` em `lib/market/schedule.ts`). Só vale depois que o deploy com essa alteração subir no serviço do worker; confirmar a primeira execução no log (`[market-worker] … calculate-predictive-stock -> HTTP 200`).
 - **Autenticação:** como os jobs de mercado, exige `Authorization: Bearer <CRON_SECRET>` (503 se a variável não existir, 401 com token errado).
 - Além do job, o recálculo ocorre a cada movimentação de estoque e pelo botão "Simular reposição" em `/estoque`.
@@ -152,6 +163,18 @@ SEED_MODE=production pnpm db:seed-market   # PTAX (24 meses, BCB) e cadastra os 
 - Em produção as tabelas `stock_*` nascem **vazias** e `/estoque` abre sem dados.
 - **Não** rode `pnpm db:seed-stock` em produção: ele grava produtos, fornecedores, lotes e métricas **de exemplo** do mockup (uso só em desenvolvimento).
 - Caminho correto: cadastrar produtos e depósitos e importar os saldos pela aba **Carga Inicial (CSV)** de `/estoque` (colunas: SKU, Depósito, Lote, Corrida, Quantidade, Custo Unitário, Data Entrada, Endereço). A importação é atômica: qualquer linha inválida aborta tudo.
+- **Unidades do custo:** na importação, **Quantidade** e **Custo Unitário** são **por unidade do produto** (kg, t, m ou un). O sistema converte esse custo para R$/kg ao atualizar o `replacement_cost_base` do produto, que é sempre R$/kg. Produto em `un` sem peso por peça cadastrado não tem conversão: o lote entra, mas o custo de reposição do produto não é alterado.
+
+### 4.4.1 Reparo de `replacement_cost_base` legado (rodar uma vez, antes de usar M2/M3 em produção)
+
+Versões anteriores gravavam o custo do lote (por t ou por un) em `replacement_cost_base`, que é R$/kg. Se produção recebeu entradas de compra ou carga de saldos antes de 02/11/2026, há valores inflados (ex.: R$ 5.420 em vez de R$ 5,42).
+
+1. **Dry-run** (não altera nada): `railway ssh` no serviço web e `pnpm db:fix-replacement-cost`.
+2. Confira a lista. "CONVERTER" são produtos em `t`/`un` com custo acima de R$ 150/kg; "REVISAR" nunca é alterado sozinho.
+3. Só então: `pnpm db:fix-replacement-cost --apply`. Cada mudança entra na trilha de auditoria (`/admin/auditoria`).
+4. Rode o recálculo de estoque (job das 04h00 ou `POST /api/internal/jobs/calculate-predictive-stock`) para atualizar os indicadores.
+
+O limite de R$ 150/kg é um sinal heurístico para sugerir a conversão, não uma regra de negócio: um produto legítimo acima disso aparece como "REVISAR", não é convertido às cegas.
 
 ### 4.5 Armazenamento de PDFs (M3)
 
@@ -208,7 +231,7 @@ Arquivo: `.github/workflows/ci.yml` — dispara em push e PR para `main`, com `w
 
 Usa Node **24** (igual à produção). Em 02/11/2026 o CI foi corrigido: `pnpm/action-setup` agora aponta para
 `web/package.json` (antes falhava por não achar a versão do pnpm) e o build em Node 20 caía com `SIGSEGV` no
-*Collecting page data*. Os PRs #1 e #2 passaram nele. **Os Vitest (`pnpm test`) ainda não rodam no CI.**
+*Collecting page data*. Os PRs #1 e #2 passaram nele. **O CI também roda os Vitest (`pnpm vitest run`)**, mas sem Postgres: os testes de integração (`RUN_DB_TESTS=1`) ficam pulados e só rodam na máquina local.
 
 > **Lição do PR #4:** o `format:check` falha o CI se arquivos novos não passarem no Prettier; rode `pnpm exec prettier --write <arquivos>` antes do push. No Windows o checkout em CRLF faz o `format:check` local acusar arquivos antigos que o CI (Linux) aceita — vale o resultado do CI.
 

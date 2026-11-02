@@ -10,6 +10,7 @@ import {
   serial,
   jsonb,
   char,
+  date,
   varchar,
   pgEnum,
   primaryKey,
@@ -807,5 +808,75 @@ export const salesOrders = pgTable(
     salesOrderTenantIdx: index("idx_sales_orders_tenant").on(t.tenantId, t.orderStatus),
     salesOrderQuoteIdx: index("idx_sales_orders_quote").on(t.quoteId),
     salesOrderCustomerIdx: index("idx_sales_orders_customer").on(t.customerId),
+  })
+);
+
+// ==========================================
+// 14. COPILOTO & GOVERNANÇA DE IA (MVP-04)
+// ==========================================
+
+export const agentActions = pgTable(
+  "agent_actions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    // Nulo = execução automática do sistema (ex.: briefing das 06h55), sem usuário humano.
+    userId: uuid("user_id").references(() => users.id),
+    agentName: varchar("agent_name", { length: 50 }).notNull(),
+    userPrompt: text("user_prompt"),
+    toolsExecuted: jsonb("tools_executed").$type<
+      {
+        toolName: string;
+        params: Record<string, unknown>;
+        resultSummary: string;
+      }[]
+    >(),
+    agentResponse: text("agent_response").notNull(),
+    promptTokens: integer("prompt_tokens"),
+    completionTokens: integer("completion_tokens"),
+    latencyMs: integer("latency_ms"),
+    feedbackScore: integer("feedback_score"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    agentTenantCreatedIdx: index("idx_agent_actions_tenant_created").on(t.tenantId, t.createdAt),
+    agentUserIdx: index("idx_agent_actions_user").on(t.userId),
+  })
+);
+
+export const dailyBriefings = pgTable(
+  "daily_briefings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    briefingDate: date("briefing_date").notNull(),
+    summaryHtml: text("summary_html").notNull(),
+    summaryText: text("summary_text").notNull(),
+    keyMetrics: jsonb("key_metrics")
+      .$type<{
+        criticalRupturesCount: number;
+        pendingQuotesCount: number;
+        potentialLossAmount: number;
+        usdRate: number;
+        lmeAluRate: number;
+      }>()
+      .notNull(),
+    recommendedActions: jsonb("recommended_actions").$type<
+      {
+        department: string;
+        action: string;
+        financialImpact: string;
+        priority: "alta" | "media" | "baixa";
+      }[]
+    >(),
+    sentViaEmailAt: timestamp("sent_via_email_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    briefingTenantDateIdx: index("idx_daily_briefings_tenant_date").on(t.tenantId, t.briefingDate),
   })
 );

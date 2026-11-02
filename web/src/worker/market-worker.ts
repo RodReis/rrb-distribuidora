@@ -1,9 +1,11 @@
 import "dotenv/config";
 import cron from "node-cron";
 import {
+  BRIEFING_CRON,
   DEFAULT_METALS_CRON,
   MARKET_TIMEZONE,
   PTAX_CRONS,
+  QUOTE_EXPIRY_CRON,
   STOCK_PREDICTIVE_CRON,
   getMetalsCron,
 } from "../lib/market/schedule";
@@ -24,7 +26,14 @@ if (!cron.validate(metalsCron)) {
   metalsCron = DEFAULT_METALS_CRON;
 }
 
-async function trigger(job: "ingest-ptax" | "ingest-metals" | "calculate-predictive-stock") {
+async function trigger(
+  job:
+    | "ingest-ptax"
+    | "ingest-metals"
+    | "calculate-predictive-stock"
+    | "generate-daily-briefing"
+    | "expire-quotes"
+) {
   const startedAt = new Date().toISOString();
   try {
     const res = await fetch(`${APP_URL}/api/internal/jobs/${job}`, {
@@ -51,6 +60,13 @@ cron.schedule(STOCK_PREDICTIVE_CRON, () => void trigger("calculate-predictive-st
   timezone: MARKET_TIMEZONE,
 });
 
+cron.schedule(BRIEFING_CRON, () => void trigger("generate-daily-briefing"), {
+  timezone: MARKET_TIMEZONE,
+});
+cron.schedule(QUOTE_EXPIRY_CRON, () => void trigger("expire-quotes"), {
+  timezone: MARKET_TIMEZONE,
+});
+
 console.log(
-  `[market-worker] agendado (${MARKET_TIMEZONE}): PTAX ${PTAX_CRONS.join(" | ")}; metais "${metalsCron}"; estoque "${STOCK_PREDICTIVE_CRON}".`
+  `[market-worker] agendado (${MARKET_TIMEZONE}): PTAX ${PTAX_CRONS.join(" | ")}; metais "${metalsCron}"; estoque "${STOCK_PREDICTIVE_CRON}"; briefing "${BRIEFING_CRON}"; expiração de propostas "${QUOTE_EXPIRY_CRON}".`
 );

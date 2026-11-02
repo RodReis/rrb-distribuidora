@@ -3,6 +3,7 @@ import { products, warehouses, stockLots, stockMovements, auditLog } from "@/lib
 import { and, eq, inArray } from "drizzle-orm";
 import Papa from "papaparse";
 import { recalculatePredictiveMetricsForTenant } from "./predictive-engine";
+import { unitCostToCostPerKg } from "./units";
 
 export interface StockImportRow {
   sku: string;
@@ -105,6 +106,14 @@ export async function importInitialStockCsv(
       sku: products.sku,
       unit: products.unit,
       norm: products.norm,
+      family: products.family,
+      weightPerUnit: products.weightPerUnit,
+      thicknessMm: products.thicknessMm,
+      widthMm: products.widthMm,
+      lengthMm: products.lengthMm,
+      diameterMm: products.diameterMm,
+      wallMm: products.wallMm,
+      densityGCm3: products.densityGCm3,
     })
     .from(products)
     .where(eq(products.tenantId, tenantId));
@@ -135,6 +144,8 @@ export async function importInitialStockCsv(
     heatNumber: string | null;
     quantity: number;
     unitCost: number;
+    /** unitCost convertido para R$/kg; null quando a conversão da unidade é desconhecida. */
+    costPerKg: number | null;
     entryDate: Date;
     locationAddress: string;
   }[] = [];
@@ -260,6 +271,7 @@ export async function importInitialStockCsv(
       heatNumber,
       quantity: qty,
       unitCost,
+      costPerKg: unitCostToCostPerKg(unitCost, product),
       entryDate,
       locationAddress: location,
     });
@@ -315,14 +327,16 @@ export async function importInitialStockCsv(
         createdBy: userId,
       });
 
-      // Update product replacement cost base
-      await tx
-        .update(products)
-        .set({
-          replacementCostBase: String(row.unitCost),
-          updatedAt: new Date(),
-        })
-        .where(eq(products.id, row.productId));
+      // Atualiza o custo de reposição base (R$/kg). Sem conversão conhecida, não toca no campo.
+      if (row.costPerKg !== null && row.costPerKg > 0) {
+        await tx
+          .update(products)
+          .set({
+            replacementCostBase: String(row.costPerKg),
+            updatedAt: new Date(),
+          })
+          .where(eq(products.id, row.productId));
+      }
     }
 
     // Audit log

@@ -72,7 +72,7 @@ Como **estoque/admin**, quero cadastrar produtos metálicos com atributos técni
   - `density_g_cm3` — default por família (aço 7,85; inox 7,90; alumínio 2,70), editável
   - `unit` — enum: `kg`, `m`, `un`, `t`
   - `weight_per_unit` — **calculado em código** a partir das dimensões × densidade (nunca digitado)
-  - `replacement_cost_base` — R$/kg (será referência do M3)
+  - `replacement_cost_base` — **sempre R$/kg**, qualquer que seja a unidade comercial (será referência do M3). O custo de lote e de movimento de estoque, ao contrário, é por unidade do produto; a conversão fica em `lib/stock/units.ts`
   - `status` — enum: `ativo`, `inativo`, `homologacao`
 - Exclusão lógica (status inativo); produto com movimentos nunca é apagado
 - **Aceite:** CRUD completo; peso teórico calculado com erro < 1% vs tabela técnica; validações de dimensão por família

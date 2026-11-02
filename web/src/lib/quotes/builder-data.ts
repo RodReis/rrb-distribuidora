@@ -6,7 +6,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { customers, machines, products } from "@/lib/db/schema";
 import { getTenantQuotePolicy } from "./service";
-import { normalizeReplacementCostPerKg } from "./replacement-cost";
+import { replacementCostPerKg } from "@/lib/stock/units";
 
 export interface BuilderCustomer {
   id: string;
@@ -117,11 +117,7 @@ export async function loadBuilderCatalog(tenantId: string): Promise<BuilderCatal
         const { replacementCostBase, ...rest } = row;
         return {
           ...rest,
-          replacementCostPerKg: normalizeReplacementCostPerKg({
-            replacementCostBase,
-            unit: row.unit,
-            weightPerUnit: row.weightPerUnit,
-          }),
+          replacementCostPerKg: replacementCostPerKg(replacementCostBase),
         };
       }),
     machines: machineRows.map((row) => ({

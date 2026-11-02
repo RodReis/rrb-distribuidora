@@ -3,39 +3,130 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Tokens que mudam com o tema, em canais RGB para o Tailwind aplicar opacidade (bg-carbon-900/50).
+   * :root é o tema escuro (carbon, padrão). .light é o tema claro (industrial precision steel).
+   */
   :root {
-    --background: #0b0d11;
-    --foreground: #f8fafc;
+    color-scheme: dark;
+
+    --carbon-950: 11 13 17;
+    --carbon-900: 17 20 26;
+    --carbon-800: 24 28 36;
+    --carbon-700: 34 39 51;
+
+    --ice-white: 248 250 252;
+    --subtle-white: 241 245 249;
+    --titanium-light: 203 213 225;
+    --titanium-muted: 148 163 184;
+    --titanium-steel: 100 116 139;
+    --titanium-dark: 71 85 105;
+
+    --carmine-signal: 239 68 68;
+    --signal-risk: 239 68 68;
+    --signal-buy: 16 185 129;
+    --signal-buy-dark: 5 150 105;
+    --signal-hold: 245 158 11;
+    --signal-hold-dark: 217 119 6;
+    --tertiary: 78 222 163;
+
+    --hairline: rgba(255, 255, 255, 0.08);
+  }
+
+  /*
+   * Claro: superfícies brancas sobre canvas zinc-50, bordas hairline, texto slate.
+   * Sinais (verde, âmbar, vermelho) usam tons mais escuros que no escuro, para manter
+   * contraste de texto sobre branco (verde 700, âmbar 700, vermelho 600).
+   */
+  .light {
+    color-scheme: light;
+
+    --carbon-950: 248 250 252;
+    --carbon-900: 255 255 255;
+    --carbon-800: 226 232 240;
+    --carbon-700: 203 213 225;
+
+    --ice-white: 15 23 42;
+    --subtle-white: 30 41 59;
+    --titanium-light: 51 65 85;
+    --titanium-muted: 85 99 122;
+    --titanium-steel: 100 114 138;
+    --titanium-dark: 148 163 184;
+
+    --carmine-signal: 200 30 30;
+    --signal-risk: 200 30 30;
+    --signal-buy: 18 114 54;
+    --signal-buy-dark: 20 83 45;
+    --signal-hold: 154 68 10;
+    --signal-hold-dark: 124 45 18;
+    --tertiary: 4 108 78;
+
+    --hairline: rgba(15, 23, 42, 0.12);
   }
 
   html,
   body {
     margin: 0;
     padding: 0;
-    background-color: #0b0d11;
-    color: #f8fafc;
+    background-color: rgb(var(--carbon-950));
+    color: rgb(var(--ice-white));
     font-family: var(--font-inter), Inter, sans-serif;
     overscroll-behavior: none;
     -webkit-font-smoothing: antialiased;
   }
 
   * {
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--hairline);
   }
 
-  /* Custom scrollbar matching dark carbon terminal */
+  /* Scrollbar no tom do tema */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0b0d11;
+    background: rgb(var(--carbon-950));
   }
   ::-webkit-scrollbar-thumb {
-    background: #222733;
+    background: rgb(var(--carbon-700));
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
+    background: rgb(var(--titanium-steel));
   }
+}
+
+/*
+ * Superfícies de cor sólida da marca/sinal mantêm texto claro no tema claro. Sem isto, o
+ * text-ice-white (que vira slate-900 no claro) ficaria escuro sobre vermelho, verde e âmbar.
+ */
+.light
+  :is(
+    .bg-carmine-core,
+    .bg-carmine-signal,
+    .bg-carmine-deep,
+    .bg-carmine-dark,
+    .bg-signal-buy,
+    .bg-signal-buy-dark,
+    .bg-signal-hold,
+    .bg-signal-hold-dark,
+    .bg-signal-risk
+  ) {
+  color: #ffffff;
+}
+
+.light
+  :is(
+    .bg-carmine-core,
+    .bg-carmine-signal,
+    .bg-carmine-deep,
+    .bg-carmine-dark,
+    .bg-signal-buy,
+    .bg-signal-buy-dark,
+    .bg-signal-hold,
+    .bg-signal-hold-dark,
+    .bg-signal-risk
+  )
+  :where(.text-ice-white, .text-subtle-white, .text-titanium-light) {
+  color: #ffffff;
 }

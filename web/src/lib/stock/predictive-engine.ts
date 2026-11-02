@@ -7,6 +7,7 @@ import {
   suppliers,
 } from "@/lib/db/schema";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
+import { valueAtCostPerKg } from "./units";
 
 export interface ConsumptionStats {
   avgDaily30d: number;
@@ -199,6 +200,15 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
       id: products.id,
       sku: products.sku,
       replacementCostBase: products.replacementCostBase,
+      unit: products.unit,
+      family: products.family,
+      weightPerUnit: products.weightPerUnit,
+      thicknessMm: products.thicknessMm,
+      widthMm: products.widthMm,
+      lengthMm: products.lengthMm,
+      diameterMm: products.diameterMm,
+      wallMm: products.wallMm,
+      densityGCm3: products.densityGCm3,
     })
     .from(products)
     .where(and(eq(products.tenantId, tenantId), eq(products.status, "ativo")));
@@ -219,9 +229,12 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
     .where(and(eq(stockLots.tenantId, tenantId), eq(stockLots.status, "ativo")));
 
   const stockByProduct: Record<string, number> = {};
+  const lotValueByProduct: Record<string, number> = {};
   lots.forEach((lot) => {
     const qty = Number(lot.quantityCurrent) || 0;
     stockByProduct[lot.productId] = (stockByProduct[lot.productId] || 0) + qty;
+    lotValueByProduct[lot.productId] =
+      (lotValueByProduct[lot.productId] || 0) + qty * (Number(lot.unitCost) || 0);
   });
 
   // 3. Fetch lead time from suppliers or default 15 days
@@ -280,7 +293,9 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
   const productValues: { id: string; value: number }[] = activeProducts.map((p) => {
     const stockQty = stockByProduct[p.id] || 0;
     const cost = Number(p.replacementCostBase) || 5;
-    const value = stockQty * cost;
+    // Saldo em unidade de estoque × R$/kg só faz sentido depois de converter para kg.
+    // Se a conversão for desconhecida, usa o valor contábil dos lotes (já em R$ por unidade de estoque).
+    const value = valueAtCostPerKg(stockQty, cost, p) ?? lotValueByProduct[p.id] ?? 0;
     return { id: p.id, value };
   });
 

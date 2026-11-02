@@ -258,7 +258,7 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 | Tabela extra | 4 tabelas | + `stock_cycle_counts`; coluna `stock_remnants.notes` | persistir contagens/acuracidade e a origem do retalho |
 | Consumo | média 30/60/90 | média ponderada 50% / 30% / 20% | pesos não definidos na spec — **confirmar com o PI** |
 | Lead time | do fornecedor homologado | `suppliers.lead_time_days` do **primeiro lote com fornecedor**; padrão 15 d | não há fornecedor padrão por produto no M0 |
-| Curva ABC | faturamento/valor imobilizado | valor imobilizado (saldo × `replacement_cost_base`), cortes 80/95% | não há vendas antes do M3 |
+| Curva ABC | faturamento/valor imobilizado | valor imobilizado (saldo em kg × `replacement_cost_base` em R$/kg), cortes 80/95%; sem conversão para kg usa o valor contábil dos lotes | não há vendas antes do M3 |
 | Rotas | `/estoque/retalhos`, `/estoque/lotes` | redirecionam para `/estoque?tab=…` | `regras-frontend.md` §7 (abas com URL) |
 | Rotas extras | — | `GET /api/stock/lots`, `GET /api/stock/movements` | apoiar as abas |
 | Reposição | `RETALHO_ENTRADA`, lote mínimo | lote mínimo **não** modelado; sugestão = ROP − saldo + 30 dias de consumo | sem regra de lote mínimo definida — **pergunta em aberto ao PI** |
@@ -277,7 +277,7 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 | KPI | Definição |
 |---|---|
 | Ruptura iminente | nº de produtos com `predictive_status = CRITICAL_RUPTURE` |
-| Déficit potencial | Σ (`suggested_purchase_qty` × `replacement_cost_base`) dos críticos |
+| Déficit potencial | Σ (`suggested_purchase_qty` convertida para kg × `replacement_cost_base` em R$/kg) dos críticos; produto sem conversão conhecida (ex.: `un` sem peso por peça) fica de fora |
 | Retalhos reclassificados (mês) | peso e valor dos retalhos `reservado`/`consumido` com `updated_at` no mês; variação vs mês anterior (omitida sem base). Valor só para produtos com custo em `kg` ou `t` |
 | Capital parado | Σ (saldo × custo unitário) dos lotes ativos com entrada > 180 dias, e nº de lotes |
 | DIO | valor em estoque ÷ (consumo dos últimos 90 dias em R$ ÷ 90); "—" sem consumo |

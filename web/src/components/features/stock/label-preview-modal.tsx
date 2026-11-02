@@ -34,15 +34,15 @@ export function LabelPreviewModal({ isOpen, onClose, remnant }: LabelPreviewModa
         </div>
 
         {/* Physical Industrial Label Mockup Preview */}
-        <div className="my-4 p-4 bg-ice-white text-carbon-950 rounded shadow-md border-2 border-carbon-700 font-mono text-label-code">
-          <div className="flex items-center justify-between border-b border-carbon-950 pb-2 mb-2">
+        <div className="my-4 p-4 bg-paper text-ink rounded shadow-md border-2 border-carbon-700 font-mono text-label-code">
+          <div className="flex items-center justify-between border-b border-ink pb-2 mb-2">
             <div>
               <span className="font-bold text-sm tracking-wider uppercase block">
                 METALAGENTS INDUSTRIAL
               </span>
               <span className="text-[10px] text-gray-700">RASTREABILIDADE 2D/3D // RF-04</span>
             </div>
-            <span className="text-sm font-black bg-carbon-950 text-white px-2 py-0.5 rounded">
+            <span className="text-sm font-black bg-ink text-white px-2 py-0.5 rounded">
               #{remnant.code}
             </span>
           </div>
@@ -51,7 +51,7 @@ export function LabelPreviewModal({ isOpen, onClose, remnant }: LabelPreviewModa
             {remnant.productDescription || "CHAPA GROSSA A36"}
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-[11px] border-b border-carbon-950 pb-2 mb-2">
+          <div className="grid grid-cols-2 gap-2 text-[11px] border-b border-ink pb-2 mb-2">
             <div>
               <span className="text-gray-600 block text-[9px]">DIMENSÕES:</span>
               <span className="font-bold">
@@ -81,12 +81,8 @@ export function LabelPreviewModal({ isOpen, onClose, remnant }: LabelPreviewModa
             </div>
 
             {/* QR Code */}
-            <div className="w-12 h-12 bg-white p-0.5 border border-carbon-950 rounded flex items-center justify-center">
-              <svg
-                className="w-full h-full text-carbon-950"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <div className="w-12 h-12 bg-paper p-0.5 border border-ink rounded flex items-center justify-center">
+              <svg className="w-full h-full text-ink" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z" />
               </svg>
             </div>
@@ -100,12 +96,10 @@ export function LabelPreviewModal({ isOpen, onClose, remnant }: LabelPreviewModa
           <Button
             variant="primary"
             size="md"
-            onClick={() => {
-              toast.success(`Comando ZPL enviado para a impressora Zebra Pátio Central.`);
-              onClose();
-            }}
+            disabled
+            title="Integração com a impressora Zebra ainda não disponível"
           >
-            <Printer className="w-4 h-4 mr-1.5" /> Imprimir na Zebra Pátio
+            <Printer className="w-4 h-4 mr-1.5" /> Impressão Zebra em breve
           </Button>
         </div>
       </div>
