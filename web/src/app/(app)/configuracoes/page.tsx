@@ -7,7 +7,8 @@ import { Forbidden } from "@/components/shared/forbidden";
 import { PageHeader } from "@/components/shared/page-header";
 import { Tabs } from "@/components/ui/tabs";
 import { MarketSettings } from "@/components/features/settings/market-settings";
-import { isMetalsApiConfigured } from "@/lib/market/ingest-metals";
+import { getMetalsCron } from "@/lib/market/schedule";
+import { isCommodityPriceApiConfigured, isMetalsApiConfigured } from "@/lib/market/ingest-metals";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,8 @@ export default async function ConfiguracoesPage() {
       />
       <MarketSettings
         canWrite={canWrite}
-        metalsKeyConfigured={isMetalsApiConfigured()}
+        metalsCron={getMetalsCron()}
+        keys={{ metals: isMetalsApiConfigured(), commodity: isCommodityPriceApiConfigured() }}
         assets={rows.map((r) => ({
           ...r,
           lastAt: r.lastAt ? new Date(r.lastAt).toISOString() : null,
