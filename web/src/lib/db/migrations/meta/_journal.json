@@ -8,6 +8,20 @@
       "when": 1793554193432,
       "tag": "0000_strange_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793576172912,
+      "tag": "0001_overconfident_hedge_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793577554675,
+      "tag": "0002_busy_orphan",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,7 @@ import {
   bigserial,
   jsonb,
   char,
+  varchar,
   pgEnum,
   primaryKey,
   index,
@@ -352,3 +353,121 @@ export const importJobs = pgTable("import_jobs", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
 });
+
+// ==========================================
+// 11. MARKET INTELLIGENCE (MVP-01)
+// ==========================================
+export const marketAssets = pgTable("market_assets", {
+  id: uuid("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
+  symbol: varchar("symbol", { length: 30 }).notNull().unique(),
+  name: varchar("name", { length: 100 }).notNull(),
+  market: varchar("market", { length: 50 }).notNull(),
+  baseCurrency: varchar("base_currency", { length: 10 }).notNull(),
+  unit: varchar("unit", { length: 20 }).notNull(),
+  provider: varchar("provider", { length: 20 }).default("MANUAL").notNull(),
+  providerSymbol: varchar("provider_symbol", { length: 50 }),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const marketPriceSeries = pgTable(
+  "market_price_series",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    assetId: uuid("asset_id")
+      .notNull()
+      .references(() => marketAssets.id, { onDelete: "cascade" }),
+    timestamp: timestamp("timestamp", { withTimezone: true }).notNull(),
+    open: numeric("open", { precision: 12, scale: 4 }),
+    high: numeric("high", { precision: 12, scale: 4 }),
+    low: numeric("low", { precision: 12, scale: 4 }),
+    close: numeric("close", { precision: 12, scale: 4 }).notNull(),
+    volume: numeric("volume", { precision: 14, scale: 2 }),
+    source: varchar("source", { length: 50 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    assetTimeIdx: index("idx_market_price_asset_time").on(t.assetId, t.timestamp),
+    assetTimeUnique: uniqueIndex("uq_market_price_asset_time").on(t.assetId, t.timestamp),
+  })
+);
+
+export const importParityConfigs = pgTable("import_parity_configs", {
+  id: uuid("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  associatedProductId: uuid("associated_product_id").references(() => products.id),
+  iiTaxPct: numeric("ii_tax_pct", { precision: 5, scale: 2 }).default("12.00").notNull(),
+  ipiTaxPct: numeric("ipi_tax_pct", { precision: 5, scale: 2 }).default("3.25").notNull(),
+  pisTaxPct: numeric("pis_tax_pct", { precision: 5, scale: 2 }).default("2.10").notNull(),
+  cofinsTaxPct: numeric("cofins_tax_pct", { precision: 5, scale: 2 }).default("9.65").notNull(),
+  icmsTaxPct: numeric("icms_tax_pct", { precision: 5, scale: 2 }).default("18.00").notNull(),
+  portExpensesPerTon: numeric("port_expenses_per_ton", { precision: 10, scale: 2 })
+    .default("150.00")
+    .notNull(),
+  roadFreightPerTon: numeric("road_freight_per_ton", { precision: 10, scale: 2 })
+    .default("280.00")
+    .notNull(),
+  oceanFreightUsdPerTon: numeric("ocean_freight_usd_per_ton", { precision: 10, scale: 2 })
+    .default("58.00")
+    .notNull(),
+  domesticPriceBrlPerTon: numeric("domestic_price_brl_per_ton", { precision: 12, scale: 2 })
+    .default("4710.00")
+    .notNull(),
+  updatedBy: uuid("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const marketAlertRules = pgTable(
+  "market_alert_rules",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    assetId: uuid("asset_id")
+      .notNull()
+      .references(() => marketAssets.id),
+    conditionType: varchar("condition_type", { length: 30 }).notNull(),
+    thresholdValue: numeric("threshold_value", { precision: 10, scale: 4 }).notNull(),
+    channels: jsonb("channels").$type<("in_app" | "email")[]>().notNull(),
+    active: boolean("active").default(true).notNull(),
+    lastTriggeredAt: timestamp("last_triggered_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantRuleIdx: index("market_alert_rules_tenant_idx").on(t.tenantId, t.active),
+  })
+);
+
+export const marketAlertNotifications = pgTable(
+  "market_alert_notifications",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id),
+    ruleId: uuid("rule_id").references(() => marketAlertRules.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 150 }).notNull(),
+    message: text("message").notNull(),
+    read: boolean("read").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    userReadIdx: index("market_notifications_user_idx").on(t.userId, t.read, t.createdAt),
+  })
+);

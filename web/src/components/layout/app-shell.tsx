@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { LiveTicker } from "@/components/features/market/live-ticker";
+import { NotificationBell } from "@/components/features/market/notification-bell";
 import {
   LayoutDashboard,
   TrendingUp,
@@ -24,6 +26,7 @@ import {
   LogOut,
   Search,
   FileUp,
+  Settings,
 } from "lucide-react";
 
 interface NavItem {
@@ -54,8 +57,6 @@ const NAVIGATION: NavGroup[] = [
         label: "Inteligência & LME",
         href: "/mercado",
         icon: TrendingUp,
-        disabled: true,
-        badge: "M1",
       },
       {
         label: "Estoque & Retalhos",
@@ -113,6 +114,10 @@ const NAVIGATION: NavGroup[] = [
     ],
   },
   {
+    group: "CONFIGURAÇÃO",
+    items: [{ label: "Configurações", href: "/configuracoes", icon: Settings }],
+  },
+  {
     group: "GOVERNANÇA & ADMIN",
     items: [
       { label: "Usuários & Acesso", href: "/admin/usuarios", icon: Shield },
@@ -165,7 +170,7 @@ export function AppShell({ children, user }: AppShellProps) {
                 </span>
                 <div className="space-y-0.5">
                   {section.items.map((item) => {
-                    const isActive = pathname === item.href;
+                    const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                     const Icon = item.icon;
 
                     if (item.disabled) {
@@ -236,30 +241,7 @@ export function AppShell({ children, user }: AppShellProps) {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* TOPBAR TICKER / USER BAR */}
         <header className="h-14 shrink-0 bg-carbon-900 border-b border-carbon-800 px-4 flex items-center justify-between">
-          {/* Ticker Commodity Telemetry */}
-          <div className="hidden lg:flex items-center gap-6 font-mono text-label-code">
-            <div className="flex items-center gap-1.5">
-              <span className="text-titanium-dark">LME ALUMÍNIO</span>
-              <span className="text-ice-white font-medium">$2,384.50</span>
-              <span className="text-signal-buy">+0.84%</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-titanium-dark">HRC BOBINA</span>
-              <span className="text-ice-white font-medium">R$ 4.710/t</span>
-              <span className="text-signal-risk">-0.32%</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-titanium-dark">PTAX USD</span>
-              <span className="text-ice-white font-medium">R$ 5,482</span>
-              <span className="text-signal-hold">+0.05%</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-titanium-dark">
-              <span>LATÊNCIA</span>
-              <span className="text-signal-buy flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-signal-buy" /> 12ms
-              </span>
-            </div>
-          </div>
+          <LiveTicker />
 
           {/* Quick search input */}
           <div className="relative w-64 max-w-xs">
@@ -279,6 +261,8 @@ export function AppShell({ children, user }: AppShellProps) {
                 USINA MATRIZ
               </span>
             </div>
+
+            <NotificationBell />
 
             <div className="flex items-center gap-2 pl-2 border-l border-carbon-800">
               <div className="flex flex-col text-right">

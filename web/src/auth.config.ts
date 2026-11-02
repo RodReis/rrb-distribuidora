@@ -11,6 +11,9 @@ export const authConfig: NextAuthConfig = {
       const { pathname } = nextUrl;
       const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/api/auth");
 
+      // Jobs internos autenticam por Bearer token dentro da própria rota.
+      if (pathname.startsWith("/api/internal/")) return true;
+
       if (isAuthRoute) {
         if (isLoggedIn && pathname === "/login") {
           return Response.redirect(new URL("/produtos", nextUrl));
