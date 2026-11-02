@@ -190,12 +190,12 @@ export const dailyBriefings = pgTable("daily_briefings", {
 
 ## 8. Critérios de Aceite (Checklist Final do PRD)
 
-- [ ] Briefing matinal gerado automaticamente todos os dias às 07h com dados reais da operação.
+- [ ] Briefing matinal gerado automaticamente todos os dias às 07h com dados reais da operação. — Geração real validada no dev (§10.7); falta o worker no Railway e a 1ª execução automática observada.
 - [x] Copiloto responde 20 perguntas de negócio pré-definidas com acurácia factual > 90%. — 20/20 em 02/11/2026 (§10.5), com ressalvas: perguntas escritas pelo desenvolvedor, dados de desenvolvimento e modelo não determinístico.
-- [ ] Todas as ações de ferramentas e respostas são registradas em `agent_actions`.
-- [ ] Nenhuma query SQL arbitrária ou alucinação de dados de estoque ocorre durante as respostas.
-- [ ] Interface Command Center carrega em menos de 2 segundos.
-- [ ] Política de aprovação humana (*human-in-the-loop*) garantida em todas as decisões recomendadas.
+- [x] Todas as ações de ferramentas e respostas são registradas em `agent_actions`. — Resposta, falha e cancelamento do Copiloto e toda geração do briefing (§10.7, §10.8). Se a própria gravação falhar, só vai para o log do servidor.
+- [x] Nenhuma query SQL arbitrária ou alucinação de dados de estoque ocorre durante as respostas. — Não há ferramenta de SQL livre: são 6 consultas fixas, e um teste trava a lista (§10.8). A bateria confere os valores e recusa SKU inexistente. Alucinação em texto livre não é eliminada, só medida (limite do §10.5).
+- [ ] Interface Command Center carrega em menos de 2 segundos. — ~115 ms no build local com dados pequenos (§10.8); falta medir no Railway com dados reais.
+- [x] Política de aprovação humana (*human-in-the-loop*) garantida em todas as decisões recomendadas. — O Copiloto só consulta e calcula; nenhuma ferramenta grava dados, e o teste de integração falha se alguém adicionar uma sem revisar a lista (§10.8).
 
 ---
 
@@ -214,7 +214,7 @@ export const dailyBriefings = pgTable("daily_briefings", {
 
 ## 10. Estado da implementação (02/11/2026)
 
-> **Situação:** 🟡 implementado parcialmente, **não homologado**. `tsc` e ESLint passam nos arquivos alterados. Não há testes das tools nem do briefing, e a bateria das 20 perguntas não existe.
+> **Situação (atualizada em 02/11/2026):** 🟡 implementado, **não homologado**. Falta o que depende de você ou de produção: texto dos termos de uso, revisão das 20 perguntas pelo PI, worker e primeira execução do briefing no Railway, e a medição de latência lá. Tipos, lint, build e 280 testes passam (os de banco com `RUN_DB_TESTS=1`).
 
 ### 10.1 Tarefas da seção 9
 
@@ -247,8 +247,8 @@ export const dailyBriefings = pgTable("daily_briefings", {
 1. ~~Tema claro~~ ✅ (§10.6).
 2. **Termos de uso** da governança: o mockup traz texto jurídico (objeto, isenção, foro, SLA, LGPD) e afirmações que o produto não cumpre (RLS, ISO 27001, ledger criptográfico). Nada disso foi implementado: o texto oficial precisa vir do PI. Pelo `AGENTS.md`, privacidade e LGPD também ficam fora; o item "LGPD" que existia na tela foi removido.
 3. ~~Briefing sem registro na trilha~~ ✅ (§10.7). Segue pendente: domínio do Resend verificado (o remetente padrão só entrega ao dono da conta).
-4. Copiloto: a auditoria só grava quando o stream termina bem (recusas e erros não geram registro); sem permissão por papel nem limite de uso/custo; só OpenAI; sem renderização de markdown (só negrito).
-5. ~~Escrever as 20 perguntas de teste e o script de medição~~ ✅ (§10.5). Falta o PI **revisar as 20 perguntas** (fui eu quem as escreveu) e criar um conjunto reserva, porque os prompts e as descrições das ferramentas foram ajustados olhando estas mesmas perguntas. Testes das tools que acessam o banco continuam pendentes.
+4. ~~Auditoria só gravava quando o stream terminava bem~~ ✅ (§10.8). Segue pendente no Copiloto: permissão por papel e limite de uso/custo (são regras de produto, a decidir pelo PI); só OpenAI; sem renderização de markdown (só negrito).
+5. ~~Escrever as 20 perguntas de teste e o script de medição~~ ✅ (§10.5). Falta o PI **revisar as 20 perguntas** (fui eu quem as escreveu) e criar um conjunto reserva, porque os prompts e as descrições das ferramentas foram ajustados olhando estas mesmas perguntas. ✅ Os testes das tools com banco existem (§10.8).
 6. `agent_actions` sem proteção contra `UPDATE`/`DELETE` (mesmo débito M7 da auditoria geral).
 7. ~~"Valor envolvido" de reposição com unidades misturadas (OR2)~~ ✅ resolvido em 02/11/2026: converte a quantidade para kg antes de multiplicar por R$/kg. No banco de dev o déficit potencial passou de R$ 71,22 para R$ 314,42, conferido à mão (1 m de tubo inox = 2,43 kg/m; 1 m de perfil = 31,3 kg/m). O valor segue baixo porque os 5 SKUs críticos de dev têm saldo zero e sugestão mínima de 1 unidade.
 
@@ -404,6 +404,22 @@ Toda geração do briefing (e toda falha dele) agora vira uma linha em `agent_ac
 | "Sistema (automá…" cortado na coluna | Rótulo "Sistema", com dica "Execução automática, sem usuário" |
 
 **Limite.** O briefing é texto livre de um modelo de linguagem: cada geração pode variar. Os números vêm de código e vão no contexto, mas o texto que os cita não é conferido automaticamente (diferente do Copiloto, que tem a bateria).
+
+### 10.8 Auditoria completa e testes das ferramentas (02/11/2026)
+
+**Auditoria do Copiloto.** Antes, `/api/copilot/chat` só gravava em `agent_actions` quando a resposta terminava bem: erro do provedor ou cancelamento não deixavam rastro. Agora cada pergunta gera **uma** linha, a primeira entre três eventos: resposta (`onFinish`), falha (`[falha] <mensagem>`, mesma convenção do briefing) ou cancelamento (`[interrompida] …`). Validado ao vivo com chave de API inválida: a chamada respondeu 200, a linha `[falha] Incorrect API key provided…` apareceu na trilha, e a linha de teste foi apagada depois. O texto do erro é o do provedor (a OpenAI já mascara a chave), limitado a 500 caracteres.
+
+**Testes das ferramentas com Postgres real** (`lib/ai/tools.integration.test.ts`, `RUN_DB_TESTS=1`, somente leitura, 9 testes, sem chamar o modelo):
+- totais e lista da ruptura, filtro por status e por SKU, comparados com o gabarito SQL da bateria;
+- último fechamento da PTAX e resposta com os símbolos válidos para ativo desconhecido;
+- contagem de orçamentos total e por status; vendedor inexistente não devolve a lista inteira;
+- retalhos disponíveis; fornecedor de menor lead time;
+- **isolamento**: um tenant inexistente recebe zero dado em todas as consultas;
+- **trava da lista de ferramentas**: o teste falha se aparecer qualquer ferramenta fora das 6 conhecidas. Como nenhuma delas grava dados, isso sustenta o critério do *human-in-the-loop*.
+
+**Defeito achado:** a ruptura ordenava só por cobertura, então SKUs com a mesma cobertura mudavam de ordem entre consultas. Agora o desempate é pelo SKU.
+
+**Latência do Command Center.** ~115 ms em build de produção local, com 11 produtos. Não vale como aceite: a medição que vale é no Railway com dados reais (`roteiro-deploy-railway.md` §7).
 
 ## 11. Problemas Conhecidos / Limitações (implementação)
 

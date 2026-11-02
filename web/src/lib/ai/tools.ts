@@ -73,7 +73,7 @@ export function createCopilotTools(tenantId: string) {
               sql`${stockPredictiveMetrics.predictiveStatus} IN ('CRITICAL_RUPTURE','WARNING')`
             )
           )
-          .orderBy(stockPredictiveMetrics.coverageDays)
+          .orderBy(stockPredictiveMetrics.coverageDays, products.sku)
           .limit(limite ?? 20);
 
         // Totais reais do grupo (mesma família), sem o filtro de status e sem o limite da lista.
