@@ -282,7 +282,7 @@ Legenda: ✅ verificado · 🟡 implementado, falta homologar · ⬜ não feito.
 2. **Metais em produção:** contratar plano com REST, definir a chave, apontar `LME-ALU` e `CME-HRC` na tela de Configuração e importar o histórico (CSV) ou deixar acumular.
 3. **Confirmar o mercado do `HRC-STEEL`** com o provedor (US$ 1.429/t sugere índice diferente do HRC americano) e definir a fonte do **HRC FOB China** (sem símbolo em US$ encontrado; alternativa: Manual · CSV).
 4. **Confirmar a licença** do provedor para gravar o histórico no banco (o site lista "armazenamento permanente" apenas no Enterprise).
-5. ~~Criar o serviço do worker no Railway~~ ✅ **feito em 02/11/2026** (`market-worker` online, PR #3; ver `deploy.md` §4.2). **Falta** rodar `pnpm db:seed-market` em produção (`SEED_MODE=production`) para a carga histórica da PTAX e definir `COMMODITY_PRICE_API_KEY`/`METALS_API_KEY` no web.
+5. ~~Criar o serviço do worker no Railway~~ ✅ **feito em 02/11/2026** (`market-worker` online, PR #3; ver `deploy.md` §4.2). Carga histórica da PTAX em produção ✅ (02/11/2026: 24 meses, 499 dias, via `railway ssh` no serviço web, com `SEED_MODE=production`). **Falta** definir `COMMODITY_PRICE_API_KEY`/`METALS_API_KEY` no web; até lá o job diário de metais registra erro por mercado e não grava nada.
 6. **Testar o e-mail de alerta** com `RESEND_API_KEY` real e domínio verificado.
 7. **Medir a latência** da página `/mercado` (meta < 2 s) em produção.
 8. Decidir se o worker precisa de **histórico de execuções** (hoje só logs em stdout).
