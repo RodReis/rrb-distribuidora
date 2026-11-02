@@ -5,14 +5,16 @@
  *
  * O gabarito vem de `buildTruth` (SQL direto, independente das ferramentas). Somente leitura.
  */
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { tenants } from "@/lib/db/schema";
+import { products, quoteItems, quotes, tenants } from "@/lib/db/schema";
 import { createCopilotTools } from "./tools";
 import { buildTruth } from "./eval/ground-truth";
 import type { Truth } from "./eval/truth";
 
 const enabled = !!process.env.RUN_DB_TESTS;
+const TAG = `impact-${Date.now()}`;
 
 type Executable = { execute: (input: never, options: never) => Promise<unknown> };
 
@@ -32,6 +34,14 @@ describe.skipIf(!enabled)("ferramentas do Copiloto (Postgres real)", () => {
     tenantId = tenant.id;
     truth = await buildTruth(tenantId);
     tools = createCopilotTools(tenantId);
+  });
+
+  // O teste de impacto cria propostas próprias; limpa tudo ao final.
+  const createdQuoteIds: string[] = [];
+  afterAll(async () => {
+    if (!enabled || !createdQuoteIds.length) return;
+    await db.delete(quoteItems).where(inArray(quoteItems.quoteId, createdQuoteIds));
+    await db.delete(quotes).where(inArray(quotes.id, createdQuoteIds));
   });
 
   it("só existem ferramentas de consulta e cálculo (nenhuma grava dados)", () => {
@@ -118,4 +128,65 @@ describe.skipIf(!enabled)("ferramentas do Copiloto (Postgres real)", () => {
     expect((await exec("consultar_retalhos_disponiveis", {})).count).toBe(0);
     expect((await exec("consultar_lead_time_fornecedores", {})).count).toBe(0);
   });
+
+  it("impacto de insumo: só propostas com itens da família pedida entram (decisão do PI)", async () => {
+    // Duas famílias distintas entre os produtos ativos do tenant.
+    const prodRows = await db
+      .select({ id: products.id, family: products.family })
+      .from(products)
+      .where(and(eq(products.tenantId, tenantId), eq(products.status, "ativo")));
+    const families = [...new Set(prodRows.map((p) => p.family))];
+    if (families.length < 2) throw new Error("Precisa de 2 famílias de produto para este teste.");
+    const famA = families[0];
+    const famB = families[1];
+    const prodA = prodRows.find((p) => p.family === famA)!;
+    const prodB = prodRows.find((p) => p.family === famB)!;
+
+    // Template de orçamento/item existentes, como no order-flow.
+    const [templateItem] = await db.select().from(quoteItems).limit(1);
+    const [templateQuote] = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.id, templateItem.quoteId))
+      .limit(1);
+
+    const newQuote = async (family: string, productId: string, total: number, status: string) => {
+      const { id: _id, quoteNumber: _n, ...header } = templateQuote;
+      const [q] = await db
+        .insert(quotes)
+        .values({ ...header, status, totalAmount: String(total), notes: TAG, pdfFileKey: null })
+        .returning();
+      createdQuoteIds.push(q.id);
+      const { id: _itemId, ...item } = templateItem;
+      await db.insert(quoteItems).values({ ...item, quoteId: q.id, productId, remnantId: null });
+      return q;
+    };
+
+    const impact = (f: string) =>
+      run<{
+        valorPropostasAbertas: number;
+        impactoPropostas: number;
+      }>("calcular_impacto_aumento_insumo", { percentual_alta: 10, familia_produto: f });
+
+    // Baseline antes de criar as propostas de teste.
+    const a0 = await impact(famA);
+    const b0 = await impact(famB);
+
+    await newQuote(famA, prodA.id, 1000, "enviado");
+    await newQuote(famB, prodB.id, 400, "enviado");
+
+    const a1 = await impact(famA);
+    const b1 = await impact(famB);
+
+    // A proposta da família A só entra no cálculo da família A — e idem para B.
+    expect(a1.valorPropostasAbertas - a0.valorPropostasAbertas).toBe(1000);
+    expect(b1.valorPropostasAbertas - b0.valorPropostasAbertas).toBe(400);
+    expect(a1.impactoPropostas - a0.impactoPropostas).toBe(100);
+    expect(b1.impactoPropostas - b0.impactoPropostas).toBe(40);
+
+    // Proposta encerrada não entra em nenhuma família.
+    await newQuote(famA, prodA.id, 999, "perdido");
+    const a2 = await impact(famA);
+    expect(a2.valorPropostasAbertas).toBe(a1.valorPropostasAbertas);
+  }, 60_000);
 });

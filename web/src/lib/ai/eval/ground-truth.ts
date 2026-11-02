@@ -1,9 +1,10 @@
-import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, exists, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   marketAssets,
   marketPriceSeries,
   products,
+  quoteItems,
   quotes,
   stockPredictiveMetrics,
   stockRemnants,
@@ -134,7 +135,25 @@ export async function buildTruth(tenantId: string): Promise<Truth> {
     .from(stockPredictiveMetrics)
     .innerJoin(products, eq(products.id, stockPredictiveMetrics.productId))
     .where(and(eq(stockPredictiveMetrics.tenantId, tenantId), eq(products.family, IMPACT_FAMILY)));
-  const impactBase = Number(stockValue?.value ?? 0) + Number(q?.openValue ?? 0);
+
+  // Mesma regra da ferramenta (decisão do PI, 02/11/2026): só propostas abertas com itens da família.
+  const [openFamily] = await db
+    .select({ total: sql<string>`coalesce(sum(${quotes.totalAmount}::numeric),0)` })
+    .from(quotes)
+    .where(
+      and(
+        eq(quotes.tenantId, tenantId),
+        inArray(quotes.status, ["enviado", "em_negociacao", "bloqueado_margem"]),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(quoteItems)
+            .innerJoin(products, eq(products.id, quoteItems.productId))
+            .where(and(eq(quoteItems.quoteId, quotes.id), eq(products.family, IMPACT_FAMILY)))
+        )
+      )
+    );
+  const impactBase = Number(stockValue?.value ?? 0) + Number(openFamily?.total ?? 0);
 
   return {
     skus: skuRows.map((s) => s.sku),
