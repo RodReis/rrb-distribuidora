@@ -293,6 +293,11 @@ revertidas** automaticamente; só publique rollback de código compatível com o
 O container Postgres local já parou sozinho várias vezes durante o desenvolvimento; se aparecer `ECONNREFUSED`
 na porta 54320, rode `docker compose start`.
 
+> **Não rode `pnpm build` com o `pnpm dev` ativo.** Os dois escrevem em `web/.next`; o dev passa a responder **500**
+> (`Could not find the module ... in the React Client Manifest`). Pare o dev, rode o build, apague `web/.next`
+> (`Remove-Item -Recurse -Force .next`) e suba o dev de novo. O mesmo vale para `EADDRINUSE`: confira os PIDs donos
+> da porta 3000 (`Get-NetTCPConnection -LocalPort 3000`) e encerre-os antes de reiniciar.
+
 ## 12. Estado de produção
 
 **Atualização 02/11/2026 (M2):** deploy `9c310f41` (SUCCESS, 23:09 -03:00) após o merge do PR #4 (`9f49325`); migration `0003` aplicada; tabelas `stock_*` vazias; job de recálculo 04h00 **não agendado**; `/estoque` **não** foi testado em produção (apenas log de start `Ready` e consulta ao banco). Os itens abaixo são do snapshot de 01/11/2026.
