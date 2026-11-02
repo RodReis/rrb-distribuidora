@@ -4,7 +4,7 @@
     "builder": "RAILPACK"
   },
   "deploy": {
-    "startCommand": "pnpm drizzle-kit migrate && pnpm start",
+    "startCommand": "sh -c 'if [ \"$SERVICE_ROLE\" = \"worker\" ]; then exec pnpm worker:market; else pnpm drizzle-kit migrate && exec pnpm start; fi'",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
