@@ -134,6 +134,8 @@ GitHub (main)
 
 **Aceite:** peso com erro < 1% vs tabela técnica; orçamento completo < 3 min.
 
+> **Status (02/11/2026):** 🟡 implementado localmente (lint, build e 113 testes ok); aguardando homologação. Motor metalúrgico e de precificação, funil de status, reserva/consumo de retalhos, aprovação de margem pelo diretor, PDF e conversão em pedido prontos; faltam R2 real, testes de integração e validação das fórmulas contra tabela de usina. Detalhes e desvios na seção 10 da spec.
+
 **Nota:** Nesting 2D real fica para a Fase 2 — no MVP só cálculo de área/perda teórica.
 
 **Telas:** `metalagents_vendas_or_amentos_r_pidos_nesting_de_corte`.

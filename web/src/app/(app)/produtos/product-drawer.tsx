@@ -3,6 +3,7 @@
 import * as React from "react";
 import { FormDrawer } from "@/components/shared/form-drawer";
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { calculateTheoreticalWeight, getDefaultDensity } from "@/lib/metallurgy/weight";
@@ -432,16 +433,14 @@ export function ProductDrawer({ isOpen, onClose, product }: ProductDrawerProps) 
             <label className="text-label-caps font-semibold text-titanium-muted uppercase block mb-1">
               Custo de Reposição Base (R$/kg) *
             </label>
-            <Input
-              type="number"
-              step="0.01"
-              value={replacementCostBase}
-              onChange={(e) =>
-                setReplacementCostBase(e.target.value ? parseFloat(e.target.value) : "")
-              }
-              placeholder="5.36"
+            <CurrencyInput
+              value={replacementCostBase === "" ? null : replacementCostBase}
+              onValueChange={setReplacementCostBase}
+              placeholder="5,36"
+              aria-label="Custo de reposição base por quilo"
               required
               className="font-mono"
+              decimals={4}
             />
           </div>
           <div>

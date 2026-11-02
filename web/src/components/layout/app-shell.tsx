@@ -72,10 +72,8 @@ const NAVIGATION: NavGroup[] = [
       },
       {
         label: "Vendas & Orçamento",
-        href: "/orcamentos",
+        href: "/vendas/orcamentos",
         icon: Receipt,
-        disabled: true,
-        badge: "M3",
       },
       {
         label: "Produção & Nesting",

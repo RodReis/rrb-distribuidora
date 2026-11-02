@@ -30,7 +30,7 @@
 ```
 git push origin main
       │
-      ├──► GitHub Actions (.github/workflows/ci.yml): lint + prettier + build   ← informativo, NÃO bloqueia o deploy
+      ├──► GitHub Actions (.github/workflows/ci.yml): lint + prettier + testes + build   ← informativo, NÃO bloqueia o deploy
       │
       └──► Railway detecta o push
               │  build:  pnpm install --frozen-lockfile  →  pnpm run build
@@ -153,13 +153,36 @@ SEED_MODE=production pnpm db:seed-market   # PTAX (24 meses, BCB) e cadastra os 
 - **Não** rode `pnpm db:seed-stock` em produção: ele grava produtos, fornecedores, lotes e métricas **de exemplo** do mockup (uso só em desenvolvimento).
 - Caminho correto: cadastrar produtos e depósitos e importar os saldos pela aba **Carga Inicial (CSV)** de `/estoque` (colunas: SKU, Depósito, Lote, Corrida, Quantidade, Custo Unitário, Data Entrada, Endereço). A importação é atômica: qualquer linha inválida aborta tudo.
 
+### 4.5 Armazenamento de PDFs (M3)
+
+As propostas comerciais do M3 são geradas no servidor com `@react-pdf/renderer` e gravadas com a chave
+`quotes/<tenantId>/<número>-proposta.pdf`. O download passa por `/api/files/download`, que exige sessão,
+permissão de leitura em `vendas_orcamentos` e o prefixo do próprio tenant (bloqueia path traversal e chaves de outro tenant).
+
+| Variável | Obrigatória | Observações |
+|---|---|---|
+| `R2_ACCOUNT_ID` | sim (para R2) | ID da conta Cloudflare; compõe o endpoint `https://<id>.r2.cloudflarestorage.com` |
+| `R2_ACCESS_KEY_ID` | sim (para R2) | Token de API S3 do R2 |
+| `R2_SECRET_ACCESS_KEY` | sim (para R2) | Segredo do token |
+| `R2_BUCKET` | sim (para R2) | Nome do bucket |
+| `R2_PUBLIC_BASE_URL` | não | Se definida, o link retornado é público (`<base>/<key>`); sem ela, usa `/api/files/download?key=…` |
+
+- **As quatro primeiras variáveis são lidas em conjunto:** faltando qualquer uma, o app cai no fallback local
+  (`.data/quotes`), que **não** tem volume persistente no Railway — o PDF some no próximo deploy.
+  Em produção, configure o R2 antes de gerar propostas.
+- O fallback local é o modo de desenvolvimento e está no `.gitignore` (`web/.data/`).
+- Ainda **não homologado em bucket real** (ver `debitos-tecnicos.md`, M3).
+
 ## 5. Banco de dados
 
 - **Serviço:** Postgres do Railway com volume persistente.
 - **Acesso externo:** o TCP Proxy **não está habilitado**; não existe `DATABASE_PUBLIC_URL`. O banco só é
   alcançável de dentro do Railway (`railway ssh`) ou pelo CLI (`railway connect Postgres`, exige `psql`).
-- **Schema:** 21 tabelas, criadas por `drizzle-kit migrate` (migrations `0000` a `0003`; a `0003_hesitant_namora` adicionou as 5 tabelas do M2: `stock_lots`, `stock_movements`, `stock_remnants`, `stock_predictive_metrics`, `stock_cycle_counts`).
-- **Aplicação das migrations:** automática no start do serviço web (seção 2). A `0003` foi aplicada em produção no deploy `9c310f41` (02/11/2026), confirmado por consulta em `drizzle.__drizzle_migrations` (4 registros) e pela existência das tabelas `stock_*`.
+- **Schema:** 24 tabelas, criadas por `drizzle-kit migrate` (migrations `0000` a `0005`):
+  - `0003_hesitant_namora` — 5 tabelas do M2: `stock_lots`, `stock_movements`, `stock_remnants`, `stock_predictive_metrics`, `stock_cycle_counts`.
+  - `0004_fat_james_howlett` — 3 tabelas do M3 (`quotes`, `quote_items`, `sales_orders`), o valor `oxicorte` no enum `machine_type` e `tenants.min_gross_margin_pct` / `tenants.default_quote_margin_pct`.
+  - `0005_lazy_ben_grimm` — `quotes.target_margin_pct` e `quotes.discount_pct`.
+- **Aplicação das migrations:** automática no start do serviço web (seção 2). A `0003` foi aplicada em produção no deploy `9c310f41` (02/11/2026), confirmado por consulta em `drizzle.__drizzle_migrations` (4 registros) e pela existência das tabelas `stock_*`. As `0004`/`0005` (M3) foram aplicadas e validadas apenas no **Postgres local**; entram em produção no primeiro deploy após o merge do PR do M3.
 - **Migrations:** só para frente (sem `down`). Gerar com `pnpm db:generate`, revisar o SQL e commitar.
 - **Seed de produção** (cria tenant, admin e a matriz de 90 permissões; **sem** usuários de teste nem dados de exemplo):
 
@@ -270,9 +293,18 @@ revertidas** automaticamente; só publique rollback de código compatível com o
 O container Postgres local já parou sozinho várias vezes durante o desenvolvimento; se aparecer `ECONNREFUSED`
 na porta 54320, rode `docker compose start`.
 
+> **Não rode `pnpm build` com o `pnpm dev` ativo.** Os dois escrevem em `web/.next`; o dev passa a responder **500**
+> (`Could not find the module ... in the React Client Manifest`). Pare o dev, rode o build, apague `web/.next`
+> (`Remove-Item -Recurse -Force .next`) e suba o dev de novo. O mesmo vale para `EADDRINUSE`: confira os PIDs donos
+> da porta 3000 (`Get-NetTCPConnection -LocalPort 3000`) e encerre-os antes de reiniciar.
+
 ## 12. Estado de produção
 
 **Atualização 02/11/2026 (M2):** deploy `9c310f41` (SUCCESS, 23:09 -03:00) após o merge do PR #4 (`9f49325`); migration `0003` aplicada; tabelas `stock_*` vazias; job de recálculo 04h00 **não agendado**; `/estoque` **não** foi testado em produção (apenas log de start `Ready` e consulta ao banco). Os itens abaixo são do snapshot de 01/11/2026.
+
+**M3 — Orçamentos (02/11/2026):** implementado e validado **apenas localmente**; ainda **não** foi para produção.
+No próximo deploy, o `startCommand` aplica as migrations `0004` e `0005` automaticamente — depois disso, configurar as
+variáveis `R2_*` (seção 4.5) antes de gerar a primeira proposta, senão o PDF fica no fallback local sem persistência.
 
 ### Snapshot de 01/11/2026
 

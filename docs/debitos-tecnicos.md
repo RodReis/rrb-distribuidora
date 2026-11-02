@@ -1,6 +1,6 @@
 # Débitos técnicos e decisões — MetalAgents (M0)
 
-**Atualizado em:** 02/11/2026 · **Escopo:** estado do código ao encerrar o MVP-00, com os débitos do MVP-01 na seção 4.1
+**Atualizado em:** 02/11/2026 · **Escopo:** estado do código ao encerrar o MVP-00, com os débitos do MVP-01 na seção 4.1 e os do MVP-03 na seção 4.2
 
 Como usar este documento: cada item tem **impacto** (por que importa), **correção sugerida** e **esforço**
 (P = horas · M = 1–2 dias · G = mais de 2 dias). Os IDs são estáveis; ao resolver um item, mova-o para a
@@ -214,10 +214,25 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 | MK6 | E-mail de alerta nunca testado (sem `RESEND_API_KEY` no teste); remetente padrão `onboarding@resend.dev` | validar domínio no Resend e testar o envio | P |
 | MK7 | "Preço médio pago" é um campo manual guardado no navegador (sem compras no sistema) | calcular a partir das compras no M2 | M |
 | MK8 | `market_price_series` sem partição mensal (spec) e sem retenção/compactação | particionar se passar de ~1 M de linhas | M |
-| MK9 | Testes do M1 cobrem só funções puras; ingestores, alertas, rotas e telas sem teste; Vitest fora do CI | testes de integração com banco de teste; `pnpm test` no CI; Playwright para `/mercado` | M |
+| MK9 | Testes do M1 cobrem só funções puras; ingestores, alertas, rotas e telas sem teste; Vitest agora no CI (02/11/2026) | testes de integração com banco de teste; `pnpm test` no CI; Playwright para `/mercado` | M |
 | MK10 | Rotas `/api/market/*` redirecionam para `/login` (307) em vez de responder 401 quando a sessão expira (o `authorized()` do middleware) | devolver 401 JSON para `/api/*` | P |
 | MK11 | Latência de `/mercado` não medida formalmente (meta < 2 s) | Lighthouse/RUM em produção | P |
 | MK12 | Mercados cadastrados em *Configuração* não aparecem nas faixas de topo nem no ticker (símbolos fixos em `ASSET_SYMBOLS`) | tornar as faixas configuráveis | P |
+
+### 4.2 Débitos do M3 — Orçamentos *(02/11/2026)*
+
+O detalhamento está em [`specs/MVP-03-orcamentos.md` §10.3](specs/MVP-03-orcamentos.md#103-pendências-e-dívidas-técnicas).
+Os itens que **bloqueiam aceite em produção** ou afetam o CI:
+
+| ID | Débito | Correção sugerida | Esforço |
+|---|---|---|---|
+| OR1 | Upload/download em Cloudflare R2 **nunca exercitado** com credencial real — a validação usou o fallback local `.data/quotes`, que não tem volume persistente no Railway | configurar `R2_*`, testar geração e download em produção e definir retenção dos PDFs | M |
+| OR2 | `replacement_cost_base` do MVP-02 grava chapa em tonelada e barra por unidade; o M3 normaliza para R$/kg **só na leitura** | corrigir a origem (cadastro/seed do M2) e revisar quem mais lê esse campo | M |
+| OR3 | Reserva/consumo de retalho e conversão em pedido não têm teste automatizado (só smoke manual contra o Postgres de dev) | testes de integração com banco de teste no fluxo `orçamento → reserva → aprovação → pedido` | M |
+| OR4 | Expiração de proposta não é automática: `expired` é calculado pelo relógio e o vendedor encerra manualmente | job diário marcando `expirado` (e liberando retalhos) quando `valid_until` vence | P |
+| OR5 | Edição reprecifica e descarta `manualUnitPrice` do rascunho | persistir o override por item, se o PI quiser preço congelado | P |
+| OR6 | Fórmulas de peso comparadas apenas com cálculo manual, não com tabela oficial de usina (aceite < 1%) | planilha de referência com 10–20 SKUs reais | P |
+| OR7 | Vitest agora roda no CI (`pnpm vitest run`, 02/11/2026) - vale para M1, M2 e M3 | resolvido; cobertura de integracao com banco e Playwright segue pendente | P |
 
 ---
 

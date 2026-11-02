@@ -7,6 +7,7 @@ import {
   numeric,
   integer,
   bigserial,
+  serial,
   jsonb,
   char,
   varchar,
@@ -66,6 +67,7 @@ export const warehouseTypeEnum = pgEnum("warehouse_type", ["matriz", "filial", "
 export const machineTypeEnum = pgEnum("machine_type", [
   "laser",
   "plasma",
+  "oxicorte",
   "guilhotina",
   "serra",
   "dobra",
@@ -91,6 +93,12 @@ export const tenants = pgTable("tenants", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   active: boolean("active").default(true).notNull(),
+  minGrossMarginPct: numeric("min_gross_margin_pct", { precision: 5, scale: 2 })
+    .default("18.00")
+    .notNull(),
+  defaultQuoteMarginPct: numeric("default_quote_margin_pct", { precision: 5, scale: 2 })
+    .default("24.00")
+    .notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -651,5 +659,153 @@ export const stockCycleCounts = pgTable(
   (t) => ({
     cycleCountTenantIdx: index("idx_stock_cycle_counts_tenant").on(t.tenantId, t.countedAt),
     cycleCountProductIdx: index("idx_stock_cycle_counts_product").on(t.productId),
+  })
+);
+
+// ==========================================
+// 13. VENDAS, ORÇAMENTOS E PEDIDOS (MVP-03)
+// ==========================================
+
+export const quotes = pgTable(
+  "quotes",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    quoteNumber: serial("quote_number").notNull().unique(),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id),
+    sellerId: uuid("seller_id")
+      .notNull()
+      .references(() => users.id),
+    channel: varchar("channel", { length: 30 }).default("whatsapp").notNull(), // whatsapp, email, phone, counter
+    status: varchar("status", { length: 30 }).default("rascunho").notNull(), // rascunho, bloqueado_margem, enviado, em_negociacao, aprovado, perdido, expirado
+    totalMaterialCost: numeric("total_material_cost", { precision: 12, scale: 2 })
+      .default("0.00")
+      .notNull(),
+    totalProcessCost: numeric("total_process_cost", { precision: 12, scale: 2 })
+      .default("0.00")
+      .notNull(),
+    totalFreightCost: numeric("total_freight_cost", { precision: 12, scale: 2 })
+      .default("0.00")
+      .notNull(),
+    totalServicesCost: numeric("total_services_cost", { precision: 12, scale: 2 })
+      .default("0.00")
+      .notNull(),
+    totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).default("0.00").notNull(),
+    grossMarginPct: numeric("gross_margin_pct", { precision: 5, scale: 2 })
+      .default("0.00")
+      .notNull(),
+    minMarginPct: numeric("min_margin_pct", { precision: 5, scale: 2 }).default("18.00").notNull(),
+    targetMarginPct: numeric("target_margin_pct", { precision: 5, scale: 2 })
+      .default("24.00")
+      .notNull(),
+    discountPct: numeric("discount_pct", { precision: 5, scale: 2 }).default("0.00").notNull(),
+    marketSymbol: varchar("market_symbol", { length: 30 }),
+    marketVolatilityPct: numeric("market_volatility_pct", { precision: 6, scale: 2 })
+      .default("0.00")
+      .notNull(),
+    validUntil: timestamp("valid_until", { withTimezone: true }).notNull(),
+    pdfFileKey: varchar("pdf_file_key", { length: 255 }),
+    lossReason: varchar("loss_reason", { length: 100 }),
+    approvedByDirectorId: uuid("approved_by_director_id").references(() => users.id),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    deliveryDeadline: timestamp("delivery_deadline", { withTimezone: true }),
+    paymentTerms: varchar("payment_terms", { length: 100 }),
+    deliveryMethod: varchar("delivery_method", { length: 100 }),
+    bankingInfo: text("banking_info"),
+    externalServices: jsonb("external_services").$type<{ description: string; cost: number }[]>(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    quoteTenantStatusIdx: index("idx_quotes_tenant_status").on(t.tenantId, t.status),
+    quoteTenantCreatedIdx: index("idx_quotes_tenant_created").on(t.tenantId, t.createdAt),
+    quoteCustomerIdx: index("idx_quotes_customer").on(t.customerId),
+    quoteSellerIdx: index("idx_quotes_seller").on(t.sellerId),
+  })
+);
+
+export const quoteItems = pgTable(
+  "quote_items",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    remnantId: uuid("remnant_id").references(() => stockRemnants.id),
+    geometryType: varchar("geometry_type", { length: 30 }).notNull(), // CHAPA_RETANGULAR, DISCO, BARRA_CORTE, TUBO_CORTE, PADRAO
+    thicknessMm: numeric("thickness_mm", { precision: 8, scale: 2 }).notNull(),
+    widthMm: numeric("width_mm", { precision: 8, scale: 2 }),
+    lengthMm: numeric("length_mm", { precision: 8, scale: 2 }),
+    diameterMm: numeric("diameter_mm", { precision: 8, scale: 2 }),
+    innerDiameterMm: numeric("inner_diameter_mm", { precision: 8, scale: 2 }),
+    wallMm: numeric("wall_mm", { precision: 8, scale: 2 }),
+    processType: varchar("process_type", { length: 30 }),
+    quantity: integer("quantity").notNull(),
+    netWeightKg: numeric("net_weight_kg", { precision: 10, scale: 3 }).notNull(),
+    grossWeightKg: numeric("gross_weight_kg", { precision: 10, scale: 3 }).notNull(),
+    scrapPct: numeric("scrap_pct", { precision: 5, scale: 2 }).default("0.00").notNull(),
+    unitMaterialCost: numeric("unit_material_cost", { precision: 12, scale: 4 }).notNull(),
+    unitProcessCost: numeric("unit_process_cost", { precision: 12, scale: 4 })
+      .default("0.00")
+      .notNull(),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+    totalItemAmount: numeric("total_item_amount", { precision: 12, scale: 2 }).notNull(),
+    itemMarginPct: numeric("item_margin_pct", { precision: 5, scale: 2 }).notNull(),
+    replacementCostPerKg: numeric("replacement_cost_per_kg", { precision: 12, scale: 4 })
+      .default("0.00")
+      .notNull(),
+    machineId: uuid("machine_id").references(() => machines.id),
+    setupMinutes: numeric("setup_minutes", { precision: 8, scale: 2 }),
+    estimatedCutTimeMinutes: numeric("estimated_cut_time_minutes", { precision: 8, scale: 2 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    quoteItemQuoteIdx: index("idx_quote_items_quote").on(t.quoteId),
+    quoteItemProductIdx: index("idx_quote_items_product").on(t.productId),
+    quoteItemRemnantIdx: index("idx_quote_items_remnant").on(t.remnantId),
+  })
+);
+
+export const salesOrders = pgTable(
+  "sales_orders",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    orderNumber: serial("order_number").notNull().unique(),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id),
+    totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).notNull(),
+    orderStatus: varchar("order_status", { length: 30 }).default("aguardando_producao").notNull(), // aguardando_producao, em_corte, pronto_faturamento, entregue, cancelado
+    deliveryDeadline: timestamp("delivery_deadline", { withTimezone: true }),
+    paymentTerms: varchar("payment_terms", { length: 100 }),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    salesOrderTenantIdx: index("idx_sales_orders_tenant").on(t.tenantId, t.orderStatus),
+    salesOrderQuoteIdx: index("idx_sales_orders_quote").on(t.quoteId),
+    salesOrderCustomerIdx: index("idx_sales_orders_customer").on(t.customerId),
   })
 );

@@ -49,6 +49,9 @@ export function FormDrawer({
 
       {/* Drawer Body */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         className={cn(
           "relative z-10 h-full w-full bg-carbon-900 border-l border-carbon-700 shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200",
           width
@@ -64,6 +67,7 @@ export function FormDrawer({
           </div>
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="p-1.5 rounded hover:bg-carbon-800 text-titanium-muted hover:text-ice-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />

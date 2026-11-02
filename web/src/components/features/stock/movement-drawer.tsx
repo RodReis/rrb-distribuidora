@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { FormDrawer } from "@/components/shared/form-drawer";
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Select } from "@/components/ui/select";
 import { toast } from "sonner";
 import { createStockEntryAction, createStockOutAction } from "@/app/(app)/estoque/actions";
@@ -236,13 +237,12 @@ export function MovementDrawer({
             <label className="font-mono text-label-code text-titanium-muted uppercase block mb-1">
               Custo Unitário (R$)
             </label>
-            <input
-              type="number"
-              step="0.01"
+            <CurrencyInput
               required
-              value={unitCost}
-              onChange={(e) => setUnitCost(e.target.value)}
-              placeholder="0.00"
+              value={unitCost === "" ? null : Number(unitCost)}
+              onValueChange={(value) => setUnitCost(value ? String(value) : "")}
+              placeholder="0,00"
+              aria-label="Custo unitário em reais"
               className="w-full bg-carbon-950 text-ice-white font-mono text-body-sm px-3 py-1.5 rounded border border-carbon-700 focus:outline-none focus:border-carmine-core"
             />
           </div>
