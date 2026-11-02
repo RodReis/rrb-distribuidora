@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { calculateDio, remnantValueBrl, variationPct } from "./kpis";
 
 describe("KPIs de estoque", () => {
-  it("converte peso em valor conforme a unidade de custo do produto", () => {
-    expect(remnantValueBrl(500, "kg", 6)).toBe(3000);
-    expect(remnantValueBrl(500, "t", 5000)).toBe(2500);
-    expect(remnantValueBrl(500, "un", 380)).toBe(0);
+  it("valor do retalho = peso em kg × custo de reposição em R$/kg, para qualquer unidade de estoque", () => {
+    expect(remnantValueBrl(500, 6)).toBe(3000);
+    expect(remnantValueBrl(1435.5, 5.42)).toBeCloseTo(7780.41, 2);
+    expect(remnantValueBrl(0, 6)).toBe(0);
   });
 
   it("calcula variação percentual e devolve null sem base de comparação", () => {

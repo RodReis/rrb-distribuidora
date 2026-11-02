@@ -820,7 +820,8 @@ export const agentActions = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
-    userId: uuid("user_id").notNull().references(() => users.id),
+    // Nulo = execução automática do sistema (ex.: briefing das 06h55), sem usuário humano.
+    userId: uuid("user_id").references(() => users.id),
     agentName: varchar("agent_name", { length: 50 }).notNull(),
     userPrompt: text("user_prompt"),
     toolsExecuted: jsonb("tools_executed").$type<{

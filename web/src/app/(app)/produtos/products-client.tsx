@@ -482,7 +482,7 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
                       <td className="py-3 px-3 align-top text-right font-mono">
                         <div className="flex flex-col items-end">
                           <span className="text-body-sm font-semibold text-signal-buy">
-                            {formatCurrencyBRL(p.replacementCostBase)} /{p.unit}
+                            {formatCurrencyBRL(p.replacementCostBase)} /kg
                           </span>
                           <span className="text-label-code text-titanium-dark mt-0.5">
                             Custo Reposição Base

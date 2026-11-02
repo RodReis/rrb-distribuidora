@@ -8,6 +8,7 @@ import {
   stockRemnants,
 } from "@/lib/db/schema";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { valueAtCostPerKg } from "./units";
 
 export interface StockKpis {
   criticalCount: number;
@@ -24,13 +25,9 @@ export interface StockKpis {
   lastCycleCountAt: Date | null;
 }
 
-type CostUnit = "kg" | "m" | "un" | "t";
-
-/** Converte peso (kg) em valor usando o custo de reposição na unidade do produto. */
-export function remnantValueBrl(weightKg: number, unit: CostUnit, costPerUnit: number): number {
-  if (unit === "kg") return weightKg * costPerUnit;
-  if (unit === "t") return (weightKg / 1000) * costPerUnit;
-  return 0;
+/** Valor de um peso (kg) ao custo de reposição em R$/kg. Vale para qualquer unidade de estoque. */
+export function remnantValueBrl(weightKg: number, costPerKg: number): number {
+  return weightKg * costPerKg;
 }
 
 export function variationPct(current: number, previous: number): number | null {
@@ -56,14 +53,24 @@ export async function getStockKpis(tenantId: string): Promise<StockKpis> {
       suggestedQty: stockPredictiveMetrics.suggestedPurchaseQty,
       leadTimeDays: stockPredictiveMetrics.leadTimeDays,
       cost: products.replacementCostBase,
+      unit: products.unit,
+      family: products.family,
+      weightPerUnit: products.weightPerUnit,
+      thicknessMm: products.thicknessMm,
+      widthMm: products.widthMm,
+      lengthMm: products.lengthMm,
+      diameterMm: products.diameterMm,
+      wallMm: products.wallMm,
+      densityGCm3: products.densityGCm3,
     })
     .from(stockPredictiveMetrics)
     .innerJoin(products, eq(products.id, stockPredictiveMetrics.productId))
     .where(eq(stockPredictiveMetrics.tenantId, tenantId));
 
   const critical = metrics.filter((m) => m.status === "CRITICAL_RUPTURE");
+  // Quantidade sugerida (unidade de estoque) → kg × R$/kg. Sem conversão conhecida, não soma.
   const potentialDeficitBrl = critical.reduce(
-    (acc, m) => acc + Number(m.suggestedQty) * Number(m.cost),
+    (acc, m) => acc + (valueAtCostPerKg(m.suggestedQty, m.cost, m) ?? 0),
     0
   );
   const avgLeadTimeDays =
@@ -109,7 +116,6 @@ export async function getStockKpis(tenantId: string): Promise<StockKpis> {
       weightKg: stockRemnants.weightKg,
       status: stockRemnants.status,
       updatedAt: stockRemnants.updatedAt,
-      unit: products.unit,
       cost: products.replacementCostBase,
     })
     .from(stockRemnants)
@@ -125,7 +131,7 @@ export async function getStockKpis(tenantId: string): Promise<StockKpis> {
   const prevMonth = reused.filter((r) => inRange(r, prevMonthStart, monthStart));
   const sumWeight = (rows: typeof reused) => rows.reduce((a, r) => a + Number(r.weightKg), 0);
   const sumValue = (rows: typeof reused) =>
-    rows.reduce((a, r) => a + remnantValueBrl(Number(r.weightKg), r.unit, Number(r.cost)), 0);
+    rows.reduce((a, r) => a + remnantValueBrl(Number(r.weightKg), Number(r.cost)), 0);
 
   const [lastCount] = await db
     .select({ countedAt: stockCycleCounts.countedAt })

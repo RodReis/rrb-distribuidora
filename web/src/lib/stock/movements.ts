@@ -3,6 +3,8 @@ import { products, stockLots, stockMovements, stockRemnants, auditLog } from "@/
 import { and, eq, sql } from "drizzle-orm";
 import { calculateRemnantWeight } from "./remnants-engine";
 import { recalculatePredictiveMetricsForTenant } from "./predictive-engine";
+import { unitCostToCostPerKg } from "./units";
+import { formatRemnantCode, isUniqueViolation } from "./remnant-code";
 
 export interface StockEntryInput {
   tenantId: string;
@@ -105,14 +107,30 @@ export async function recordStockEntry(input: StockEntryInput) {
       })
       .returning();
 
-    // 3. Update product replacement cost base with latest entry cost
-    await tx
-      .update(products)
-      .set({
-        replacementCostBase: String(input.unitCost),
-        updatedAt: new Date(),
+    // 3. Atualiza o custo de reposição base (R$/kg) com o custo da última entrada.
+    // O custo do lote é por unidade de estoque do produto; converte antes de gravar.
+    const [product] = await tx
+      .select({
+        unit: products.unit,
+        family: products.family,
+        weightPerUnit: products.weightPerUnit,
+        thicknessMm: products.thicknessMm,
+        widthMm: products.widthMm,
+        lengthMm: products.lengthMm,
+        diameterMm: products.diameterMm,
+        wallMm: products.wallMm,
+        densityGCm3: products.densityGCm3,
       })
+      .from(products)
       .where(eq(products.id, input.productId));
+    const costPerKg = product ? unitCostToCostPerKg(input.unitCost, product) : null;
+    // Sem conversão conhecida (ex.: unidade `un` sem peso por peça) o campo não é tocado.
+    if (costPerKg !== null && costPerKg > 0) {
+      await tx
+        .update(products)
+        .set({ replacementCostBase: String(costPerKg), updatedAt: new Date() })
+        .where(eq(products.id, input.productId));
+    }
 
     // 4. Audit log
     await tx.insert(auditLog).values({
@@ -315,10 +333,13 @@ export async function recordStockAdjustment(input: StockAdjustmentInput) {
 /**
  * Creates a cataloged remnant (offcut)
  */
-export async function createRemnant(input: CreateRemnantInput) {
-  // Generate code if not provided: RET-XXXXX
-  const code = input.code || `RET-${Math.floor(1000 + Math.random() * 9000)}`;
+/** Próximo código da sequência do banco (atômica: duas criações simultâneas nunca recebem o mesmo). */
+async function nextRemnantCode(): Promise<string> {
+  const rows = await db.execute<{ n: string }>(sql`select nextval('remnant_code_seq') as n`);
+  return formatRemnantCode(Number(rows[0].n));
+}
 
+export async function createRemnant(input: CreateRemnantInput) {
   // Find product to determine density for automatic weight calculation
   const [product] = await db
     .select()
@@ -341,24 +362,36 @@ export async function createRemnant(input: CreateRemnantInput) {
     });
   }
 
-  const [remnant] = await db
-    .insert(stockRemnants)
-    .values({
-      tenantId: input.tenantId,
-      code,
-      productId: input.productId,
-      warehouseId: input.warehouseId,
-      parentLotId: input.parentLotId,
-      thicknessMm: String(input.thicknessMm),
-      widthMm: input.widthMm ? String(input.widthMm) : null,
-      lengthMm: input.lengthMm ? String(input.lengthMm) : null,
-      diameterMm: input.diameterMm ? String(input.diameterMm) : null,
-      weightKg: String(weightKg),
-      locationAddress: input.locationAddress,
-      status: "disponivel",
-      notes: input.notes,
-    })
-    .returning();
+  // Código informado pelo usuário é respeitado (e falha se já existir). Sem código, usa a sequência
+  // do banco; só colide se alguém digitou à mão um código à frente da sequência, e então a nova
+  // tentativa já pega o número seguinte.
+  const MAX_ATTEMPTS = 5;
+  let remnant: typeof stockRemnants.$inferSelect | undefined;
+  for (let attempt = 1; !remnant; attempt++) {
+    const code = input.code || (await nextRemnantCode());
+    try {
+      [remnant] = await db
+        .insert(stockRemnants)
+        .values({
+          tenantId: input.tenantId,
+          code,
+          productId: input.productId,
+          warehouseId: input.warehouseId,
+          parentLotId: input.parentLotId,
+          thicknessMm: String(input.thicknessMm),
+          widthMm: input.widthMm ? String(input.widthMm) : null,
+          lengthMm: input.lengthMm ? String(input.lengthMm) : null,
+          diameterMm: input.diameterMm ? String(input.diameterMm) : null,
+          weightKg: String(weightKg),
+          locationAddress: input.locationAddress,
+          status: "disponivel",
+          notes: input.notes,
+        })
+        .returning();
+    } catch (error) {
+      if (input.code || !isUniqueViolation(error) || attempt >= MAX_ATTEMPTS) throw error;
+    }
+  }
 
   // Audit
   await db.insert(auditLog).values({
@@ -397,6 +430,7 @@ export async function reserveRemnant(
     throw new Error(`Retalho não está disponível (Status atual: ${remnant.status}).`);
   }
 
+  // Gravação condicional: se duas reservas chegam juntas, só uma encontra o retalho disponível.
   const [updated] = await db
     .update(stockRemnants)
     .set({
@@ -404,8 +438,10 @@ export async function reserveRemnant(
       reservedForQuoteId: quoteId || null,
       updatedAt: new Date(),
     })
-    .where(eq(stockRemnants.id, remnantId))
+    .where(and(eq(stockRemnants.id, remnantId), eq(stockRemnants.status, "disponivel")))
     .returning();
+
+  if (!updated) throw new Error("Retalho não está mais disponível (reservado por outra operação).");
 
   if (userId) {
     await db.insert(auditLog).values({

@@ -15,7 +15,9 @@
     "test": "vitest run",
     "db:seed-market": "tsx src/lib/market/seed-market.ts",
     "db:seed-stock": "tsx src/lib/stock/seed-stock.ts",
-    "worker:market": "tsx src/worker/market-worker.ts"
+    "worker:market": "tsx src/worker/market-worker.ts",
+    "eval:copilot": "tsx src/lib/ai/eval/run.ts",
+    "db:fix-replacement-cost": "tsx src/lib/db/fix-replacement-cost.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.106",

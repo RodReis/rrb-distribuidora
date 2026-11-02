@@ -15,6 +15,7 @@ import {
   stockLots,
   stockMovements,
 } from "@/lib/db/schema";
+import { replacementCostPerKg, unitCostToCostPerKg, type UnitProduct } from "@/lib/stock/units";
 import { applyMarketDelta } from "./pricing";
 import {
   clampMarketDelta,
@@ -48,43 +49,16 @@ export interface ReplacementCostResult {
   usedFallback: boolean;
 }
 
-interface ProductRow {
+/** Campos do produto usados para converter custo de lote (por unidade de estoque) em R$/kg. */
+interface ProductRow extends UnitProduct {
   id: string;
   tenantId: string;
   sku: string;
   family: string;
   norm: string;
+  /** R$/kg (spec MVP-00). Ver `lib/stock/units.ts`. */
   replacementCostBase: string;
   unit: string;
-  weightPerUnit: string;
-}
-
-/**
- * Converte o preço-base de reposição para R$/kg.
- *
- * O cadastro do MVP-00 declara `replacement_cost_base` em R$/kg, mas o seed do
- * MVP-02 grava o valor na unidade comercial do produto (`t` para bobina/chapa
- * a granel e `un` para barra). Normalizar aqui mantém o MVP-02 intacto e evita
- * propostas com custo de reposição 1000x acima do real.
- *
- * Produtos com unidade `m` já trazem o preço por quilo no catálogo (o `m` é
- * apenas a unidade de venda), por isso passam direto.
- */
-export function normalizeReplacementCostPerKg(input: {
-  replacementCostBase: number | string | null;
-  unit?: string | null;
-  weightPerUnit?: number | string | null;
-}): number {
-  const base = Number(input.replacementCostBase) || 0;
-  if (base <= 0) return 0;
-
-  const unit = (input.unit ?? "kg").toLowerCase();
-  if (unit === "t") return Math.round((base / 1000) * 10_000) / 10_000;
-  if (unit === "un") {
-    const weight = Number(input.weightPerUnit) || 0;
-    return weight > 0 ? Math.round((base / weight) * 10_000) / 10_000 : 0;
-  }
-  return Math.round(base * 10_000) / 10_000;
 }
 
 async function loadSeries(
@@ -128,12 +102,8 @@ async function stockAverageCost(tenantId: string, product: ProductRow): Promise<
   }
 
   if (totalQty <= 0) return null;
-  // O custo do lote segue a unidade comercial do produto; normalizamos para kg.
-  return normalizeReplacementCostPerKg({
-    replacementCostBase: weighted / totalQty,
-    unit: product.unit,
-    weightPerUnit: product.weightPerUnit,
-  });
+  // O custo do lote segue a unidade de estoque do produto; converte para R$/kg.
+  return unitCostToCostPerKg(weighted / totalQty, product);
 }
 
 async function lastPurchase(
@@ -154,14 +124,9 @@ async function lastPurchase(
     .limit(1);
 
   if (!row) return null;
-  return {
-    at: row.at,
-    unitCost: normalizeReplacementCostPerKg({
-      replacementCostBase: row.unitCost,
-      unit: product.unit,
-      weightPerUnit: product.weightPerUnit,
-    }),
-  };
+  const perKg = unitCostToCostPerKg(row.unitCost, product);
+  // Sem conversão conhecida a compra não serve de referência de preço.
+  return perKg === null ? null : { at: row.at, unitCost: perKg };
 }
 
 export async function getReplacementCost(
@@ -169,11 +134,7 @@ export async function getReplacementCost(
   product: ProductRow,
   now: Date = new Date()
 ): Promise<ReplacementCostResult> {
-  const baseCostPerKg = normalizeReplacementCostPerKg({
-    replacementCostBase: product.replacementCostBase,
-    unit: product.unit,
-    weightPerUnit: product.weightPerUnit,
-  });
+  const baseCostPerKg = replacementCostPerKg(product.replacementCostBase);
   const marketSymbol = marketSymbolForProduct(product.norm, product.family);
 
   const purchase = await lastPurchase(tenantId, product);
@@ -227,6 +188,12 @@ export async function getReplacementCosts(
       replacementCostBase: products.replacementCostBase,
       unit: products.unit,
       weightPerUnit: products.weightPerUnit,
+      thicknessMm: products.thicknessMm,
+      widthMm: products.widthMm,
+      lengthMm: products.lengthMm,
+      diameterMm: products.diameterMm,
+      wallMm: products.wallMm,
+      densityGCm3: products.densityGCm3,
     })
     .from(products)
     .where(and(eq(products.tenantId, tenantId), inArray(products.id, productIds)));
