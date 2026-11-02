@@ -3,6 +3,7 @@
 import * as React from "react";
 import { FormDrawer } from "@/components/shared/form-drawer";
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { SelectMenu } from "@/components/ui/select-menu";
 import {
@@ -509,6 +510,7 @@ export function GeometryDrawer({
           value={draft.manualUnitPrice}
           onChange={(value) => patch({ manualUnitPrice: value })}
           hint="Opcional: substitui o preço sugerido"
+          currency
         />
       </div>
 
@@ -662,25 +664,36 @@ function NumberField({
   value,
   onChange,
   hint,
+  currency,
 }: {
   label: string;
   value: number | "";
   onChange: (value: number | "") => void;
   hint?: string;
+  currency?: boolean;
 }) {
   return (
     <div>
       <FieldLabel>{label}</FieldLabel>
-      <Input
-        type="number"
-        step="0.01"
-        min={0}
-        value={value}
-        onChange={(event) => {
-          const raw = event.target.value;
-          onChange(raw === "" ? "" : Number(raw));
-        }}
-      />
+      {currency ? (
+        <CurrencyInput
+          value={value === "" ? null : value}
+          onValueChange={(next) => onChange(next)}
+          placeholder="0,00"
+          aria-label="Preço unitário manual em reais"
+        />
+      ) : (
+        <Input
+          type="number"
+          step="0.01"
+          min={0}
+          value={value}
+          onChange={(event) => {
+            const raw = event.target.value;
+            onChange(raw === "" ? "" : Number(raw));
+          }}
+        />
+      )}
       {hint && <p className="mt-1 text-[10px] text-titanium-muted">{hint}</p>}
     </div>
   );

@@ -61,7 +61,12 @@ export const quoteInputSchema = z.object({
   freightCost: z.coerce.number().nonnegative().default(0),
   servicesCost: z.coerce.number().nonnegative().default(0),
   paymentTerms: z.string().trim().max(100).optional().nullable(),
-  deliveryMethod: z.string().trim().max(100).optional().nullable(),
+  /** Obrigatória: a proposta não pode sair sem a modalidade de entrega. */
+  deliveryMethod: z
+    .string()
+    .trim()
+    .min(1, "Informe a modalidade de entrega.")
+    .max(100, "Modalidade de entrega muito longa."),
   deliveryDeadline: z.string().datetime().optional().nullable(),
   bankingInfo: z.string().trim().max(2000).optional().nullable(),
   notes: z.string().trim().max(2000).optional().nullable(),
@@ -71,7 +76,10 @@ export const quoteInputSchema = z.object({
 export type QuoteInputPayload = z.infer<typeof quoteInputSchema>;
 
 /** Pré-visualização: mesmo contrato de itens, sem cliente nem persistência. */
-export const quotePreviewSchema = quoteInputSchema.omit({ customerId: true });
+export const quotePreviewSchema = quoteInputSchema.omit({ customerId: true }).extend({
+  /** A prévia roda enquanto o vendedor digita; a obrigatoriedade vale no salvamento. */
+  deliveryMethod: z.string().trim().max(100).optional().nullable(),
+});
 
 export const quoteStatusUpdateSchema = z.object({
   status: z.enum(QUOTE_STATUSES),

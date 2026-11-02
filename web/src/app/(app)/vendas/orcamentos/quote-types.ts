@@ -78,7 +78,6 @@ export const PAYMENT_TERMS_OPTIONS = [
 ];
 
 export const DELIVERY_METHOD_OPTIONS = [
-  { value: "", label: "A combinar" },
   { value: "Retirada no balcão", label: "Retirada no balcão" },
   { value: "Entrega própria", label: "Entrega própria" },
   { value: "Transportadora", label: "Transportadora" },

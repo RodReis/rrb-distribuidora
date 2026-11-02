@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { SelectMenu } from "@/components/ui/select-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -250,6 +251,10 @@ export function QuoteBuilder({
       toast.error("Inclua ao menos um item com produto selecionado.");
       return;
     }
+    if (!form.deliveryMethod.trim()) {
+      toast.error("Informe a modalidade de entrega.");
+      return;
+    }
     if (items.some((item) => !item.productId)) {
       toast.error("Existe item sem produto. Edite ou remova o item.");
       return;
@@ -417,23 +422,21 @@ export function QuoteBuilder({
 
               <div>
                 <FieldLabel>Frete (R$)</FieldLabel>
-                <Input
-                  type="number"
-                  min={0}
-                  step="0.01"
+                <CurrencyInput
                   value={form.freightCost}
-                  onChange={(event) => patch({ freightCost: Number(event.target.value) || 0 })}
+                  onValueChange={(value) => patch({ freightCost: value })}
+                  placeholder="0,00"
+                  aria-label="Frete em reais"
                 />
               </div>
 
               <div>
                 <FieldLabel>Serviços de terceiros (R$)</FieldLabel>
-                <Input
-                  type="number"
-                  min={0}
-                  step="0.01"
+                <CurrencyInput
                   value={form.servicesCost}
-                  onChange={(event) => patch({ servicesCost: Number(event.target.value) || 0 })}
+                  onValueChange={(value) => patch({ servicesCost: value })}
+                  placeholder="0,00"
+                  aria-label="Serviços de terceiros em reais"
                 />
               </div>
 
@@ -449,12 +452,12 @@ export function QuoteBuilder({
               </div>
 
               <div>
-                <FieldLabel>Modalidade de entrega</FieldLabel>
+                <FieldLabel>Modalidade de entrega *</FieldLabel>
                 <SelectMenu
                   value={form.deliveryMethod}
                   onChange={(value) => patch({ deliveryMethod: value })}
                   options={DELIVERY_METHOD_OPTIONS}
-                  placeholder="A combinar"
+                  placeholder="Selecione a modalidade"
                   aria-label="Modalidade de entrega"
                 />
               </div>

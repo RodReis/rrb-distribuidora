@@ -4,6 +4,7 @@ import * as React from "react";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -183,12 +184,11 @@ export function MaquinasClient({ initialMachines }: { initialMachines: any[] }) 
               <label className="text-label-caps font-semibold text-titanium-muted uppercase block mb-1">
                 Custo de Máquina (R$/hora) *
               </label>
-              <Input
-                type="number"
-                step="1"
-                value={costPerHour}
-                onChange={(e) => setCostPerHour(parseFloat(e.target.value) || 0)}
-                placeholder="350"
+              <CurrencyInput
+                value={costPerHour === "" ? null : costPerHour}
+                onValueChange={(value) => setCostPerHour(value)}
+                placeholder="0,00"
+                aria-label="Custo de máquina por hora em reais"
                 required
                 className="font-mono"
               />

@@ -315,7 +315,7 @@ export function QuoteDocument({ data }: { data: QuotePdfData }) {
           <View style={styles.conditionCol}>
             <Text style={styles.conditionLine}>
               <Text style={styles.conditionKey}>Modalidade: </Text>
-              {data.deliveryMethod || "Retirada no balcão"}
+              {data.deliveryMethod || "A combinar"}
             </Text>
             <Text style={styles.conditionLine}>
               <Text style={styles.conditionKey}>Dados bancários/PIX: </Text>

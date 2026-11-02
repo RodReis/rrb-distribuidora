@@ -54,7 +54,10 @@ import { aggregateVolatility, getReplacementCosts } from "./replacement-cost";
 import type { QuoteInputPayload, QuoteItemPayload } from "./schemas";
 
 /** Payload de precificação: tudo do orçamento, exceto o cliente. */
-export type QuotePricingInput = Omit<QuoteInputPayload, "customerId">;
+export type QuotePricingInput = Omit<QuoteInputPayload, "customerId" | "deliveryMethod"> & {
+  /** A precificação não usa a modalidade; a prévia roda antes do preenchimento. */
+  deliveryMethod?: string | null;
+};
 
 const round = (value: number, digits: number) => {
   const factor = 10 ** digits;

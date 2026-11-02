@@ -6,6 +6,7 @@ import { Save, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { SelectMenu } from "@/components/ui/select-menu";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -88,24 +89,35 @@ function Field({
   value,
   onChange,
   invalid,
+  currency,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   invalid?: boolean;
+  currency?: boolean;
 }) {
   return (
     <label className="flex flex-col gap-1">
       <span className="font-mono text-label-code uppercase tracking-wider text-titanium-muted">
         {label}
       </span>
-      <Input
-        inputMode="decimal"
-        value={value}
-        error={invalid}
-        onChange={(e) => onChange(e.target.value)}
-        className="text-right font-mono"
-      />
+      {currency ? (
+        <CurrencyInput
+          value={value ? num(value) : null}
+          onValueChange={(next) => onChange(String(next).replace(".", ","))}
+          error={invalid}
+          className="text-right font-mono"
+        />
+      ) : (
+        <Input
+          inputMode="decimal"
+          value={value}
+          error={invalid}
+          onChange={(e) => onChange(e.target.value)}
+          className="text-right font-mono"
+        />
+      )}
       {invalid && <span className="text-body-sm text-signal-risk">Valor inválido.</span>}
     </label>
   );
@@ -401,6 +413,7 @@ export function ParitySimulator({
             value={form.domestic}
             onChange={set("domestic")}
             invalid={invalid("domestic")}
+            currency
           />
           <Field label="II [%]" value={form.ii} onChange={set("ii")} invalid={invalid("ii")} />
           <Field label="IPI [%]" value={form.ipi} onChange={set("ipi")} invalid={invalid("ipi")} />
@@ -422,12 +435,14 @@ export function ParitySimulator({
             value={form.port}
             onChange={set("port")}
             invalid={invalid("port")}
+            currency
           />
           <Field
             label="Frete rodoviário [R$/t]"
             value={form.road}
             onChange={set("road")}
             invalid={invalid("road")}
+            currency
           />
           <div className="flex items-end pb-2">
             <Checkbox checked={recover} onChange={setRecover} label="Créditos recuperáveis" />
