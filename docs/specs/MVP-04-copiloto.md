@@ -209,3 +209,10 @@ export const dailyBriefings = pgTable("daily_briefings", {
 6. **Command Center UI:** Montar a página do Dashboard do Diretor integrando os KPIs dos MVPs 0, 1, 2 e 3.
 7. **Página de Governança e Auditoria:** Montar a tela `/governanca` com visualizador da trilha de ações de IA.
 8. **Bateria de Testes de Aceite:** Executar o script de teste com as 20 perguntas do PRD e mensurar o índice de acerto.
+
+---
+
+## 10. Problemas Conhecidos / Limitações (implementação)
+
+- **Texto branco sobre branco (não corrigido):** em ambiente local, durante a validação visual, foi reportado texto branco sobre fundo branco em alguns campos das telas do Command Center / Governança. As cores computadas (DevTools) indicam fundo escuro (`carbon-900`) com texto claro (`ice-white`), ou seja, o problema não se reproduz de forma consistente em ambiente estável. A causa raiz não foi identificada — suspeita de cache de CSS / instabilidade do container Postgres (OOM) durante a validação. Recomenda-se revalidar em ambiente estável (produção ou dev sem queda de DB) e, se persistir, inspecionar o seletor exato do elemento afetado.
+- **Container Postgres (OOM):** o container `metalagents-postgres` pode ser encerrado por falta de memória (exit 137) em máquinas com pouca RAM, derrubando a conexão do DB e causando erros 500 nas rotas. Reiniciar com `docker restart metalagents-postgres`.
