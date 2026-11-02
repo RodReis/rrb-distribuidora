@@ -245,7 +245,7 @@ export const dailyBriefings = pgTable("daily_briefings", {
 ### 10.3 Pendências
 
 1. ~~Tema claro~~ ✅ (§10.6).
-2. **Termos de uso** da governança: o mockup traz texto jurídico (objeto, isenção, foro, SLA, LGPD) e afirmações que o produto não cumpre (RLS, ISO 27001, ledger criptográfico). Nada disso foi implementado: o texto oficial precisa vir do PI. Pelo `AGENTS.md`, privacidade e LGPD também ficam fora; o item "LGPD" que existia na tela foi removido. **Rascunho pronto em 02/11/2026** para revisão do PI: [`termos-de-uso-rascunho.md`](termos-de-uso-rascunho.md), escrito para afirmar só o que o sistema faz. Depois da aprovação, falta a aba "Termos de Uso" na governança e decidir se há aceite no primeiro acesso.
+2. **Termos de uso** da governança: o mockup traz texto jurídico (objeto, isenção, foro, SLA, LGPD) e afirmações que o produto não cumpre (RLS, ISO 27001, ledger criptográfico). Nada disso foi implementado. Pelo `AGENTS.md`, privacidade e LGPD também ficam fora; o item "LGPD" que existia na tela foi removido. **Versão 1.0 aprovada pelo PI em 02/11/2026** ([`termos-de-uso-ia.md`](termos-de-uso-ia.md)): foro São Paulo–SP, texto cita só a "utilização de IA no sistema" (sem modelos/provedores nominais) e **aceite obrigatório no primeiro acesso com checkbox**. Implementação do aceite e da aba "Termos de Uso": §10.9.
 3. ~~Briefing sem registro na trilha~~ ✅ (§10.7). Segue pendente: domínio do Resend verificado (o remetente padrão só entrega ao dono da conta).
 4. ~~Auditoria só gravava quando o stream terminava bem~~ ✅ (§10.8). Segue pendente no Copiloto: permissão por papel e limite de uso/custo (são regras de produto, a decidir pelo PI); só OpenAI; sem renderização de markdown (só negrito).
 5. ~~Escrever as 20 perguntas de teste e o script de medição~~ ✅ (§10.5). Falta o PI **revisar as 20 perguntas** (fui eu quem as escreveu) e criar um conjunto reserva, porque os prompts e as descrições das ferramentas foram ajustados olhando estas mesmas perguntas. ✅ Os testes das tools com banco existem (§10.8).
@@ -422,6 +422,36 @@ Toda geração do briefing (e toda falha dele) agora vira uma linha em `agent_ac
 **Defeito achado:** a ruptura ordenava só por cobertura, então SKUs com a mesma cobertura mudavam de ordem entre consultas. Agora o desempate é pelo SKU.
 
 **Latência do Command Center.** ~115 ms em build de produção local, com 11 produtos. Não vale como aceite: a medição que vale é no Railway com dados reais (`roteiro-deploy-railway.md` §7).
+
+### 10.9 Termos de uso: aceite no primeiro acesso (02/11/2026)
+
+Texto aprovado pelo PI ([`termos-de-uso-ia.md`](termos-de-uso-ia.md)): foro São Paulo–SP, cita só a
+"utilização de IA no sistema" (sem modelos ou provedores nominais), LGPD fora por decisão de
+projeto, e **aceite obrigatório no primeiro acesso, com checkbox**.
+
+Implementação:
+
+- **Tabela `ai_terms_acceptances`** (migration `0009`): um registro por usuário e versão do termo
+  (`unique(user_id, version)`), com data. Novo aceite só é exigido quando a versão sobe.
+- **Versão e texto no código** (`lib/terms/ai-terms.ts`): `AI_TERMS_VERSION` e as 8 seções; o docs
+  é a fonte de revisão e o código a fonte de exibição. `needsAiTermsAcceptance` decide se o aceite
+  cobre a versão vigente (com teste).
+- **Portão no layout autenticado** (`components/features/terms/terms-acceptance-gate.tsx`): overlay
+  `z-50` (acima do Copiloto, `z-40`) com o texto rolável, checkbox e botão desabilitado até marcar.
+  A server action (`app/(app)/terms/actions.ts`) grava o aceite de forma idempotente
+  (`on conflict do nothing`). Sem aceite, nenhuma tela do app é utilizável.
+- **Aba "Termos de Uso da IA" em `/governanca`**, para todos os papéis, com o texto e a versão
+  vigentes.
+
+**Validação ao vivo (navegador, dev):** o gate aparece no primeiro acesso, o botão fica desabilitado
+sem o checkbox, o aceite registra e o gate não volta após recarregar; a aba de termos renderiza a
+versão 1.0. Tipos, lint, formatação, build e 286 testes passam (os de banco com `RUN_DB_TESTS=1`).
+
+**Nota para produção:** no primeiro deploy com esta versão, **todos** os usuários (inclusive o
+admin) verão o portão uma vez. A migration `0009` roda no start.
+
+**Limite.** Não há trilha específica de quem aceitou em tela administrativa: a tabela registra, mas
+a consulta é direta no banco. Se o PI quiser ver isso em *Usuários & Acesso*, é demanda nova.
 
 ## 11. Problemas Conhecidos / Limitações (implementação)
 
