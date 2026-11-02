@@ -32,8 +32,10 @@ Estado em 02/11/2026. Legenda: ✅ provado localmente · 🟡 parcial · ⬜ dep
 - ⬜ Dados reais de cliente e orçamento para homologar preço e margem.
 
 ### Produção (Railway)
-- ⬜ Deploy do `market-worker` e observação das execuções reais: PTAX, metais, estoque 04:00, briefing 06:55 e expiração de hora em hora.
-- ⬜ Aplicar as migrations `0007` e `0008`, e rodar o dry-run `pnpm db:fix-replacement-cost` (`deploy.md` §4.4.1).
+- ✅ Deploy de web e `market-worker` em 02/11/2026 (PR #8); migrations `0006` a `0008` aplicadas (9 no total); jobs de expiração, estoque e PTAX respondem 200 com o token e 401 sem ele.
+- ⬜ Observar as execuções automáticas nos horários: PTAX, metais, estoque 04:00, briefing 06:55 e expiração de hora em hora.
+- ⬜ Testar o job do briefing em produção (envia e-mail e usa a OpenAI, por isso não foi disparado sem a sua autorização).
+- ⬜ Reparo `pnpm db:fix-replacement-cost`: só se houver lotes antigos. Produção está sem lotes, então não é necessário agora.
 - ⬜ Medir a latência na infraestrutura real. Os números locais não valem como aceite.
 
 ### M4 (relacionado)
