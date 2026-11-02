@@ -133,7 +133,8 @@ async function runSeed() {
       } else if (r === "diretor") {
         canWrite = false; // Leitura de tudo
       } else if (r === "comprador") {
-        if (m === "compras_rfq" || m === "cadastros_fornecedores") canWrite = true;
+        if (m === "compras_rfq" || m === "cadastros_fornecedores" || m === "inteligencia_mercado")
+          canWrite = true;
       } else if (r === "vendedor") {
         if (m === "vendas_orcamentos" || m === "cadastros_clientes") canWrite = true;
       } else if (r === "estoque") {
