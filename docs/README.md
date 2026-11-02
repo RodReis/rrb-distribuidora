@@ -1,7 +1,15 @@
 # Documentação — MetalAgents
 
 SaaS de inteligência preventiva para distribuidoras de ferro, aço e alumínio.
-**Status atual:** especificação concluída para os MVPs 0–4 · implementação não iniciada.
+**Status atual:** especificação concluída para os MVPs 0–4.
+
+| MVP | Situação |
+|---|---|
+| M0 — Fundação | ✅ implementado e em produção (débitos em [`debitos-tecnicos.md`](./debitos-tecnicos.md)) |
+| M1 — Inteligência de Mercado | 🟡 implementado e integrado na `main` (PRs #1 e #2); **aguardando homologação** — pendências em [`specs/MVP-01-mercado.md`](./specs/MVP-01-mercado.md#10-estado-da-implementação-02112026) |
+| M2 — Estoque Preventivo | ⬜ não iniciado |
+| M3 — Orçamento de Corte | ⬜ não iniciado |
+| M4 — Copiloto + Governança | ⬜ não iniciado |
 
 ## Índice de documentos
 

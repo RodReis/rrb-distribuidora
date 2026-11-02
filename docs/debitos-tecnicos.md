@@ -1,6 +1,6 @@
 # Débitos técnicos e decisões — MetalAgents (M0)
 
-**Atualizado em:** 01/11/2026 · **Escopo:** estado do código ao encerrar o MVP-00
+**Atualizado em:** 02/11/2026 · **Escopo:** estado do código ao encerrar o MVP-00, com os débitos do MVP-01 na seção 4.1
 
 Como usar este documento: cada item tem **impacto** (por que importa), **correção sugerida** e **esforço**
 (P = horas · M = 1–2 dias · G = mais de 2 dias). Os IDs são estáveis; ao resolver um item, mova-o para a
@@ -70,15 +70,20 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 - **Esforço:** M
 
 ### A6 — Nenhum teste automatizado *(spec)*
+- **Atualização 02/11/2026:** Vitest foi introduzido no M1 (`pnpm test`, 10 testes de `lib/market`: conversão, paridade,
+  indicadores). **Continua sem teste** de `weight.ts`, validadores, RBAC e importador, e os testes **não rodam no CI**.
 - **Impacto:** a spec exige testes unitários de `lib/metallurgy/weight.ts` contra tabela técnica (erro < 1%, "será
-  reusado no M3"). Hoje há **zero** testes. Os testes de RBAC, rate limit e importador foram manuais (scripts descartados).
+  reusado no M3"). Fora do módulo de mercado há **zero** testes. Os testes de RBAC, rate limit e importador foram manuais (scripts descartados).
 - **Correção:** Vitest; começar por `weight.ts` (tabela técnica), `getDefaultDensity`, validadores (A2), normalização do
   importador e a matriz de permissões. Depois Playwright para login e CRUD de produto.
 - **Esforço:** M
 
 ### A7 — Deploy não depende do CI, e o CI nunca foi conferido
-- **Impacto:** o Railway publica a cada push na `main`, mesmo que lint/build falhe no GitHub Actions. A execução do CI
-  nunca foi verificada na aba *Actions*.
+- **Atualização 02/11/2026:** o CI estava **quebrado desde o início** (3 pushes seguidos na `main` falharam em segundos:
+  `pnpm/action-setup` não achava o `package.json` em `web/`; depois o build em Node 20 dava `SIGSEGV`). Corrigido nos PRs
+  #1/#2 (`package_json_file: web/package.json`, Node 24); a parte do CI está resolvida. **Resta:** ativar "Wait for CI" no
+  Railway e proteger a `main` (PR obrigatório).
+- **Impacto:** o Railway publica a cada push na `main`, mesmo que lint/build falhe no GitHub Actions.
 - **Correção:** conferir a aba *Actions*; ativar "Wait for CI" no serviço do Railway; proteger a `main` (PR obrigatório).
 - **Esforço:** P
 
@@ -124,8 +129,9 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 ### M4 — Números fictícios fixos na interface
 - Produtos: "+14 novos este mês", "99,4%", "Chapas 42% · Bobinas 28% · Tubos 30%", "0 SKUs sem desvio".
 - Fornecedores: "Lead time médio 21 dias". Clientes: "3 segmentos", "100% conformidade".
-- Barra superior (LME, HRC, PTAX, latência) e telemetria do login são estáticas (o login é permitido pela spec até o M1).
-- **Correção:** calcular a partir do banco ou remover; o ticker passa a ser real com o M1.
+- ~~Barra superior (LME, HRC, PTAX)~~ **resolvido no M1 (02/11/2026):** agora lê as cotações do banco (`LiveTicker`). Segue
+  estática a telemetria do login (permitida pela spec até o M1) e o rodapé da barra lateral ("GF CORRETORA S/A", "SP-01").
+- **Correção:** calcular a partir do banco ou remover.
 - **Esforço:** P
 
 ### M5 — RBAC só protege algumas telas; 403 devolve HTTP 200
@@ -189,12 +195,29 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 | ID | Débito | Correção sugerida | Esforço |
 |---|---|---|---|
 | B1 | ESLint relaxado (`no-explicit-any`, `no-unused-vars`, `prefer-const` desligados); muitos `any` nos componentes | reativar regras e tipar os modelos a partir do schema Drizzle | M |
-| B2 | Dependências: `next-auth` ainda é **beta**; Next 15.5 (a 16 existe); 3 vulnerabilidades *moderate* (Sentry); ESLint 9 marcado como obsoleto; CI em Node 20 × produção em Node 24 | alinhar Node (`engines` + `.nvmrc`), planejar upgrade e rodar `pnpm audit` no CI | M |
+| B2 | Dependências: `next-auth` ainda é **beta**; Next 15.5 (a 16 existe); 3 vulnerabilidades *moderate* (Sentry); ESLint 9 marcado como obsoleto; CI e produção agora em Node 24 (alinhado em 02/11/2026) | fixar Node (`engines` + `.nvmrc`), planejar upgrade e rodar `pnpm audit` no CI | M |
 | B3 | Sem `.gitattributes`; avisos de CRLF no Windows; Prettier normaliza para LF | `* text=auto eol=lf` e `endOfLine: "lf"` | P |
 | B4 | Token de cor inexistente `border-carbon-750` em `EmptyState`; logo "GF" é texto, não a imagem do mockup; avisos de build do `jose` (Edge) | corrigir token, usar o asset do logo | P |
-| B5 | `web/AGENTS.md` e `web/README.md` são do scaffold (o AGENTS cita docs do Next 16); README da raiz mínimo | reescrever com o fluxo real do projeto | P |
+| B5 | `web/AGENTS.md` ganhou as regras do projeto (02/11/2026), mas ainda cita docs do Next que não existem na versão 15.5; `web/README.md` é do scaffold; README da raiz mínimo | reescrever com o fluxo real do projeto | P |
 | B6 | Commits só de documentação disparam um deploy completo | *watch paths* no Railway para ignorar `docs/` | P |
 | B7 | Fidelidade ao `screen.png` nunca comparada lado a lado, como exigem as regras; validação foi visual, pelo cliente | revisão tela a tela com checklist da seção 10 de `regras-frontend.md` | M |
+
+### 4.1 Débitos do M1 — Inteligência de Mercado *(02/11/2026)*
+
+| ID | Débito | Correção sugerida | Esforço |
+|---|---|---|---|
+| MK1 | Simulador de paridade nunca comparado com uma DI/planilha fiscal real (aceite < 0,1% ainda aberto); II/IPI/PIS/COFINS/ICMS e a base do ICMS "por dentro" seguem a regra geral, sem regime especial nem ex-tarifário | homologar com a última DI e ajustar a cascata | M |
+| MK2 | Metais em produção sem fonte: sem chave, plano ou mercados apontados; em dev o histórico é fixture sintética (`DEV_FIXTURE`) | contratar plano com REST, configurar chave, apontar mercados, importar CSV | M |
+| MK3 | Mapeamento dos mercados incerto: `HRC-STEEL` (US$ 1.429/t) pode não ser o HRC americano; HRC FOB China sem símbolo em US$; `STEEL` vem em CNY (recusado) | validar com o provedor; ou Manual · CSV | P |
+| MK4 | Licença do provedor para gravar o histórico no banco não confirmada (o site lista "armazenamento permanente" só no Enterprise) | perguntar ao suporte antes de usar em produção | P |
+| MK5 | Worker de mercado criado no Railway em 02/11/2026 (`market-worker`, online); execuções só têm log em stdout (sem tabela de histórico nem alerta de falha) e o `railway.json` ficou dependente de `SERVICE_ROLE` | avaliar tabela `market_job_runs` e aviso ao admin em falha; migrar de Config as Code para Infrastructure as Code antes de 01/12/2026 (fim do suporte) | M |
+| MK6 | E-mail de alerta nunca testado (sem `RESEND_API_KEY` no teste); remetente padrão `onboarding@resend.dev` | validar domínio no Resend e testar o envio | P |
+| MK7 | "Preço médio pago" é um campo manual guardado no navegador (sem compras no sistema) | calcular a partir das compras no M2 | M |
+| MK8 | `market_price_series` sem partição mensal (spec) e sem retenção/compactação | particionar se passar de ~1 M de linhas | M |
+| MK9 | Testes do M1 cobrem só funções puras; ingestores, alertas, rotas e telas sem teste; Vitest fora do CI | testes de integração com banco de teste; `pnpm test` no CI; Playwright para `/mercado` | M |
+| MK10 | Rotas `/api/market/*` redirecionam para `/login` (307) em vez de responder 401 quando a sessão expira (o `authorized()` do middleware) | devolver 401 JSON para `/api/*` | P |
+| MK11 | Latência de `/mercado` não medida formalmente (meta < 2 s) | Lighthouse/RUM em produção | P |
+| MK12 | Mercados cadastrados em *Configuração* não aparecem nas faixas de topo nem no ticker (símbolos fixos em `ASSET_SYMBOLS`) | tornar as faixas configuráveis | P |
 
 ---
 
@@ -208,6 +231,8 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 | — | Sem rate limit no login (US-01) | 01/11/2026 |
 | — | "Manter sessão ativa" não alterava a duração da sessão (US-01) | 01/11/2026 |
 | — | Template CSV de produtos com coluna a mais e auto-mapeamento errado por apelido curto | 01/11/2026 |
+| — | CI quebrado desde o início (`pnpm/action-setup` sem caminho do `package.json`; build em Node 20 com `SIGSEGV`) → corrigido, Node 24 | 02/11/2026 (PR #1, `c44b037`) |
+| — | Ticker da barra superior estático (M4 deste documento) → cotações reais do banco | 02/11/2026 (PR #1) |
 
 ---
 

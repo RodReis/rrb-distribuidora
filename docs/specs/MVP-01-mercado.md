@@ -1,6 +1,7 @@
 # Spec MVP-01 — Inteligência de Mercado
 
-**Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 01/11/2026  
+**Projeto:** MetalAgents · **Versão:** 1.1 · **Data:** 01/11/2026 · **Atualizada:** 02/11/2026  
+**Status:** 🟡 **implementado (PRs #1 e #2), aguardando homologação** — ver [seção 10](#10-estado-da-implementação-02112026)  
 **Duração estimada:** 4 semanas · **Dependências:** MVP-00 (Fundação — Auth, Tenant, Shell, Drizzle/Postgres)  
 **Telas de referência:**  
 - `docs/telas/metalagents_intelig_ncia_de_mercado_lme_arbitragem`  
@@ -208,12 +209,14 @@ export const marketAlertNotifications = pgTable("market_alert_notifications", {
 
 ## 8. Critérios de Aceite (Checklist Final do PRD)
 
-- [ ] Painel mostra LME Alumínio, HRC e PTAX atualizados sem falhas de conexão.
-- [ ] Gráfico com histórico de 2+ anos navegável (OHLC e linha).
-- [ ] Latência de carregamento inicial do painel inferior a 2 segundos.
-- [ ] Simulador de importação calcula corretamente o desembarcado brasileiro (com margem de erro < 0,1% vs. planilha fiscal da empresa).
-- [ ] Alerta de variação testado e disparado com envio de e-mail e badge no sistema.
-- [ ] Worker no Railway rodando nos horários programados via cron com logs de auditoria.
+Legenda: ✅ verificado · 🟡 implementado, falta homologar · ⬜ não feito. Evidências na [seção 10](#10-estado-da-implementação-02112026).
+
+- 🟡 Painel mostra LME Alumínio, HRC e PTAX atualizados sem falhas de conexão. — PTAX real (BCB, 500 dias). Metais: provedores integrados e testados (`AL-SPOT`, `HRC-STEEL`), mas **em produção ainda não há chave nem mercados apontados**; em dev o histórico é fixture sintética.
+- ✅ Gráfico com histórico de 2+ anos navegável (OHLC e linha). — candle/linha, SMA 20/50, períodos 7D–MÁX (histórico de 2 anos carregado para os 4 ativos).
+- 🟡 Latência de carregamento inicial do painel inferior a 2 segundos. — série de 500 pontos em 46 ms (API local); página completa não foi medida formalmente (Lighthouse).
+- ⬜ Simulador de importação calcula corretamente o desembarcado brasileiro (com margem de erro < 0,1% vs. planilha fiscal da empresa). — cálculo coberto por testes unitários (cascata II → IPI → PIS/COFINS → ICMS por dentro), **mas nunca comparado com uma DI/planilha real**.
+- 🟡 Alerta de variação testado e disparado com envio de e-mail e badge no sistema. — regra disparou, gerou notificação in-app (badge no sino) e respeitou a trava de 24 h. **E-mail não testado** (sem `RESEND_API_KEY` no ambiente de teste).
+- 🟡 Worker no Railway rodando nos horários programados via cron com logs de auditoria. — serviço `market-worker` **criado e online no Railway** (agendamento no log; job de PTAX respondeu 200 com token e 401 sem). Falta observar uma execução real no horário programado. Logs de execução vão para o stdout; não há tabela de histórico de execuções.
 
 ---
 
@@ -228,3 +231,58 @@ export const marketAlertNotifications = pgTable("market_alert_notifications", {
 7. **Motor de Alertas e Notificações:** Criar worker de checagem de thresholds e integração com Resend para envio de e-mails de alerta.
 8. **Configuração de Worker Cron no Railway:** Configurar serviço secundário ou endpoint protegido acionado pelo Railway Cron.
 9. **Testes e Homologação:** Testar com dados reais da distribuidora e comparar o simulador com a última DI (Declaração de Importação) real.
+
+---
+
+## 10. Estado da implementação (02/11/2026)
+
+**Entregue em:** PR #1 (`c44b037`, MVP-01 completo) e PR #2 (`0c7776f`, provedor CommodityPriceAPI + `METALS_CRON`).
+**Veredito:** o código do MVP-01 está **pronto e integrado na `main`**; o MVP **não deve ser dado como aceito** até fechar os itens de homologação abaixo.
+
+### 10.1 Mapa das tarefas (seção 9)
+
+| # | Tarefa | Situação |
+|---|---|---|
+| 1 | Tabelas e migrations | ✅ `0001` (mercado) e `0002` (provedor por ativo) |
+| 2 | Ingestor PTAX + seed de 2 anos | ✅ `lib/market/ingest-ptax.ts`; `pnpm db:seed-market` (24 meses) |
+| 3 | Ingestor de metais | ✅ Metals-API **e** CommodityPriceAPI (`lib/market/ingest-metals.ts`); fixture só fora de produção |
+| 4 | Endpoint de séries | ✅ `/api/market/series/[symbol]` (resolução 1d/1w/1m) |
+| 5 | Gráfico | ✅ Lightweight Charts v4, tema carbon, tooltip, SMA 20/50 |
+| 6 | Paridade | ✅ `lib/market/parity-calculator.ts` + simulador em tempo real |
+| 7 | Alertas e notificações | ✅ `lib/market/alerts.ts`; e-mail via Resend ainda não validado |
+| 8 | Cron no Railway | 🟡 código pronto; **serviço do worker não criado** |
+| 9 | Homologação com dados reais | ⬜ pendente |
+
+### 10.2 Decisões e desvios em relação à spec
+
+| Tema | Spec | Implementado | Motivo |
+|---|---|---|---|
+| Fonte de metais | Metals-API | Metals-API **ou** CommodityPriceAPI, escolhida **por mercado** | Metals-API é paga e o catálogo de aço é incerto; a CommodityPriceAPI não tem plano gratuito com REST (só teste de integração) |
+| Cadastro de mercados | catálogo fixo | tela **Configuração › Mercado** (CRUD, teste de símbolo, importação CSV, ingestão manual) | adicionar mercados em produção sem deploy |
+| Partição mensal | `market_price_series` particionada | tabela comum, índice único `(asset_id, timestamp)` | volume baixo (≈ 520 pontos/ativo em 2 anos); partição fica como otimização futura |
+| Agendamento | PTAX 13h15/18h; metais de hora em hora | PTAX igual; metais **1×/dia às 19h** por padrão, configurável via `METALS_CRON` | cotação diária não justifica 11 chamadas/dia e economiza cota paga |
+| Telas | `/mercado` em página única; `/mercado/arbitragem` | `/mercado` com **abas** (Terminal · Paridade · Alertas); `/mercado/arbitragem` redireciona para a aba de paridade | `regras-frontend.md` §7 (2+ seções = abas) |
+| Preço médio pago | calculado pelas compras do ERP | **campo manual** por ativo (guardado no navegador) | não existe módulo de compras antes do M2 |
+| Alertas | `PERCENT_CHANGE_24H` e limiares | + variação 7D, cruzamento SMA 20×50 e spread de paridade; trava de 24 h por regra | cobre os 4 gatilhos da US-05 |
+| Colunas extras | — | `import_parity_configs.ocean_freight_usd_per_ton` e `domestic_price_brl_per_ton`; `market_alert_rules.last_triggered_at`; `market_alert_notifications.user_id`; `market_assets.provider` e `provider_symbol` | avaliar o alerta de spread, deduplicar disparos, notificar por usuário e automatizar por provedor |
+| Permissões | — | Configuração › Mercado só para admin (módulo `usuarios_sistema`); comprador ganhou escrita em `inteligencia_mercado` | a ação consome cota de API paga |
+| Exclusão | — | mercado: desativação; regra e configuração de paridade: exclusão com auditoria | histórico preservado |
+| Fora do mockup | motor preditivo (82/100), feed regulatório, landing | não implementados | fora do escopo (ML é Fase 2) |
+
+### 10.3 Evidências
+
+- `pnpm lint`, `tsc` e `pnpm build` passam; **10 testes unitários** (Vitest) cobrem conversão de unidades, cascata tributária, classificação do semáforo (5%/12%), SMA e cruzamento de médias.
+- Smoke manual com login: abas, gráfico (canvas), APIs, validação 400/401, disparo de alerta com deduplicação, cadastro de mercado pela tela.
+- Chamadas reais à CommodityPriceAPI: `AL-SPOT` (US$ 3.075,70/t), `AL-FUT`, `HRC-STEEL` (US$ 1.429/t). `STEEL` (CNY) é recusado; `IOREC` não existe.
+- CI (GitHub Actions) passou nos dois PRs após corrigir o `pnpm/action-setup` (caminho do `package.json`) e subir o Node para 24.
+
+### 10.4 Pendências para aceitar o MVP-01
+
+1. **Homologar o simulador** contra uma DI/planilha fiscal real (erro < 0,1%) — critério de aceite ainda ⬜.
+2. **Metais em produção:** contratar plano com REST, definir a chave, apontar `LME-ALU` e `CME-HRC` na tela de Configuração e importar o histórico (CSV) ou deixar acumular.
+3. **Confirmar o mercado do `HRC-STEEL`** com o provedor (US$ 1.429/t sugere índice diferente do HRC americano) e definir a fonte do **HRC FOB China** (sem símbolo em US$ encontrado; alternativa: Manual · CSV).
+4. **Confirmar a licença** do provedor para gravar o histórico no banco (o site lista "armazenamento permanente" apenas no Enterprise).
+5. ~~Criar o serviço do worker no Railway~~ ✅ **feito em 02/11/2026** (`market-worker` online, PR #3; ver `deploy.md` §4.2). **Falta** rodar `pnpm db:seed-market` em produção (`SEED_MODE=production`) para a carga histórica da PTAX e definir `COMMODITY_PRICE_API_KEY`/`METALS_API_KEY` no web.
+6. **Testar o e-mail de alerta** com `RESEND_API_KEY` real e domínio verificado.
+7. **Medir a latência** da página `/mercado` (meta < 2 s) em produção.
+8. Decidir se o worker precisa de **histórico de execuções** (hoje só logs em stdout).

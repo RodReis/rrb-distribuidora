@@ -93,6 +93,8 @@ GitHub (main)
 
 ### 📈 M1 — Inteligência de Mercado (~4 semanas) — [`specs/MVP-01-mercado.md`](./specs/MVP-01-mercado.md)
 
+> **Status (02/11/2026):** 🟡 implementado e integrado na `main`; aguardando homologação (simulador × DI real, metais em produção, worker no Railway, e-mail de alerta). Detalhes e desvios na seção 10 da spec.
+
 | Item | Detalhe |
 |---|---|
 | Ingestão | Metals-API (LME Alumínio, HRC) + **PTAX gratuita (BCB)**; worker diário + intradiário conforme plano contratado |
@@ -181,7 +183,7 @@ GitHub (main)
 
 | # | Pendência | Onde se resolve |
 |---|---|---|
-| 1 | Fonte de preço do M1: Metals-API pago vs. começar só com PTAX (BCB, gratuita) + índices públicos | Spec M1 (com as duas opções e critério de escolha) |
+| 1 | Fonte de preço do M1: Metals-API pago vs. começar só com PTAX (BCB, gratuita) + índices públicos | **Resolvido (02/11/2026):** PTAX gratuita (BCB) + provedor pago **por mercado** (Metals-API ou CommodityPriceAPI, ambos suportados) + modo Manual · CSV sem custo. Escolha do plano e licença em aberto (spec M1 §10.4) |
 | 2 | Provedor de e-mail | Definido: Resend (confirmação na spec M0) |
 | 3 | Qual plano do LLM para o M4 (Claude vs GPT) | Spec M4 — roteador permite trocar sem refatorar |
 

@@ -92,6 +92,54 @@ Variáveis `RAILWAY_*` são injetadas pela plataforma. `RAILWAY_ENVIRONMENT_NAME
 Também usadas **só no seed de produção** (passadas na linha de comando, nunca gravadas):
 `SEED_MODE=production` e `SEED_ADMIN_PASSWORD` (mínimo 12 caracteres).
 
+### 4.1 Variáveis do M1 — Inteligência de Mercado
+
+| Variável | Onde | Observações |
+|---|---|---|
+| `CRON_SECRET` | web **e** worker | String aleatória longa. Os endpoints `/api/internal/jobs/*` exigem `Authorization: Bearer <valor>`; sem ela respondem 503 |
+| `COMMODITY_PRICE_API_KEY` | web (runtime) | Provedor CommodityPriceAPI (cabeçalho `x-api-key`). Confirmar plano e licença antes de usar em produção |
+| `METALS_API_KEY` | web (runtime) | Provedor Metals-API. Cada mercado escolhe o seu provedor em *Configuração › Mercado* |
+| `METALS_CRON` | web **e** worker | Cron de 5 campos (fuso `America/Sao_Paulo`). Padrão `0 19 * * 1-5`. Valor inválido no worker volta ao padrão |
+| `APP_INTERNAL_URL` | worker | URL que o worker usa para chamar o web (ex.: `http://rrb-distribuidora.railway.internal:8080`). Padrão `http://127.0.0.1:3000` |
+| `RESEND_API_KEY` | web | Também envia os e-mails de alerta de mercado (`RESEND_FROM` opcional) |
+
+Sem nenhuma chave de provedor, em **produção** o job de metais registra erro e não grava nada (a fixture só existe fora de produção).
+A PTAX (Banco Central) não precisa de chave.
+
+### 4.2 Worker de mercado (serviço separado)
+
+O agendamento é um processo próprio, que apenas chama os endpoints protegidos do web:
+
+**Situação (02/11/2026): serviço `market-worker` criado e online no Railway** (ambiente `production`).
+
+- **Como o comando é escolhido:** `web/railway.json` (config no código) sobrepõe o painel, então o `startCommand` decide pela
+  variável `SERVICE_ROLE`: com `SERVICE_ROLE=worker` roda `pnpm worker:market`; sem ela, `pnpm drizzle-kit migrate && pnpm start`
+  (o web, como antes). `tsx` está em `dependencies` porque o worker roda via `tsx` na imagem.
+- **Configuração do serviço:** mesmo repositório, branch `main`, root directory `web`; variáveis `SERVICE_ROLE=worker`,
+  `CRON_SECRET` (igual ao do web), `APP_INTERNAL_URL=http://${{rrb-distribuidora.RAILWAY_PRIVATE_DOMAIN}}:8080`.
+  `METALS_CRON` é opcional (padrão `0 19 * * 1-5`).
+- **Horários (fuso São Paulo):** PTAX às **13h15** e **18h00** e metais conforme `METALS_CRON`, em dias úteis.
+- **Logs:** cada execução sai no stdout do worker (`[market-worker] … HTTP 200 {…}`) e no do web (`[job:ingest-*]`).
+- **Verificado em produção:** worker `Online` com o agendamento no log; `POST /api/internal/jobs/ingest-ptax` com o token
+  responde 200 e sem token responde 401; o segredo é o mesmo nos dois serviços.
+
+Para recriar o serviço do zero: `railway add --service market-worker --repo <org>/<repo> --branch main --variables …`, depois
+definir o root directory `web` (no painel, ou pela API GraphQL — o `railway environment edit --service-config` respondeu
+"No changes to apply" para esse campo) e fazer um novo deploy.
+
+Alternativa: usar o *Cron* do Railway chamando `POST /api/internal/jobs/ingest-ptax` e `/ingest-metals` com o Bearer token.
+
+### 4.3 Carga inicial dos dados de mercado
+
+As migrations rodam sozinhas no start. A carga histórica é manual, uma vez:
+
+```
+SEED_MODE=production pnpm db:seed-market   # PTAX (24 meses, BCB) e cadastra os 4 mercados padrão
+```
+
+- Em produção **não** gera fixture de metais. O histórico de metais entra por CSV (*Configuração › Mercado › Importar*) ou acumula pela coleta diária.
+- CSV: colunas `date` (AAAA-MM-DD), `open`, `high`, `low`, `close`, `volume`; só `close` é obrigatório.
+
 ## 5. Banco de dados
 
 - **Serviço:** Postgres do Railway com volume persistente.
@@ -121,8 +169,9 @@ Arquivo: `.github/workflows/ci.yml` — dispara em push e PR para `main`, com `w
 | Formatação | `pnpm format:check` |
 | Build (inclui typecheck) | `pnpm build` (com `DATABASE_URL`/`AUTH_SECRET` de mentira) |
 
-Usa Node **20**, enquanto produção roda Node **24** (ver débito B2). **A execução do CI no GitHub ainda não foi
-conferida** (aba *Actions* do repositório).
+Usa Node **24** (igual à produção). Em 02/11/2026 o CI foi corrigido: `pnpm/action-setup` agora aponta para
+`web/package.json` (antes falhava por não achar a versão do pnpm) e o build em Node 20 caía com `SIGSEGV` no
+*Collecting page data*. Os PRs #1 e #2 passaram nele. **Os Vitest (`pnpm test`) ainda não rodam no CI.**
 
 ## 7. Observabilidade
 
