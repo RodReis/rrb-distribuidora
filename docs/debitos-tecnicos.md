@@ -71,7 +71,7 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 
 ### A6 — Nenhum teste automatizado *(spec)*
 - **Atualização 02/11/2026:** Vitest foi introduzido no M1 (`pnpm test`, 10 testes de `lib/market`: conversão, paridade,
-  indicadores). **Continua sem teste** de `weight.ts`, validadores, RBAC e importador, e os testes **não rodam no CI**.
+  indicadores). **Continua sem teste** de `weight.ts`, validadores, RBAC e importador, e os testes **não rodavam no CI** (hoje rodam, sem banco).
 - **Impacto:** a spec exige testes unitários de `lib/metallurgy/weight.ts` contra tabela técnica (erro < 1%, "será
   reusado no M3"). Fora do módulo de mercado há **zero** testes. Os testes de RBAC, rate limit e importador foram manuais (scripts descartados).
 - **Correção:** Vitest; começar por `weight.ts` (tabela técnica), `getDefaultDensity`, validadores (A2), normalização do

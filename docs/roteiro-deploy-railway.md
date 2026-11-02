@@ -32,7 +32,7 @@ Se a contagem das migrations for diferente de 6, pare e investigue antes de segu
 ## 2. Preparar o código (você decide quando commitar)
 
 1. `git fetch origin` e crie uma branch nova a partir do `origin/main`, trazendo os commits do M4 e o trabalho atual. Há 85 arquivos sem commit, então revise o `git status` antes.
-2. A partir de `web/`, rode: `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm exec prettier --write <arquivos novos>` e `pnpm build`. O CI roda `lint`, `format:check` e `build`; **não roda os testes**, rode `pnpm test` você mesmo.
+2. A partir de `web/`, rode: `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm exec prettier --write <arquivos novos>` e `pnpm build`. O CI roda `lint`, `format:check`, os testes unitários e o `build`, mas **sem banco**: os testes de integração ficam pulados. Rode-os você mesmo: `$env:RUN_DB_TESTS="1"; pnpm exec vitest run`.
 3. Abra o PR e espere o CI ficar verde. O CI **não bloqueia** o deploy do Railway: o merge na `main` publica de qualquer jeito.
 
 ## 3. Variáveis de ambiente a conferir **antes** do merge

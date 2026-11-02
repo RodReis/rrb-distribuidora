@@ -231,7 +231,7 @@ Arquivo: `.github/workflows/ci.yml` — dispara em push e PR para `main`, com `w
 
 Usa Node **24** (igual à produção). Em 02/11/2026 o CI foi corrigido: `pnpm/action-setup` agora aponta para
 `web/package.json` (antes falhava por não achar a versão do pnpm) e o build em Node 20 caía com `SIGSEGV` no
-*Collecting page data*. Os PRs #1 e #2 passaram nele. **Os Vitest (`pnpm test`) ainda não rodam no CI.**
+*Collecting page data*. Os PRs #1 e #2 passaram nele. **O CI também roda os Vitest (`pnpm vitest run`)**, mas sem Postgres: os testes de integração (`RUN_DB_TESTS=1`) ficam pulados e só rodam na máquina local.
 
 > **Lição do PR #4:** o `format:check` falha o CI se arquivos novos não passarem no Prettier; rode `pnpm exec prettier --write <arquivos>` antes do push. No Windows o checkout em CRLF faz o `format:check` local acusar arquivos antigos que o CI (Linux) aceita — vale o resultado do CI.
 
