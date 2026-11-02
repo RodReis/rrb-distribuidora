@@ -8,7 +8,7 @@ import { auditLog, marketAssets } from "@/lib/db/schema";
 import { getCurrentUser, requirePermission } from "@/lib/auth/rbac";
 import { evaluateAlerts } from "@/lib/market/alerts";
 import { importSeriesCsv } from "@/lib/market/import-csv";
-import { ingestMetals, fetchMetalsApiPrice } from "@/lib/market/ingest-metals";
+import { fetchProviderPrice, ingestMetals } from "@/lib/market/ingest-metals";
 import { ingestPtaxDay } from "@/lib/market/ingest-ptax";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
@@ -25,12 +25,12 @@ const assetSchema = z
     market: z.string().trim().min(2, "Informe a bolsa/fonte.").max(50),
     baseCurrency: z.enum(["USD", "BRL"]),
     unit: z.enum(["ton", "kg"]),
-    provider: z.enum(["METALS_API", "MANUAL"]),
+    provider: z.enum(["METALS_API", "COMMODITY_PRICE_API", "MANUAL"]),
     providerSymbol: z.string().trim().max(50).nullable().optional(),
   })
-  .refine((v) => v.provider !== "METALS_API" || !!v.providerSymbol, {
+  .refine((v) => v.provider === "MANUAL" || !!v.providerSymbol, {
     path: ["providerSymbol"],
-    message: "Informe o símbolo na Metals-API.",
+    message: "Informe o símbolo na fonte de preços.",
   });
 
 export type AssetInput = z.input<typeof assetSchema>;
@@ -68,7 +68,7 @@ export async function saveMarketAsset(
       baseCurrency: v.baseCurrency,
       unit: v.unit,
       provider: v.provider,
-      providerSymbol: v.provider === "METALS_API" ? v.providerSymbol! : null,
+      providerSymbol: v.provider === "MANUAL" ? null : v.providerSymbol!,
     };
 
     if (v.id) {
@@ -148,13 +148,14 @@ export async function setMarketAssetActive(id: string, active: boolean): Promise
 }
 
 export async function testMarketSource(
+  provider: "METALS_API" | "COMMODITY_PRICE_API",
   providerSymbol: string
 ): Promise<ActionResult<{ price: number }>> {
   try {
     await guard();
     const symbol = providerSymbol.trim();
-    if (!symbol) return { ok: false, error: "Informe o símbolo na Metals-API." };
-    return { ok: true, data: { price: await fetchMetalsApiPrice(symbol) } };
+    if (!symbol) return { ok: false, error: "Informe o símbolo na fonte de preços." };
+    return { ok: true, data: { price: await fetchProviderPrice(provider, symbol) } };
   } catch (err) {
     const message = err instanceof Error ? err.message : "";
     if (message.startsWith("FORBIDDEN")) return failure(err, "");

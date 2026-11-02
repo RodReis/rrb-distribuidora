@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { marketAssets, marketPriceSeries } from "@/lib/db/schema";
 import { ensureAssets } from "./assets";
@@ -6,6 +6,10 @@ import { fetchJsonWithRetry } from "./http";
 import { upsertDailyBars, type DailyBar } from "./series-store";
 
 const METALS_BASE = "https://metals-api.com/api";
+const COMMODITY_BASE = "https://api.commoditypriceapi.com/v3";
+const COMMODITY_BATCH = 5;
+
+export type PriceProvider = "METALS_API" | "COMMODITY_PRICE_API";
 
 interface LatestResponse {
   success: boolean;
@@ -14,8 +18,15 @@ interface LatestResponse {
   error?: { code: number; info: string };
 }
 
+interface CommodityResponse {
+  success: boolean;
+  rates?: Record<string, number>;
+  metadata?: Record<string, { unit?: string; quote?: string }>;
+  error?: { message?: string; info?: string } | string;
+}
+
 export interface MetalsIngestResult {
-  source: "METALS_API" | "DEV_FIXTURE";
+  source: PriceProvider | "DEV_FIXTURE" | "NONE";
   upserted: number;
   errors: string[];
 }
@@ -31,11 +42,24 @@ export function extractUsdPerTon(symbol: string, data: LatestResponse): number |
   return null;
 }
 
-export function isMetalsApiConfigured(): boolean {
-  return !!process.env.METALS_API_KEY;
+/** Aceita só cotação em US$ por tonelada métrica (unidade usada pelo simulador). */
+export function extractCommodityUsdPerTon(symbol: string, data: CommodityResponse): number {
+  const price = data.rates?.[symbol];
+  if (price == null || !(price > 0)) throw new Error(`sem cotação para o símbolo ${symbol}`);
+  const meta = data.metadata?.[symbol];
+  if (meta?.quote && meta.quote.toUpperCase() !== "USD") {
+    throw new Error(`${symbol} é cotado em ${meta.quote}; só US$ é aceito.`);
+  }
+  if (meta?.unit && !/^(t|mt|metric ton|ton)$/i.test(meta.unit.replace(/[()\s]/g, " ").trim())) {
+    throw new Error(`${symbol} é cotado por "${meta.unit}"; só tonelada métrica é aceita.`);
+  }
+  return price;
 }
 
-export async function fetchMetalsApiPrice(providerSymbol: string): Promise<number> {
+export const isMetalsApiConfigured = () => !!process.env.METALS_API_KEY;
+export const isCommodityPriceApiConfigured = () => !!process.env.COMMODITY_PRICE_API_KEY;
+
+async function fetchMetalsApiPrice(providerSymbol: string): Promise<number> {
   const apiKey = process.env.METALS_API_KEY;
   if (!apiKey) throw new Error("METALS_API_KEY não configurada no ambiente.");
   const url = `${METALS_BASE}/latest?access_key=${encodeURIComponent(apiKey)}&base=USD&symbols=${encodeURIComponent(providerSymbol)}`;
@@ -44,6 +68,30 @@ export async function fetchMetalsApiPrice(providerSymbol: string): Promise<numbe
   const price = extractUsdPerTon(providerSymbol, data);
   if (price == null) throw new Error(`sem cotação para o símbolo ${providerSymbol}`);
   return price;
+}
+
+async function fetchCommodityPrices(symbols: string[]): Promise<CommodityResponse> {
+  const apiKey = process.env.COMMODITY_PRICE_API_KEY;
+  if (!apiKey) throw new Error("COMMODITY_PRICE_API_KEY não configurada no ambiente.");
+  const url = `${COMMODITY_BASE}/rates/latest?symbols=${encodeURIComponent(symbols.join(","))}`;
+  const data = await fetchJsonWithRetry<CommodityResponse>(url, {
+    headers: { "x-api-key": apiKey },
+  });
+  if (!data.success) {
+    const err = data.error;
+    throw new Error(
+      typeof err === "string" ? err : (err?.message ?? err?.info ?? "resposta sem sucesso")
+    );
+  }
+  return data;
+}
+
+export async function fetchProviderPrice(
+  provider: PriceProvider,
+  providerSymbol: string
+): Promise<number> {
+  if (provider === "METALS_API") return fetchMetalsApiPrice(providerSymbol);
+  return extractCommodityUsdPerTon(providerSymbol, await fetchCommodityPrices([providerSymbol]));
 }
 
 const todayDay = () => new Date().toISOString().slice(0, 10);
@@ -56,17 +104,16 @@ async function automatedAssets() {
     .where(
       and(
         eq(marketAssets.active, true),
-        eq(marketAssets.provider, "METALS_API"),
+        inArray(marketAssets.provider, ["METALS_API", "COMMODITY_PRICE_API"]),
         isNotNull(marketAssets.providerSymbol)
       )
     );
 }
 
-async function ingestFromApi(): Promise<MetalsIngestResult> {
-  const errors: string[] = [];
-  const bars: DailyBar[] = [];
+type AutomatedAsset = Awaited<ReturnType<typeof automatedAssets>>[number];
 
-  for (const asset of await automatedAssets()) {
+async function collectMetalsApi(assets: AutomatedAsset[], bars: DailyBar[], errors: string[]) {
+  for (const asset of assets) {
     try {
       const price = await fetchMetalsApiPrice(asset.providerSymbol!);
       bars.push({ assetId: asset.id, day: todayDay(), close: price, source: "METALS_API" });
@@ -74,13 +121,38 @@ async function ingestFromApi(): Promise<MetalsIngestResult> {
       errors.push(`${asset.symbol}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
-
-  return { source: "METALS_API", upserted: await upsertDailyBars(bars), errors };
 }
 
-async function ingestFixtureTick(): Promise<MetalsIngestResult> {
+async function collectCommodityApi(assets: AutomatedAsset[], bars: DailyBar[], errors: string[]) {
+  for (let i = 0; i < assets.length; i += COMMODITY_BATCH) {
+    const chunk = assets.slice(i, i + COMMODITY_BATCH);
+    let data: CommodityResponse;
+    try {
+      data = await fetchCommodityPrices(chunk.map((a) => a.providerSymbol!));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      for (const a of chunk) errors.push(`${a.symbol}: ${message}`);
+      continue;
+    }
+    for (const asset of chunk) {
+      try {
+        const price = extractCommodityUsdPerTon(asset.providerSymbol!, data);
+        bars.push({
+          assetId: asset.id,
+          day: todayDay(),
+          close: price,
+          source: "COMMODITY_PRICE_API",
+        });
+      } catch (err) {
+        errors.push(`${asset.symbol}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+  }
+}
+
+async function ingestFixtureTick(assets: AutomatedAsset[]): Promise<MetalsIngestResult> {
   const bars: DailyBar[] = [];
-  for (const asset of await automatedAssets()) {
+  for (const asset of assets) {
     const [last] = await db
       .select({ close: marketPriceSeries.close })
       .from(marketPriceSeries)
@@ -95,9 +167,43 @@ async function ingestFixtureTick(): Promise<MetalsIngestResult> {
 }
 
 export async function ingestMetals(): Promise<MetalsIngestResult> {
-  if (isMetalsApiConfigured()) return ingestFromApi();
-  if (process.env.NODE_ENV === "production") {
-    return { source: "METALS_API", upserted: 0, errors: ["METALS_API_KEY não configurada"] };
+  const assets = await automatedAssets();
+  const metalsKey = isMetalsApiConfigured();
+  const commodityKey = isCommodityPriceApiConfigured();
+
+  if (!metalsKey && !commodityKey) {
+    if (process.env.NODE_ENV === "production") {
+      return {
+        source: "NONE",
+        upserted: 0,
+        errors: [
+          "Nenhuma chave de provedor configurada (METALS_API_KEY ou COMMODITY_PRICE_API_KEY).",
+        ],
+      };
+    }
+    return ingestFixtureTick(assets);
   }
-  return ingestFixtureTick();
+
+  const bars: DailyBar[] = [];
+  const errors: string[] = [];
+  const byProvider = (p: PriceProvider) => assets.filter((a) => a.provider === p);
+
+  const metalsAssets = byProvider("METALS_API");
+  if (metalsKey) await collectMetalsApi(metalsAssets, bars, errors);
+  else for (const a of metalsAssets) errors.push(`${a.symbol}: METALS_API_KEY não configurada.`);
+
+  const commodityAssets = byProvider("COMMODITY_PRICE_API");
+  if (commodityKey) await collectCommodityApi(commodityAssets, bars, errors);
+  else
+    for (const a of commodityAssets)
+      errors.push(`${a.symbol}: COMMODITY_PRICE_API_KEY não configurada.`);
+
+  return {
+    source:
+      commodityAssets.length > 0 && metalsAssets.length === 0
+        ? "COMMODITY_PRICE_API"
+        : "METALS_API",
+    upserted: await upsertDailyBars(bars),
+    errors,
+  };
 }

@@ -38,6 +38,7 @@ export interface MarketAssetRow {
 const PROVIDER_LABEL: Record<string, string> = {
   BCB_PTAX: "BCB · PTAX",
   METALS_API: "Metals-API",
+  COMMODITY_PRICE_API: "CommodityPriceAPI",
   MANUAL: "Manual · CSV",
 };
 
@@ -60,7 +61,7 @@ const EMPTY_FORM: FormState = {
   market: "LME",
   baseCurrency: "USD",
   unit: "ton",
-  provider: "METALS_API",
+  provider: "COMMODITY_PRICE_API",
   providerSymbol: "",
 };
 
@@ -75,11 +76,13 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 export function MarketSettings({
   assets,
   canWrite,
-  metalsKeyConfigured,
+  keys,
+  metalsCron,
 }: {
   assets: MarketAssetRow[];
   canWrite: boolean;
-  metalsKeyConfigured: boolean;
+  metalsCron: string;
+  keys: { metals: boolean; commodity: boolean };
 }) {
   const router = useRouter();
   const [drawer, setDrawer] = React.useState<"form" | "csv" | null>(null);
@@ -122,8 +125,8 @@ export function MarketSettings({
     if (!/^[A-Za-z0-9][A-Za-z0-9-]{1,29}$/.test(form.symbol.trim()))
       next.symbol = "Use 2 a 30 caracteres: letras, números e hífen.";
     if (form.name.trim().length < 2) next.name = "Informe o nome do mercado.";
-    if (form.provider === "METALS_API" && !form.providerSymbol.trim())
-      next.providerSymbol = "Informe o símbolo na Metals-API.";
+    if (form.provider !== "MANUAL" && !form.providerSymbol.trim())
+      next.providerSymbol = "Informe o símbolo na fonte de preços.";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -141,7 +144,7 @@ export function MarketSettings({
       market: form.market,
       baseCurrency: form.baseCurrency as "USD" | "BRL",
       unit: form.unit as "ton" | "kg",
-      provider: form.provider as "METALS_API" | "MANUAL",
+      provider: form.provider as "METALS_API" | "COMMODITY_PRICE_API" | "MANUAL",
       providerSymbol: form.providerSymbol || null,
     });
     setBusy(false);
@@ -155,9 +158,12 @@ export function MarketSettings({
     router.refresh();
   }
 
-  async function testSource(providerSymbol: string, key: string) {
+  async function testSource(provider: string, providerSymbol: string, key: string) {
     setTesting(key);
-    const res = await testMarketSource(providerSymbol);
+    const res = await testMarketSource(
+      provider as "METALS_API" | "COMMODITY_PRICE_API",
+      providerSymbol
+    );
     setTesting(null);
     if (res.ok) toast.success(`Fonte OK: ${providerSymbol} = US$ ${fmtNum(res.data?.price)} / t.`);
     else toast.error(res.error);
@@ -208,32 +214,41 @@ export function MarketSettings({
     router.refresh();
   }
 
-  const automated = assets.filter((a) => a.active && a.provider === "METALS_API").length;
+  const automated = assets.filter(
+    (a) => a.active && (a.provider === "METALS_API" || a.provider === "COMMODITY_PRICE_API")
+  ).length;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <div className="rounded-md border border-carbon-800 bg-carbon-900 p-3">
-          <FieldLabel>Chave Metals-API</FieldLabel>
-          <div className="mt-2">
-            <StatusBadge
-              status={metalsKeyConfigured ? "buy" : "hold"}
-              label={metalsKeyConfigured ? "CONFIGURADA" : "NÃO CONFIGURADA"}
-              pulse={false}
-            />
+          <FieldLabel>Chaves dos provedores</FieldLabel>
+          <div className="mt-2 space-y-1.5">
+            {[
+              { label: "CommodityPriceAPI", env: "COMMODITY_PRICE_API_KEY", ok: keys.commodity },
+              { label: "Metals-API", env: "METALS_API_KEY", ok: keys.metals },
+            ].map((k) => (
+              <div key={k.env} className="flex items-center justify-between gap-2">
+                <span className="font-mono text-body-sm text-titanium-light" title={k.env}>
+                  {k.label}
+                </span>
+                <StatusBadge
+                  status={k.ok ? "buy" : "hold"}
+                  label={k.ok ? "CONFIGURADA" : "AUSENTE"}
+                  pulse={false}
+                />
+              </div>
+            ))}
           </div>
-          <p className="mt-2 font-mono text-label-code text-titanium-dark">
-            {metalsKeyConfigured
-              ? "Variável METALS_API_KEY presente no servidor."
-              : "Defina METALS_API_KEY no ambiente para coletar metais."}
-          </p>
         </div>
         <div className="rounded-md border border-carbon-800 bg-carbon-900 p-3">
           <FieldLabel>Agendamento (America/São Paulo)</FieldLabel>
           <p className="mt-2 font-mono text-body-sm text-ice-white">
             PTAX 13:15 e 18:00 · dias úteis
           </p>
-          <p className="font-mono text-body-sm text-ice-white">Metais 08h–18h, de hora em hora</p>
+          <p className="font-mono text-body-sm text-ice-white" title="Variável METALS_CRON">
+            Metais: cron {metalsCron}
+          </p>
         </div>
         <div className="rounded-md border border-carbon-800 bg-carbon-900 p-3">
           <FieldLabel>Mercados</FieldLabel>
@@ -324,18 +339,20 @@ export function MarketSettings({
                   </td>
                   <td className="px-3">
                     <div className="flex items-center justify-end gap-0.5">
-                      {a.provider === "METALS_API" && a.providerSymbol && canWrite && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Testar fonte de ${a.symbol}`}
-                          title="Testar fonte"
-                          disabled={testing === a.id}
-                          onClick={() => testSource(a.providerSymbol!, a.id)}
-                        >
-                          <FlaskConical className="h-4 w-4" />
-                        </Button>
-                      )}
+                      {(a.provider === "METALS_API" || a.provider === "COMMODITY_PRICE_API") &&
+                        a.providerSymbol &&
+                        canWrite && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Testar fonte de ${a.symbol}`}
+                            title="Testar fonte"
+                            disabled={testing === a.id}
+                            onClick={() => testSource(a.provider, a.providerSymbol!, a.id)}
+                          >
+                            <FlaskConical className="h-4 w-4" />
+                          </Button>
+                        )}
                       {canWrite && (
                         <>
                           <Button
@@ -478,20 +495,21 @@ export function MarketSettings({
                   value={form.provider}
                   onChange={set("provider")}
                   options={[
+                    { value: "COMMODITY_PRICE_API", label: "CommodityPriceAPI (automática)" },
                     { value: "METALS_API", label: "Metals-API (automática)" },
                     { value: "MANUAL", label: "Manual · importação CSV" },
                   ]}
                 />
               </div>
-              {form.provider === "METALS_API" && (
+              {form.provider !== "MANUAL" && (
                 <div className="space-y-1">
                   <label className="block space-y-1">
-                    <FieldLabel>Símbolo na Metals-API</FieldLabel>
+                    <FieldLabel>Símbolo na fonte</FieldLabel>
                     <Input
                       value={form.providerSymbol}
                       error={!!errors.providerSymbol}
                       maxLength={50}
-                      placeholder="Ex.: LME-ALU"
+                      placeholder={form.provider === "METALS_API" ? "Ex.: LME-ALU" : "Ex.: AL-SPOT"}
                       onChange={(e) => set("providerSymbol")(e.target.value.trim())}
                       className="font-mono"
                     />
@@ -503,7 +521,7 @@ export function MarketSettings({
                     variant="secondary"
                     size="sm"
                     disabled={!form.providerSymbol || testing === "form"}
-                    onClick={() => testSource(form.providerSymbol, "form")}
+                    onClick={() => testSource(form.provider, form.providerSymbol, "form")}
                   >
                     <FlaskConical className="mr-1 h-3.5 w-3.5" />
                     {testing === "form" ? "Testando..." : "Testar símbolo"}
