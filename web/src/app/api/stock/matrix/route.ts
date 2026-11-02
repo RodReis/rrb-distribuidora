@@ -42,9 +42,10 @@ export async function GET(req: Request) {
       .leftJoin(stockPredictiveMetrics, eq(products.id, stockPredictiveMetrics.productId))
       .where(and(...conditions));
 
-    const filtered = statusFilter && statusFilter !== "todos"
-      ? items.filter((item) => item.predictiveStatus === statusFilter)
-      : items;
+    const filtered =
+      statusFilter && statusFilter !== "todos"
+        ? items.filter((item) => item.predictiveStatus === statusFilter)
+        : items;
 
     return NextResponse.json({ success: true, data: filtered });
   } catch (error: any) {

@@ -38,17 +38,24 @@ describe("Initial Stock CSV Importer", () => {
 
   it("fails atomically when SKU is missing or unmapped", async () => {
     // Setup db.select for products and warehouses
-    vi.mocked(db.select).mockImplementationOnce(() => ({
-      from: () => ({
-        where: () => Promise.resolve([{ id: "p1", sku: "SKU-A36", unit: "kg", norm: "ASTM A36" }]),
-      }),
-    } as any));
+    vi.mocked(db.select).mockImplementationOnce(
+      () =>
+        ({
+          from: () => ({
+            where: () =>
+              Promise.resolve([{ id: "p1", sku: "SKU-A36", unit: "kg", norm: "ASTM A36" }]),
+          }),
+        }) as any
+    );
 
-    vi.mocked(db.select).mockImplementationOnce(() => ({
-      from: () => ({
-        where: () => Promise.resolve([{ id: "w1", name: "Galpão Central" }]),
-      }),
-    } as any));
+    vi.mocked(db.select).mockImplementationOnce(
+      () =>
+        ({
+          from: () => ({
+            where: () => Promise.resolve([{ id: "w1", name: "Galpão Central" }]),
+          }),
+        }) as any
+    );
 
     const csv = `SKU,Depósito,Lote,Quantidade,Custo Unitário
 SKU-INEXISTENTE,Galpão Central,LT-100,500,5.50`;
@@ -61,17 +68,24 @@ SKU-INEXISTENTE,Galpão Central,LT-100,500,5.50`;
   });
 
   it("fails when quantity is zero or negative", async () => {
-    vi.mocked(db.select).mockImplementationOnce(() => ({
-      from: () => ({
-        where: () => Promise.resolve([{ id: "p1", sku: "SKU-A36", unit: "kg", norm: "ASTM A36" }]),
-      }),
-    } as any));
+    vi.mocked(db.select).mockImplementationOnce(
+      () =>
+        ({
+          from: () => ({
+            where: () =>
+              Promise.resolve([{ id: "p1", sku: "SKU-A36", unit: "kg", norm: "ASTM A36" }]),
+          }),
+        }) as any
+    );
 
-    vi.mocked(db.select).mockImplementationOnce(() => ({
-      from: () => ({
-        where: () => Promise.resolve([{ id: "w1", name: "Galpão Central" }]),
-      }),
-    } as any));
+    vi.mocked(db.select).mockImplementationOnce(
+      () =>
+        ({
+          from: () => ({
+            where: () => Promise.resolve([{ id: "w1", name: "Galpão Central" }]),
+          }),
+        }) as any
+    );
 
     const csv = `SKU,Depósito,Lote,Quantidade,Custo Unitário
 SKU-A36,Galpão Central,LT-100,-10,5.50`;
@@ -83,20 +97,27 @@ SKU-A36,Galpão Central,LT-100,-10,5.50`;
   });
 
   it("succeeds and reconciles total quantity and value when rows are valid", async () => {
-    vi.mocked(db.select).mockImplementationOnce(() => ({
-      from: () => ({
-        where: () => Promise.resolve([
-          { id: "p1", sku: "SKU-A36", unit: "kg", norm: "ASTM A36" },
-          { id: "p2", sku: "SKU-BQ", unit: "kg", norm: "SAE 1008" },
-        ]),
-      }),
-    } as any));
+    vi.mocked(db.select).mockImplementationOnce(
+      () =>
+        ({
+          from: () => ({
+            where: () =>
+              Promise.resolve([
+                { id: "p1", sku: "SKU-A36", unit: "kg", norm: "ASTM A36" },
+                { id: "p2", sku: "SKU-BQ", unit: "kg", norm: "SAE 1008" },
+              ]),
+          }),
+        }) as any
+    );
 
-    vi.mocked(db.select).mockImplementationOnce(() => ({
-      from: () => ({
-        where: () => Promise.resolve([{ id: "w1", name: "Galpão Central" }]),
-      }),
-    } as any));
+    vi.mocked(db.select).mockImplementationOnce(
+      () =>
+        ({
+          from: () => ({
+            where: () => Promise.resolve([{ id: "w1", name: "Galpão Central" }]),
+          }),
+        }) as any
+    );
 
     const csv = `SKU,Depósito,Lote,Corrida,Quantidade,Custo Unitário,Data Entrada,Endereço
 SKU-A36,Galpão Central,LT-01,C-991,1000,5.00,2026-10-01,Box 01

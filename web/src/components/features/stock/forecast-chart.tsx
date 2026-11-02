@@ -17,7 +17,7 @@ export interface ForecastChartProps {
 export function ForecastChart({ selectedItem }: ForecastChartProps) {
   const item = selectedItem || {
     sku: "CG-A36-1270",
-    description: "Chapa Grossa A36 1/2\" (12.70mm)",
+    description: 'Chapa Grossa A36 1/2" (12.70mm)',
     currentStockQty: 18.5,
     avgDailyConsumption30d: 2.2,
     leadTimeDays: 14,
@@ -71,14 +71,53 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
             </defs>
 
             {/* Grid Lines */}
-            <line stroke="#222733" strokeDasharray="2 2" strokeWidth="1" x1="10" x2="310" y1="10" y2="10" />
-            <line stroke="#222733" strokeDasharray="2 2" strokeWidth="1" x1="10" x2="310" y1="50" y2="50" />
-            <line stroke="#222733" strokeDasharray="2 2" strokeWidth="1" x1="10" x2="310" y1="90" y2="90" />
+            <line
+              stroke="#222733"
+              strokeDasharray="2 2"
+              strokeWidth="1"
+              x1="10"
+              x2="310"
+              y1="10"
+              y2="10"
+            />
+            <line
+              stroke="#222733"
+              strokeDasharray="2 2"
+              strokeWidth="1"
+              x1="10"
+              x2="310"
+              y1="50"
+              y2="50"
+            />
+            <line
+              stroke="#222733"
+              strokeDasharray="2 2"
+              strokeWidth="1"
+              x1="10"
+              x2="310"
+              y1="90"
+              y2="90"
+            />
             <line stroke="#222733" strokeWidth="1" x1="10" x2="310" y1="120" y2="120" />
 
             {/* Rupture Threshold Line */}
-            <line stroke="#DC2626" strokeDasharray="3 3" strokeWidth="1.5" x1="10" x2="310" y1="75" y2="75" />
-            <text fill="#DC2626" fontFamily="JetBrains Mono" fontSize="8" fontWeight="600" x="220" y="71">
+            <line
+              stroke="#DC2626"
+              strokeDasharray="3 3"
+              strokeWidth="1.5"
+              x1="10"
+              x2="310"
+              y1="75"
+              y2="75"
+            />
+            <text
+              fill="#DC2626"
+              fontFamily="JetBrains Mono"
+              fontSize="8"
+              fontWeight="600"
+              x="220"
+              y="71"
+            >
               ESTOQUE CRÍTICO
             </text>
 
@@ -99,16 +138,38 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
 
             {/* Point of Rupture Beacon */}
             <circle cx="175" cy="75" fill={isCritical ? "#DC2626" : "#10B981"} r="4.5" />
-            <circle cx="175" cy="75" fill={isCritical ? "#DC2626" : "#10B981"} fillOpacity="0.3" r="8" className="animate-ping" />
-            <text fill="#F8FAFC" fontFamily="JetBrains Mono" fontSize="9" fontWeight="600" x="160" y="94">
+            <circle
+              cx="175"
+              cy="75"
+              fill={isCritical ? "#DC2626" : "#10B981"}
+              fillOpacity="0.3"
+              r="8"
+              className="animate-ping"
+            />
+            <text
+              fill="#F8FAFC"
+              fontFamily="JetBrains Mono"
+              fontSize="9"
+              fontWeight="600"
+              x="160"
+              y="94"
+            >
               D+{Math.round(coverageDays)}
             </text>
 
             {/* X Axis Labels */}
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="15" y="128">Hoje</text>
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="100" y="128">+15d</text>
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="195" y="128">+30d</text>
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="280" y="128">+45d</text>
+            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="15" y="128">
+              Hoje
+            </text>
+            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="100" y="128">
+              +15d
+            </text>
+            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="195" y="128">
+              +30d
+            </text>
+            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x="280" y="128">
+              +45d
+            </text>
           </svg>
         </div>
       </div>
@@ -116,13 +177,19 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
       <div className="mt-3 pt-2 flex flex-col gap-1.5 font-mono text-label-code text-titanium-muted border-t border-carbon-800">
         <div className="flex items-center justify-between">
           <span>Estoque em D+{Math.round(coverageDays)} (Projetado):</span>
-          <span className={isCritical ? "text-carmine-signal font-semibold" : "text-signal-buy font-semibold"}>
+          <span
+            className={
+              isCritical ? "text-carmine-signal font-semibold" : "text-signal-buy font-semibold"
+            }
+          >
             0.9 t ({isCritical ? "Abaixo do Mínimo" : "Estável"})
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span>Ponto Crítico sem Pedido:</span>
-          <span className={isCritical ? "text-carmine-signal font-bold" : "text-ice-white font-bold"}>
+          <span
+            className={isCritical ? "text-carmine-signal font-bold" : "text-ice-white font-bold"}
+          >
             {formattedRuptureDate}
           </span>
         </div>

@@ -539,7 +539,10 @@ export const stockMovements = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
-    movementTenantProductIdx: index("idx_stock_movements_tenant_product").on(t.tenantId, t.productId),
+    movementTenantProductIdx: index("idx_stock_movements_tenant_product").on(
+      t.tenantId,
+      t.productId
+    ),
     movementLotIdx: index("idx_stock_movements_lot").on(t.lotId),
     movementCreatedIdx: index("idx_stock_movements_created").on(t.createdAt),
   })
@@ -578,7 +581,11 @@ export const stockRemnants = pgTable(
   (t) => ({
     remnantTenantProductIdx: index("idx_stock_remnants_tenant_product").on(t.tenantId, t.productId),
     remnantStatusIdx: index("idx_stock_remnants_status").on(t.status),
-    remnantDimensionsIdx: index("idx_stock_remnants_dimensions").on(t.thicknessMm, t.widthMm, t.lengthMm),
+    remnantDimensionsIdx: index("idx_stock_remnants_dimensions").on(
+      t.thicknessMm,
+      t.widthMm,
+      t.lengthMm
+    ),
   })
 );
 
@@ -593,13 +600,18 @@ export const stockPredictiveMetrics = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
     currentStockQty: numeric("current_stock_qty", { precision: 12, scale: 4 }).notNull(),
-    avgDailyConsumption30d: numeric("avg_daily_consumption_30d", { precision: 10, scale: 4 }).notNull(),
+    avgDailyConsumption30d: numeric("avg_daily_consumption_30d", {
+      precision: 10,
+      scale: 4,
+    }).notNull(),
     leadTimeDays: integer("lead_time_days").default(15).notNull(),
     coverageDays: numeric("coverage_days", { precision: 8, scale: 1 }).notNull(),
     safetyStockQty: numeric("safety_stock_qty", { precision: 12, scale: 4 }).notNull(),
     reorderPointQty: numeric("reorder_point_qty", { precision: 12, scale: 4 }).notNull(),
     predictiveStatus: varchar("predictive_status", { length: 30 }).notNull(), // 'CRITICAL_RUPTURE', 'WARNING', 'HEALTHY', 'EXCESS'
-    suggestedPurchaseQty: numeric("suggested_purchase_qty", { precision: 12, scale: 4 }).default("0").notNull(),
+    suggestedPurchaseQty: numeric("suggested_purchase_qty", { precision: 12, scale: 4 })
+      .default("0")
+      .notNull(),
     suggestedPurchaseDate: timestamp("suggested_purchase_date", { withTimezone: true }),
     curveAbc: varchar("curve_abc", { length: 1 }).default("B").notNull(),
     curveXyz: varchar("curve_xyz", { length: 1 }).default("Y").notNull(),

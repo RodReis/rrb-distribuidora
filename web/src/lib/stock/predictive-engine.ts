@@ -81,7 +81,11 @@ export function calculateConsumptionMetrics(
 /**
  * Calculates safety stock using SS = Z * sigma * sqrt(LT)
  */
-export function calculateSafetyStock(stdDev: number, leadTimeDays: number, avgDaily: number): number {
+export function calculateSafetyStock(
+  stdDev: number,
+  leadTimeDays: number,
+  avgDaily: number
+): number {
   if (leadTimeDays <= 0) return 0;
 
   let ss = Z_FACTOR_95 * stdDev * Math.sqrt(leadTimeDays);

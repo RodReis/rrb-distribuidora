@@ -12,10 +12,7 @@ import {
 import { getCurrentUser } from "@/lib/auth/rbac";
 import { and, desc, eq } from "drizzle-orm";
 import { EstoqueClient } from "./estoque-client";
-import {
-  getDailyCycleCountCandidates,
-  getCycleInventoryAccuracy,
-} from "@/lib/stock/cycle-count";
+import { getDailyCycleCountCandidates, getCycleInventoryAccuracy } from "@/lib/stock/cycle-count";
 
 export const dynamic = "force-dynamic";
 

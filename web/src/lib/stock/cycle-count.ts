@@ -39,7 +39,9 @@ export interface SubmitCountInput {
 /**
  * Generates the daily risk-guided cycle count candidate list (5 to 10 items)
  */
-export async function getDailyCycleCountCandidates(tenantId: string): Promise<CycleCountCandidate[]> {
+export async function getDailyCycleCountCandidates(
+  tenantId: string
+): Promise<CycleCountCandidate[]> {
   // 1. Fetch active lots with product details
   const lots = await db
     .select({

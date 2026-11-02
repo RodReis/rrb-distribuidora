@@ -83,7 +83,9 @@ export function RemnantDrawer({
         notes,
       });
 
-      toast.success(`Retalho #${remnant.code} cadastrado com sucesso! Peso Teórico: ${calculatedWeight} kg`);
+      toast.success(
+        `Retalho #${remnant.code} cadastrado com sucesso! Peso Teórico: ${calculatedWeight} kg`
+      );
       onRemnantCreated?.();
       onClose();
     } catch (err: any) {
@@ -116,10 +118,7 @@ export function RemnantDrawer({
           <label className="font-mono text-label-code text-titanium-muted uppercase block mb-1">
             Produto / Liga de Origem
           </label>
-          <Select
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-          >
+          <Select value={productId} onChange={(e) => setProductId(e.target.value)}>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.sku} - {p.commercialDescription}
@@ -133,10 +132,7 @@ export function RemnantDrawer({
           <label className="font-mono text-label-code text-titanium-muted uppercase block mb-1">
             Depósito / Armazém de Estocagem
           </label>
-          <Select
-            value={warehouseId}
-            onChange={(e) => setWarehouseId(e.target.value)}
-          >
+          <Select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)}>
             {warehouses.map((w) => (
               <option key={w.id} value={w.id}>
                 {w.name}
@@ -195,7 +191,11 @@ export function RemnantDrawer({
                 Peso Líquido Calculado Automaticamente:
               </span>
               <span className="font-mono text-metric-display text-signal-buy font-bold">
-                {calculatedWeight.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 3 })} kg
+                {calculatedWeight.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 3,
+                })}{" "}
+                kg
               </span>
             </div>
           </div>

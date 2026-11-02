@@ -77,14 +77,12 @@ export function EstoqueClient({
 
   // KPI calculations
   const criticalItems = matrixItems.filter(
-    (i) => i.predictiveStatus === "CRITICAL_RUPTURE" || Number(i.coverageDays) < Number(i.leadTimeDays)
+    (i) =>
+      i.predictiveStatus === "CRITICAL_RUPTURE" || Number(i.coverageDays) < Number(i.leadTimeDays)
   );
   const criticalCount = criticalItems.length;
 
-  const totalRemnantsWeight = remnants.reduce(
-    (acc, r) => acc + (Number(r.weightKg) || 0),
-    0
-  );
+  const totalRemnantsWeight = remnants.reduce((acc, r) => acc + (Number(r.weightKg) || 0), 0);
 
   async function handleRecalculate() {
     setRecalculating(true);
@@ -144,14 +142,14 @@ export function EstoqueClient({
               activeTab === "retalhos"
                 ? "Catálogo Técnico de Retalhos"
                 : activeTab === "lotes"
-                ? "Lotes & Corridas"
-                : activeTab === "movimentacoes"
-                ? "Trilha de Movimentações"
-                : activeTab === "inventario"
-                ? "Inventário Cíclico"
-                : activeTab === "importar"
-                ? "Carga Inicial CSV"
-                : "Matriz Preditiva de Ruptura",
+                  ? "Lotes & Corridas"
+                  : activeTab === "movimentacoes"
+                    ? "Trilha de Movimentações"
+                    : activeTab === "inventario"
+                      ? "Inventário Cíclico"
+                      : activeTab === "importar"
+                        ? "Carga Inicial CSV"
+                        : "Matriz Preditiva de Ruptura",
           },
         ]}
       />
@@ -176,7 +174,8 @@ export function EstoqueClient({
           <div className="flex flex-wrap items-center gap-3 mt-1 font-mono text-label-code text-titanium-muted">
             <span className="flex items-center gap-1 text-titanium-light">
               <Radar className="w-3.5 h-3.5 text-tertiary" />
-              Varredura de Galpão: <span className="text-tertiary font-semibold">Ativa (LIDAR + RFID)</span>
+              Varredura de Galpão:{" "}
+              <span className="text-tertiary font-semibold">Ativa (LIDAR + RFID)</span>
             </span>
             <span className="text-carbon-700">•</span>
             <span>
@@ -191,7 +190,8 @@ export function EstoqueClient({
             </span>
             <span className="text-carbon-700">•</span>
             <span>
-              Lead Time Médio Fornecedores: <strong className="text-titanium-light font-mono">14.2 dias</strong>
+              Lead Time Médio Fornecedores:{" "}
+              <strong className="text-titanium-light font-mono">14.2 dias</strong>
             </span>
           </div>
         </div>
@@ -216,7 +216,9 @@ export function EstoqueClient({
             disabled={recalculating}
             className="flex items-center gap-1.5 bg-carbon-800 hover:bg-carbon-700 text-ice-white px-3 py-2 rounded font-mono text-label-caps transition-colors border border-carbon-700"
           >
-            <RefreshCw className={cn("w-4 h-4 text-signal-hold", recalculating && "animate-spin")} />
+            <RefreshCw
+              className={cn("w-4 h-4 text-signal-hold", recalculating && "animate-spin")}
+            />
             <span>{recalculating ? "CALCULANDO..." : "SIMULAR REPOSIÇÃO"}</span>
           </button>
 
@@ -266,7 +268,9 @@ export function EstoqueClient({
               </span>
               <span className="font-mono text-label-code text-titanium-muted">Críticos</span>
             </div>
-            <div className="text-body-sm text-titanium-light mt-0.5">Cobertura &lt; Lead Time Fornecedor</div>
+            <div className="text-body-sm text-titanium-light mt-0.5">
+              Cobertura &lt; Lead Time Fornecedor
+            </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
             <span className="text-titanium-muted">Déficit Potencial: R$ 380k</span>
@@ -288,9 +292,13 @@ export function EstoqueClient({
               <span className="font-mono text-metric-display text-signal-buy font-bold">
                 42.8 t
               </span>
-              <span className="font-mono text-label-code text-signal-buy font-semibold">+18% vs mês ant.</span>
+              <span className="font-mono text-label-code text-signal-buy font-semibold">
+                +18% vs mês ant.
+              </span>
             </div>
-            <div className="text-body-sm text-titanium-light mt-0.5">Salvas de sucata primária p/ OPs ativas</div>
+            <div className="text-body-sm text-titanium-light mt-0.5">
+              Salvas de sucata primária p/ OPs ativas
+            </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
             <span className="text-titanium-muted">Valor Recuperado:</span>
@@ -313,7 +321,9 @@ export function EstoqueClient({
               </span>
               <span className="font-mono text-label-code text-titanium-muted">18.2 t</span>
             </div>
-            <div className="text-body-sm text-titanium-light mt-0.5">Sobras em risco de oxidação severa</div>
+            <div className="text-body-sm text-titanium-light mt-0.5">
+              Sobras em risco de oxidação severa
+            </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
             <span className="text-signal-buy">Redução de -24% pós IA</span>
@@ -342,9 +352,13 @@ export function EstoqueClient({
               <span className="font-mono text-metric-display text-ice-white font-bold">
                 {accuracyPct.toFixed(1)}%
               </span>
-              <span className="font-mono text-label-code text-signal-buy font-semibold">ALTO RIGOR</span>
+              <span className="font-mono text-label-code text-signal-buy font-semibold">
+                ALTO RIGOR
+              </span>
             </div>
-            <div className="text-body-sm text-titanium-light mt-0.5">Auditoria algorítmica sem parada fabril</div>
+            <div className="text-body-sm text-titanium-light mt-0.5">
+              Auditoria algorítmica sem parada fabril
+            </div>
           </div>
           <div className="flex items-center justify-between pt-1.5 bg-carbon-950/60 -mx-3.5 -mb-3.5 px-3.5 py-1.5 border-t border-carbon-800 font-mono text-label-code">
             <span className="text-titanium-muted">Último Ciclo Auditado:</span>
@@ -354,10 +368,7 @@ export function EstoqueClient({
       </div>
 
       {/* 4. SECTION 5: MOTOR DE MATCHING AUTOMÁTICO (Hero Inteligente Mockup 1:1) */}
-      <AutoMatchingBanner
-        availableRemnants={remnants}
-        onRemnantApproved={() => router.refresh()}
-      />
+      <AutoMatchingBanner availableRemnants={remnants} onRemnantApproved={() => router.refresh()} />
 
       {/* 5. Navigation Tabs (Conforme Regras Obrigatórias de Frontend - Seção 7) */}
       <Tabs items={tabItems} active={activeTab} />
@@ -389,15 +400,10 @@ export function EstoqueClient({
       )}
 
       {activeTab === "lotes" && (
-        <LotsTable
-          lots={lots}
-          onNewMovement={() => setMovementDrawerOpen(true)}
-        />
+        <LotsTable lots={lots} onNewMovement={() => setMovementDrawerOpen(true)} />
       )}
 
-      {activeTab === "movimentacoes" && (
-        <MovementsTable movements={movements} />
-      )}
+      {activeTab === "movimentacoes" && <MovementsTable movements={movements} />}
 
       {activeTab === "inventario" && (
         <CycleCountView
@@ -407,9 +413,7 @@ export function EstoqueClient({
         />
       )}
 
-      {activeTab === "importar" && (
-        <StockImportView onImportSuccess={() => router.refresh()} />
-      )}
+      {activeTab === "importar" && <StockImportView onImportSuccess={() => router.refresh()} />}
 
       {/* Modals & Drawers */}
       <MovementDrawer

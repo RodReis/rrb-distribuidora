@@ -61,7 +61,8 @@ export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
             Rastreabilidade de Lotes Físicos & Corridas de Usina
           </h2>
           <p className="text-body-sm text-titanium-muted">
-            Histórico completo de entradas por lote, corrida (heat number), custo unitário e depósito.
+            Histórico completo de entradas por lote, corrida (heat number), custo unitário e
+            depósito.
           </p>
         </div>
 
@@ -104,7 +105,10 @@ export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
           <tbody className="divide-y divide-carbon-800/40 text-body-sm font-sans">
             {filteredLots.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-8 text-center text-titanium-muted font-mono text-body-sm">
+                <td
+                  colSpan={8}
+                  className="py-8 text-center text-titanium-muted font-mono text-body-sm"
+                >
                   Nenhum lote físico cadastrado ou localizado no filtro.
                 </td>
               </tr>
@@ -125,7 +129,8 @@ export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
                         {lot.lotNumber}
                       </div>
                       <div className="font-mono text-label-code text-titanium-muted">
-                        Corrida: <span className="text-titanium-light">{lot.heatNumber || "S/N"}</span>
+                        Corrida:{" "}
+                        <span className="text-titanium-light">{lot.heatNumber || "S/N"}</span>
                       </div>
                     </td>
 
@@ -151,7 +156,11 @@ export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
                     </td>
 
                     <td className="py-2.5 px-3 text-right font-mono text-metric-regular text-titanium-light">
-                      R$ {cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      R${" "}
+                      {cost.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
 
                     <td className="py-2.5 px-3 font-mono text-label-code text-titanium-light">

@@ -139,14 +139,7 @@ describe("Predictive Engine - Mathematical and Statistical Model", () => {
     });
 
     it("returns zero purchase quantity when stock status is HEALTHY or EXCESS", () => {
-      const { quantity, date } = calculateSuggestedPurchase(
-        "HEALTHY",
-        100,
-        50,
-        2,
-        50,
-        15
-      );
+      const { quantity, date } = calculateSuggestedPurchase("HEALTHY", 100, 50, 2, 50, 15);
       expect(quantity).toBe(0);
       expect(date).toBeNull();
     });

@@ -45,7 +45,8 @@ export function PredictiveMatrixTable({
   const [search, setSearch] = React.useState("");
 
   const criticalCount = items.filter(
-    (i) => i.predictiveStatus === "CRITICAL_RUPTURE" || Number(i.coverageDays) < Number(i.leadTimeDays)
+    (i) =>
+      i.predictiveStatus === "CRITICAL_RUPTURE" || Number(i.coverageDays) < Number(i.leadTimeDays)
   ).length;
 
   const filteredItems = React.useMemo(() => {
@@ -140,7 +141,10 @@ export function PredictiveMatrixTable({
             <tbody className="divide-y divide-carbon-800/40 text-body-sm font-sans">
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-titanium-muted font-mono text-body-sm">
+                  <td
+                    colSpan={7}
+                    className="py-8 text-center text-titanium-muted font-mono text-body-sm"
+                  >
                     Nenhum SKU encontrado para os filtros selecionados.
                   </td>
                 </tr>
@@ -156,7 +160,8 @@ export function PredictiveMatrixTable({
                   // Delta between coverage and lead time
                   const deltaDays = Math.round(coverage - leadTime);
                   const isRupture = coverage < leadTime;
-                  const isWarning = !isRupture && (coverage <= leadTime * 1.3 || status === "WARNING");
+                  const isWarning =
+                    !isRupture && (coverage <= leadTime * 1.3 || status === "WARNING");
                   const isExcess = coverage > 180;
 
                   return (
@@ -276,7 +281,10 @@ export function PredictiveMatrixTable({
 
       {/* Table Footer Note */}
       <div className="flex items-center justify-between pt-2.5 mt-2.5 text-titanium-muted font-mono text-label-code bg-carbon-950/60 p-2 rounded border border-carbon-800">
-        <span>*Algoritmo determinístico diário integrando histórico de movimentações, lead time homologado e desvio padrão Z=1.645 (95%).</span>
+        <span>
+          *Algoritmo determinístico diário integrando histórico de movimentações, lead time
+          homologado e desvio padrão Z=1.645 (95%).
+        </span>
         <span className="text-tertiary flex items-center gap-1">
           <Zap className="w-3 h-3 text-tertiary" /> Lead Time Dinâmico Ativo
         </span>

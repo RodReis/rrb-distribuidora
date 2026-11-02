@@ -89,7 +89,8 @@ TB-304-200,Galpão Central - Box B,LT-AP-1088,INX-5510,120,un,380.00,2026-10-22,
             Carga de Saldos Iniciais & Importação de Lotes (CSV)
           </h2>
           <p className="text-body-sm text-titanium-muted">
-            Importação atômica com validação de SKU, conciliação do valor contábil e criação automática dos lotes com corridas.
+            Importação atômica com validação de SKU, conciliação do valor contábil e criação
+            automática dos lotes com corridas.
           </p>
         </div>
 
@@ -106,7 +107,8 @@ TB-304-200,Galpão Central - Box B,LT-AP-1088,INX-5510,120,un,380.00,2026-10-22,
           Arraste o arquivo CSV de estoque inicial ou clique para selecionar
         </h3>
         <p className="text-body-sm text-titanium-muted mt-1 mb-4 max-w-md">
-          Colunas requeridas: SKU, Depósito, Lote, Corrida/Heat, Quantidade, Custo Unitário, Endereço.
+          Colunas requeridas: SKU, Depósito, Lote, Corrida/Heat, Quantidade, Custo Unitário,
+          Endereço.
         </p>
 
         <label className="cursor-pointer">
@@ -132,12 +134,7 @@ TB-304-200,Galpão Central - Box B,LT-AP-1088,INX-5510,120,un,380.00,2026-10-22,
             </span>
           </div>
 
-          <Button
-            variant="primary"
-            size="md"
-            disabled={importing}
-            onClick={handleImport}
-          >
+          <Button variant="primary" size="md" disabled={importing} onClick={handleImport}>
             {importing ? "Processando e Validando..." : "Validar e Importar Saldos Iniciais"}
           </Button>
         </div>
@@ -169,7 +166,10 @@ TB-304-200,Galpão Central - Box B,LT-AP-1088,INX-5510,120,un,380.00,2026-10-22,
                   <div className="bg-carbon-900 p-2 rounded border border-carbon-800">
                     <span className="text-titanium-muted block">Valor Contábil Reconciliado:</span>
                     <span className="text-ice-white text-metric-regular font-bold">
-                      R$ {result.totalReconciledValueBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      R${" "}
+                      {result.totalReconciledValueBrl.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                 </div>
@@ -178,11 +178,12 @@ TB-304-200,Galpão Central - Box B,LT-AP-1088,INX-5510,120,un,380.00,2026-10-22,
           ) : (
             <div className="p-4 bg-signal-risk/10 border border-signal-risk/30 rounded">
               <div className="flex items-center gap-2 text-carmine-signal font-semibold text-body-lg mb-2">
-                <AlertCircle className="w-5 h-5" />
-                A Carga Foi Abortada Devido a Divergências de Validação ({result.errors.length} erro(s))
+                <AlertCircle className="w-5 h-5" />A Carga Foi Abortada Devido a Divergências de
+                Validação ({result.errors.length} erro(s))
               </div>
               <p className="text-body-sm text-titanium-muted mb-3">
-                Para manter a integridade dos saldos e custos, nenhum registro foi inserido. Corrija as linhas abaixo e reenvie:
+                Para manter a integridade dos saldos e custos, nenhum registro foi inserido. Corrija
+                as linhas abaixo e reenvie:
               </p>
               <div className="max-h-60 overflow-y-auto space-y-1.5 font-mono text-label-code">
                 {result.errors.map((err: any, idx: number) => (

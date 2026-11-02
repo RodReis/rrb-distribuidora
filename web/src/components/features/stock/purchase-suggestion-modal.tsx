@@ -11,11 +11,7 @@ export interface PurchaseSuggestionModalProps {
   item: any;
 }
 
-export function PurchaseSuggestionModal({
-  isOpen,
-  onClose,
-  item,
-}: PurchaseSuggestionModalProps) {
+export function PurchaseSuggestionModal({ isOpen, onClose, item }: PurchaseSuggestionModalProps) {
   const [submitting, setSubmitting] = React.useState(false);
   const [orderConfirmed, setOrderConfirmed] = React.useState(false);
 
@@ -26,10 +22,10 @@ export function PurchaseSuggestionModal({
   const supplierName = item.erpCode?.includes("GERDAU")
     ? "Gerdau Ouro Branco"
     : item.erpCode?.includes("CSN")
-    ? "CSN Volta Redonda"
-    : item.erpCode?.includes("USIMINAS")
-    ? "Usiminas Ipatinga"
-    : "Usina Homologada";
+      ? "CSN Volta Redonda"
+      : item.erpCode?.includes("USIMINAS")
+        ? "Usiminas Ipatinga"
+        : "Usina Homologada";
 
   async function handleConfirmPO() {
     setSubmitting(true);
@@ -49,7 +45,10 @@ export function PurchaseSuggestionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-xs animate-in fade-in" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/80 backdrop-blur-xs animate-in fade-in"
+        onClick={onClose}
+      />
       <div className="relative z-10 w-full max-w-lg rounded bg-carbon-900 border border-carbon-700 p-5 shadow-2xl animate-in zoom-in-95 duration-150">
         <div className="flex items-start justify-between pb-3 border-b border-carbon-800">
           <div className="flex items-center gap-2">
@@ -94,9 +93,7 @@ export function PurchaseSuggestionModal({
 
             <div className="p-3 bg-carbon-950 border border-carbon-800 rounded">
               <span className="text-titanium-muted block">Lead Time Usina:</span>
-              <span className="text-metric-display text-ice-white font-bold">
-                {leadTime} dias
-              </span>
+              <span className="text-metric-display text-ice-white font-bold">{leadTime} dias</span>
             </div>
           </div>
 
@@ -108,7 +105,9 @@ export function PurchaseSuggestionModal({
           </div>
 
           <div className="p-3 bg-carmine-core/10 border border-carmine-core/30 rounded text-carmine-signal text-body-sm">
-            <strong>Alerta Preventivo:</strong> A cobertura física atual deste item é de apenas {item.coverageDays} dias. Se o pedido não for emitido hoje, haverá ruptura antes do lead time de {leadTime} dias.
+            <strong>Alerta Preventivo:</strong> A cobertura física atual deste item é de apenas{" "}
+            {item.coverageDays} dias. Se o pedido não for emitido hoje, haverá ruptura antes do lead
+            time de {leadTime} dias.
           </div>
         </div>
 

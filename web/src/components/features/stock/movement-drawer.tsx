@@ -147,10 +147,7 @@ export function MovementDrawer({
           <label className="font-mono text-label-code text-titanium-muted uppercase block mb-1">
             Produto Metálico / SKU
           </label>
-          <Select
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-          >
+          <Select value={productId} onChange={(e) => setProductId(e.target.value)}>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.sku} - {p.commercialDescription}
@@ -165,10 +162,7 @@ export function MovementDrawer({
             <label className="font-mono text-label-code text-titanium-muted uppercase block mb-1">
               Depósito / Armazém
             </label>
-            <Select
-              value={warehouseId}
-              onChange={(e) => setWarehouseId(e.target.value)}
-            >
+            <Select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)}>
               {warehouses.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
@@ -181,10 +175,7 @@ export function MovementDrawer({
             <label className="font-mono text-label-code text-titanium-muted uppercase block mb-1">
               Fornecedor / Usina
             </label>
-            <Select
-              value={supplierId}
-              onChange={(e) => setSupplierId(e.target.value)}
-            >
+            <Select value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
               {suppliers.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.tradeName || s.legalName}

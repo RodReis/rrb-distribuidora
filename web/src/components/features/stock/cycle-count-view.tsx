@@ -35,11 +35,7 @@ export interface CycleCountViewProps {
   onCountSubmitted?: () => void;
 }
 
-export function CycleCountView({
-  candidates,
-  accuracyPct,
-  onCountSubmitted,
-}: CycleCountViewProps) {
+export function CycleCountView({ candidates, accuracyPct, onCountSubmitted }: CycleCountViewProps) {
   // Store form state for each candidate
   const [counts, setCounts] = React.useState<Record<string, string>>({});
   const [justifications, setJustifications] = React.useState<Record<string, string>>({});
@@ -121,7 +117,8 @@ export function CycleCountView({
               Inventário Cíclico Dirigido por Risco
             </h2>
             <p className="text-body-sm text-titanium-muted mt-1">
-              Algoritmo seleciona diariamente de 5 a 10 lotes prioritários baseando-se em divergências prévias, giro da Curva A e lotes sem conferência recente.
+              Algoritmo seleciona diariamente de 5 a 10 lotes prioritários baseando-se em
+              divergências prévias, giro da Curva A e lotes sem conferência recente.
             </p>
           </div>
 
@@ -158,7 +155,9 @@ export function CycleCountView({
 
           <div className="flex items-center justify-between pt-2 border-t border-carbon-800 font-mono text-label-code text-titanium-muted">
             <span>Lotes Concluídos Hoje:</span>
-            <span className="text-ice-white font-semibold">{completedIds.length} de {candidates.length}</span>
+            <span className="text-ice-white font-semibold">
+              {completedIds.length} de {candidates.length}
+            </span>
           </div>
         </div>
       </div>
@@ -174,7 +173,8 @@ export function CycleCountView({
 
         {candidates.length === 0 ? (
           <div className="p-8 text-center bg-carbon-900 border border-carbon-800 rounded font-mono text-body-sm text-titanium-muted">
-            Todos os itens prioritários já foram conferidos no ciclo atual. Posição de estoque 100% auditada!
+            Todos os itens prioritários já foram conferidos no ciclo atual. Posição de estoque 100%
+            auditada!
           </div>
         ) : (
           candidates.map((item) => {
@@ -193,8 +193,8 @@ export function CycleCountView({
                   isCompleted
                     ? "border-signal-buy/40 bg-carbon-950/40 opacity-75"
                     : hasDivergence
-                    ? "border-carmine-core/50"
-                    : "border-carbon-800"
+                      ? "border-carmine-core/50"
+                      : "border-carbon-800"
                 )}
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -215,8 +215,8 @@ export function CycleCountView({
                           item.priorityLevel === 1
                             ? "bg-carmine-core/20 text-carmine-signal border border-carmine-core/30"
                             : item.priorityLevel === 2
-                            ? "bg-signal-hold/20 text-signal-hold border border-signal-hold/30"
-                            : "bg-carbon-800 text-titanium-light border border-carbon-700"
+                              ? "bg-signal-hold/20 text-signal-hold border border-signal-hold/30"
+                              : "bg-carbon-800 text-titanium-light border border-carbon-700"
                         )}
                       >
                         {item.priorityReason}
@@ -231,11 +231,21 @@ export function CycleCountView({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 mt-1 font-mono text-label-code text-titanium-muted">
-                      <span>SKU: <strong className="text-ice-white">{item.productSku}</strong></span>
+                      <span>
+                        SKU: <strong className="text-ice-white">{item.productSku}</strong>
+                      </span>
                       <span>•</span>
-                      <span>Depósito: <strong className="text-titanium-light">{item.warehouseName}</strong></span>
+                      <span>
+                        Depósito:{" "}
+                        <strong className="text-titanium-light">{item.warehouseName}</strong>
+                      </span>
                       <span>•</span>
-                      <span>Localização: <strong className="text-ice-white">{item.locationAddress || "Pátio Central"}</strong></span>
+                      <span>
+                        Localização:{" "}
+                        <strong className="text-ice-white">
+                          {item.locationAddress || "Pátio Central"}
+                        </strong>
+                      </span>
                     </div>
                   </div>
 

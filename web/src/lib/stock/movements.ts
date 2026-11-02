@@ -1,11 +1,5 @@
 import { db } from "@/lib/db";
-import {
-  products,
-  stockLots,
-  stockMovements,
-  stockRemnants,
-  auditLog,
-} from "@/lib/db/schema";
+import { products, stockLots, stockMovements, stockRemnants, auditLog } from "@/lib/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { calculateRemnantWeight } from "./remnants-engine";
 import { recalculatePredictiveMetricsForTenant } from "./predictive-engine";
@@ -323,9 +317,7 @@ export async function recordStockAdjustment(input: StockAdjustmentInput) {
  */
 export async function createRemnant(input: CreateRemnantInput) {
   // Generate code if not provided: RET-XXXXX
-  const code =
-    input.code ||
-    `RET-${Math.floor(1000 + Math.random() * 9000)}`;
+  const code = input.code || `RET-${Math.floor(1000 + Math.random() * 9000)}`;
 
   // Find product to determine density for automatic weight calculation
   const [product] = await db

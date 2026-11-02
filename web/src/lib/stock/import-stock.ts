@@ -1,11 +1,5 @@
 import { db } from "@/lib/db";
-import {
-  products,
-  warehouses,
-  stockLots,
-  stockMovements,
-  auditLog,
-} from "@/lib/db/schema";
+import { products, warehouses, stockLots, stockMovements, auditLog } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import Papa from "papaparse";
 import { recalculatePredictiveMetricsForTenant } from "./predictive-engine";
@@ -153,18 +147,35 @@ export async function importInitialStockCsv(
     lineIndex++;
     const row = normalizeRow(raw);
 
-    const sku = (row["sku"] || row["codigo"] || row["produto"] || "").toString().trim().toUpperCase();
+    const sku = (row["sku"] || row["codigo"] || row["produto"] || "")
+      .toString()
+      .trim()
+      .toUpperCase();
     const depName = (row["deposito"] || row["armazem"] || row["warehouse"] || "").toString().trim();
-    const lotNumber = (row["lote"] || row["lot_number"] || row["numero_lote"] || "").toString().trim();
-    const heatNumber = (row["corrida"] || row["heat"] || row["heat_number"] || "").toString().trim() || null;
-    const rawQty = (row["quantidade"] || row["saldo"] || row["qty"] || "").toString().replace(",", ".");
-    const rawCost = (row["custo_unitario"] || row["custo"] || row["unit_cost"] || "").toString().replace(",", ".");
-    const location = (row["endereco"] || row["localizacao"] || row["local"] || "").toString().trim() || "Pátio Principal";
+    const lotNumber = (row["lote"] || row["lot_number"] || row["numero_lote"] || "")
+      .toString()
+      .trim();
+    const heatNumber =
+      (row["corrida"] || row["heat"] || row["heat_number"] || "").toString().trim() || null;
+    const rawQty = (row["quantidade"] || row["saldo"] || row["qty"] || "")
+      .toString()
+      .replace(",", ".");
+    const rawCost = (row["custo_unitario"] || row["custo"] || row["unit_cost"] || "")
+      .toString()
+      .replace(",", ".");
+    const location =
+      (row["endereco"] || row["localizacao"] || row["local"] || "").toString().trim() ||
+      "Pátio Principal";
     const dateStr = (row["data_entrada"] || row["data"] || "").toString().trim();
 
     // Validations
     if (!sku) {
-      errors.push({ line: lineIndex, field: "sku", value: sku, message: "Coluna SKU é obrigatória." });
+      errors.push({
+        line: lineIndex,
+        field: "sku",
+        value: sku,
+        message: "Coluna SKU é obrigatória.",
+      });
       continue;
     }
     const product = productSkuMap.get(sku);
@@ -179,7 +190,12 @@ export async function importInitialStockCsv(
     }
 
     if (!depName) {
-      errors.push({ line: lineIndex, field: "deposito", value: depName, message: "Coluna Depósito é obrigatória." });
+      errors.push({
+        line: lineIndex,
+        field: "deposito",
+        value: depName,
+        message: "Coluna Depósito é obrigatória.",
+      });
       continue;
     }
     const warehouseId = warehouseNameMap.get(depName.toLowerCase());
@@ -194,19 +210,34 @@ export async function importInitialStockCsv(
     }
 
     if (!lotNumber) {
-      errors.push({ line: lineIndex, field: "lote", value: lotNumber, message: "Identificador de lote é obrigatório." });
+      errors.push({
+        line: lineIndex,
+        field: "lote",
+        value: lotNumber,
+        message: "Identificador de lote é obrigatório.",
+      });
       continue;
     }
 
     const qty = parseFloat(rawQty);
     if (isNaN(qty) || qty <= 0) {
-      errors.push({ line: lineIndex, field: "quantidade", value: rawQty, message: "Quantidade deve ser um número maior que zero." });
+      errors.push({
+        line: lineIndex,
+        field: "quantidade",
+        value: rawQty,
+        message: "Quantidade deve ser um número maior que zero.",
+      });
       continue;
     }
 
     const unitCost = parseFloat(rawCost);
     if (isNaN(unitCost) || unitCost < 0) {
-      errors.push({ line: lineIndex, field: "custo_unitario", value: rawCost, message: "Custo unitário deve ser um número maior ou igual a zero." });
+      errors.push({
+        line: lineIndex,
+        field: "custo_unitario",
+        value: rawCost,
+        message: "Custo unitário deve ser um número maior ou igual a zero.",
+      });
       continue;
     }
 

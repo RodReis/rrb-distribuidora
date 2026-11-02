@@ -203,7 +203,10 @@ export function calculateRemnantMatchingSavings(params: {
 
   // Direct savings = cost of virgin sheet that was saved from being cut down
   // Preserved stock cost:
-  const costPreserved = Math.max(0, virginCost - remnantsWeight * (params.replacementCostPerKg * 0.4));
+  const costPreserved = Math.max(
+    0,
+    virginCost - remnantsWeight * (params.replacementCostPerKg * 0.4)
+  );
   const savingsPct = virginCost > 0 ? (costPreserved / virginCost) * 100 : 0;
 
   return {

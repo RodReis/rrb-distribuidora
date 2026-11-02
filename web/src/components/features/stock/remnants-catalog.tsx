@@ -57,26 +57,36 @@ export function RemnantsCatalog({
   const [search, setSearch] = React.useState("");
   const [warehouseFilter, setWarehouseFilter] = React.useState("todos");
 
-  const alloys = ["Todas", "A36", "SAE 1008", "SAE 1020", "Inox 304", "Alumínio 5052", "Galvanizado"];
+  const alloys = [
+    "Todas",
+    "A36",
+    "SAE 1008",
+    "SAE 1020",
+    "Inox 304",
+    "Alumínio 5052",
+    "Galvanizado",
+  ];
 
   const filteredRemnants = React.useMemo(() => {
     return remnants.filter((rem) => {
       const matchSearch =
         search === "" ||
         rem.code.toLowerCase().includes(search.toLowerCase()) ||
-        (rem.productDescription && rem.productDescription.toLowerCase().includes(search.toLowerCase())) ||
-        (rem.parentHeatNumber && rem.parentHeatNumber.toLowerCase().includes(search.toLowerCase())) ||
+        (rem.productDescription &&
+          rem.productDescription.toLowerCase().includes(search.toLowerCase())) ||
+        (rem.parentHeatNumber &&
+          rem.parentHeatNumber.toLowerCase().includes(search.toLowerCase())) ||
         (rem.locationAddress && rem.locationAddress.toLowerCase().includes(search.toLowerCase())) ||
         (rem.notes && rem.notes.toLowerCase().includes(search.toLowerCase()));
 
       const matchAlloy =
         selectedAlloy === "Todas" ||
-        (rem.productDescription && rem.productDescription.toLowerCase().includes(selectedAlloy.toLowerCase())) ||
+        (rem.productDescription &&
+          rem.productDescription.toLowerCase().includes(selectedAlloy.toLowerCase())) ||
         (rem.productNorm && rem.productNorm.toLowerCase().includes(selectedAlloy.toLowerCase())) ||
         (rem.notes && rem.notes.toLowerCase().includes(selectedAlloy.toLowerCase()));
 
-      const matchWarehouse =
-        warehouseFilter === "todos" || rem.warehouseId === warehouseFilter;
+      const matchWarehouse = warehouseFilter === "todos" || rem.warehouseId === warehouseFilter;
 
       return matchSearch && matchAlloy && matchWarehouse;
     });
@@ -195,8 +205,22 @@ export function RemnantsCatalog({
                     <div className="w-12 h-10 bg-carbon-950 border border-carbon-800 rounded flex items-center justify-center p-1 shrink-0">
                       {isSlitterOrCoil ? (
                         <svg className="w-full h-full" viewBox="0 0 40 30">
-                          <circle cx="20" cy="15" fill="none" r="10" stroke="#F59E0B" strokeWidth="2" />
-                          <circle cx="20" cy="15" fill="#181C24" r="4" stroke="#F59E0B" strokeWidth="1" />
+                          <circle
+                            cx="20"
+                            cy="15"
+                            fill="none"
+                            r="10"
+                            stroke="#F59E0B"
+                            strokeWidth="2"
+                          />
+                          <circle
+                            cx="20"
+                            cy="15"
+                            fill="#181C24"
+                            r="4"
+                            stroke="#F59E0B"
+                            strokeWidth="1"
+                          />
                         </svg>
                       ) : (
                         <svg className="w-full h-full" viewBox="0 0 40 30">
@@ -210,7 +234,15 @@ export function RemnantsCatalog({
                             y="4"
                           />
                           {isAllocated && (
-                            <line stroke="#DC2626" strokeDasharray="1 1" strokeWidth="0.5" x1="3" x2="37" y1="4" y2="26" />
+                            <line
+                              stroke="#DC2626"
+                              strokeDasharray="1 1"
+                              strokeWidth="0.5"
+                              x1="3"
+                              x2="37"
+                              y1="4"
+                              y2="26"
+                            />
                           )}
                         </svg>
                       )}
@@ -225,8 +257,8 @@ export function RemnantsCatalog({
                         {width > 0 && length > 0
                           ? `${width.toLocaleString("pt-BR")} x ${length.toLocaleString("pt-BR")} mm`
                           : rem.diameterMm
-                          ? `Ø ${rem.diameterMm} mm x ${length} mm`
-                          : "Sob medida"}
+                            ? `Ø ${rem.diameterMm} mm x ${length} mm`
+                            : "Sob medida"}
                       </div>
                     </div>
                     <div>
@@ -238,7 +270,11 @@ export function RemnantsCatalog({
                     <div>
                       <span className="text-titanium-muted">Peso Líquido:</span>
                       <div className="text-signal-buy font-metric-compact font-bold">
-                        {weight.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 3 })} kg
+                        {weight.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 3,
+                        })}{" "}
+                        kg
                       </div>
                     </div>
                     <div>
@@ -253,20 +289,34 @@ export function RemnantsCatalog({
                   <div className="flex items-center gap-2.5 py-1.5">
                     {/* Simulated QR Code */}
                     <div className="w-11 h-11 bg-ice-white p-1 rounded shrink-0 flex items-center justify-center">
-                      <svg className="w-full h-full text-carbon-950" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-full h-full text-carbon-950"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M2 2h8v8H2zM4 4v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10 0h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z" />
                       </svg>
                     </div>
 
                     <div className="flex flex-col font-mono text-label-code overflow-hidden leading-tight">
                       <span className="text-titanium-muted truncate">
-                        Origem: <strong className="text-titanium-light">{rem.notes || "OP de Corte CNC"}</strong>
+                        Origem:{" "}
+                        <strong className="text-titanium-light">
+                          {rem.notes || "OP de Corte CNC"}
+                        </strong>
                       </span>
                       <span className="text-titanium-muted truncate mt-0.5">
                         Local: <strong className="text-ice-white">{rem.locationAddress}</strong>
                       </span>
-                      <span className={cn("font-semibold truncate mt-0.5", isAllocated ? "text-signal-buy" : "text-tertiary")}>
-                        {isAllocated ? "Alocado p/ OP (Eco: R$ 1.840)" : "Livre p/ Matching em Vendas"}
+                      <span
+                        className={cn(
+                          "font-semibold truncate mt-0.5",
+                          isAllocated ? "text-signal-buy" : "text-tertiary"
+                        )}
+                      >
+                        {isAllocated
+                          ? "Alocado p/ OP (Eco: R$ 1.840)"
+                          : "Livre p/ Matching em Vendas"}
                       </span>
                     </div>
                   </div>
@@ -294,7 +344,11 @@ export function RemnantsCatalog({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => toast.info(`Nesting esquemático do retalho #${rem.code} exibido no terminal de corte.`)}
+                      onClick={() =>
+                        toast.info(
+                          `Nesting esquemático do retalho #${rem.code} exibido no terminal de corte.`
+                        )
+                      }
                       className="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-mono text-label-code flex items-center justify-center gap-1 transition-colors border border-carbon-700"
                     >
                       <Scissors className="w-3.5 h-3.5" /> Nesting
@@ -303,7 +357,11 @@ export function RemnantsCatalog({
 
                   <button
                     type="button"
-                    onClick={() => toast.success(`Certificado de Usina ${rem.parentHeatNumber || "C-99412B"} verificado e homologado.`)}
+                    onClick={() =>
+                      toast.success(
+                        `Certificado de Usina ${rem.parentHeatNumber || "C-99412B"} verificado e homologado.`
+                      )
+                    }
                     className="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2 py-1 rounded font-mono text-label-code border border-carbon-700"
                     title="Baixar Mill Cert Válido"
                   >

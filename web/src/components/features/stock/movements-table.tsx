@@ -3,7 +3,14 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { History, ArrowDownLeft, ArrowUpRight, Scissors, RotateCcw, AlertTriangle } from "lucide-react";
+import {
+  History,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Scissors,
+  RotateCcw,
+  AlertTriangle,
+} from "lucide-react";
 
 export interface StockMovementItem {
   id: string;
@@ -39,7 +46,8 @@ export function MovementsTable({ movements }: MovementsTableProps) {
             Trilha de Auditoria & Movimentações Físicas (`stock_movements`)
           </h2>
           <p className="text-body-sm text-titanium-muted">
-            Registro cronológico imutável de todas as entradas por compra, baixas de venda, requisições de corte e ajustes.
+            Registro cronológico imutável de todas as entradas por compra, baixas de venda,
+            requisições de corte e ajustes.
           </p>
         </div>
       </div>
@@ -61,7 +69,10 @@ export function MovementsTable({ movements }: MovementsTableProps) {
           <tbody className="divide-y divide-carbon-800/40 text-body-sm font-sans">
             {movements.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-8 text-center text-titanium-muted font-mono text-body-sm">
+                <td
+                  colSpan={8}
+                  className="py-8 text-center text-titanium-muted font-mono text-body-sm"
+                >
                   Nenhuma movimentação registrada até o momento.
                 </td>
               </tr>
@@ -135,7 +146,11 @@ export function MovementsTable({ movements }: MovementsTableProps) {
                     </td>
 
                     <td className="py-2.5 px-3 text-right font-mono text-metric-regular text-titanium-light">
-                      R$ {totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      R${" "}
+                      {totalCost.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
 
                     <td className="py-2.5 px-3">

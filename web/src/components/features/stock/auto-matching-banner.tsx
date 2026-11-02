@@ -60,9 +60,13 @@ export function AutoMatchingBanner({
 
     setSimResults(matches);
     if (matches.length === 0) {
-      toast.info("Nenhum retalho com sobras suficientes para esta medida. Corte de chapa nova necessário.");
+      toast.info(
+        "Nenhum retalho com sobras suficientes para esta medida. Corte de chapa nova necessário."
+      );
     } else {
-      toast.success(`${matches.length} retalho(s) compatíveis encontrados! Menor desperdício: ${matches[0].wastePercentage}%`);
+      toast.success(
+        `${matches.length} retalho(s) compatíveis encontrados! Menor desperdício: ${matches[0].wastePercentage}%`
+      );
     }
   }
 
@@ -84,7 +88,8 @@ export function AutoMatchingBanner({
               </span>
             </div>
             <p className="text-body-sm text-titanium-muted">
-              Algoritmo intercepta pedidos comerciais e bloqueia consumo de chapas novas inteiras quando há retalho compatível no pátio.
+              Algoritmo intercepta pedidos comerciais e bloqueia consumo de chapas novas inteiras
+              quando há retalho compatível no pátio.
             </p>
           </div>
         </div>
@@ -93,9 +98,7 @@ export function AutoMatchingBanner({
           <span className="font-mono text-label-code text-titanium-muted">
             Matching IA Taxa Sucesso:
           </span>
-          <span className="font-mono text-metric-regular text-signal-buy font-bold">
-            88.6%
-          </span>
+          <span className="font-mono text-metric-regular text-signal-buy font-bold">88.6%</span>
         </div>
       </div>
 
@@ -111,11 +114,10 @@ export function AutoMatchingBanner({
               ECONOMIA DIRETA
             </span>
           </div>
-          <div className="text-body-lg text-ice-white font-semibold">
-            Pedido de Venda #PV-4491
-          </div>
+          <div className="text-body-lg text-ice-white font-semibold">Pedido de Venda #PV-4491</div>
           <div className="text-body-sm text-titanium-muted">
-            Cliente: <span className="text-ice-white font-medium">Metalúrgica Alvorada</span> | Item: 38 Flanges 400x500 mm em A36 1/2&quot; (12.7mm).
+            Cliente: <span className="text-ice-white font-medium">Metalúrgica Alvorada</span> |
+            Item: 38 Flanges 400x500 mm em A36 1/2&quot; (12.7mm).
           </div>
         </div>
 
@@ -194,7 +196,8 @@ export function AutoMatchingBanner({
         <div className="mt-3 p-3 bg-carbon-950 border border-carbon-800 rounded animate-in fade-in duration-200">
           <div className="flex items-center justify-between mb-2">
             <span className="font-mono text-label-code text-tertiary font-semibold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> SIMULADOR GEOMÉTRICO 2D (BUSCAR RETALHO P/ PEDIDO)
+              <Sparkles className="w-3.5 h-3.5" /> SIMULADOR GEOMÉTRICO 2D (BUSCAR RETALHO P/
+              PEDIDO)
             </span>
             <span className="font-mono text-label-code text-titanium-muted">
               {availableRemnants.length} retalhos ativos no armazém
@@ -265,16 +268,15 @@ export function AutoMatchingBanner({
                           #{res.remnant.code}
                         </span>
                         <span className="text-titanium-light">
-                          {res.remnant.thicknessMm}mm x {res.remnant.widthMm}mm x {res.remnant.lengthMm}mm
+                          {res.remnant.thicknessMm}mm x {res.remnant.widthMm}mm x{" "}
+                          {res.remnant.lengthMm}mm
                         </span>
                         {res.isRotated && (
                           <span className="text-signal-hold bg-signal-hold/10 px-1 py-0.2 rounded">
                             (Giro 90°)
                           </span>
                         )}
-                        <span className="text-titanium-muted">
-                          {res.remnant.locationAddress}
-                        </span>
+                        <span className="text-titanium-muted">{res.remnant.locationAddress}</span>
                       </div>
 
                       <div className="flex items-center gap-3">
@@ -287,7 +289,9 @@ export function AutoMatchingBanner({
                         <button
                           type="button"
                           onClick={() => {
-                            toast.success(`Retalho #${res.remnant.code} vinculado à simulação de corte!`);
+                            toast.success(
+                              `Retalho #${res.remnant.code} vinculado à simulação de corte!`
+                            );
                           }}
                           className="bg-carmine-core hover:bg-carmine-signal text-ice-white px-2 py-0.5 rounded font-mono text-label-code"
                         >
