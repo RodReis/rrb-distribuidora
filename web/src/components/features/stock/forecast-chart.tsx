@@ -43,7 +43,8 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
   const safety = Number(item.safetyStockQty) || 0;
   const rop = Number(item.reorderPointQty) || 0;
   const isCritical = item.predictiveStatus === "CRITICAL_RUPTURE";
-  const color = isCritical ? "#DC2626" : "#10B981";
+  const lineClass = isCritical ? "stroke-carmine-core" : "stroke-signal-buy";
+  const dotClass = isCritical ? "fill-carmine-core" : "fill-signal-buy";
 
   const yMax = Math.max(stock, rop, safety, 1);
   const xAt = (day: number) => X0 + (day / HORIZON_DAYS) * (X1 - X0);
@@ -88,12 +89,19 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
             role="img"
             aria-label="Projeção linear do estoque"
           >
-            <line stroke="#222733" strokeWidth="1" x1={X0} x2={X1} y1={Y_BASE} y2={Y_BASE} />
+            <line
+              className="stroke-carbon-700"
+              strokeWidth="1"
+              x1={X0}
+              x2={X1}
+              y1={Y_BASE}
+              y2={Y_BASE}
+            />
 
             {safety > 0 && (
               <>
                 <line
-                  stroke="#DC2626"
+                  className="stroke-carmine-core"
                   strokeDasharray="3 3"
                   strokeWidth="1.5"
                   x1={X0}
@@ -102,7 +110,7 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
                   y2={yAt(safety)}
                 />
                 <text
-                  fill="#DC2626"
+                  className="fill-carmine-core"
                   fontFamily="JetBrains Mono"
                   fontSize="8"
                   fontWeight="600"
@@ -116,7 +124,7 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
 
             {rop > 0 && (
               <line
-                stroke="#F59E0B"
+                className="stroke-signal-hold"
                 strokeDasharray="2 3"
                 strokeWidth="1"
                 x1={X0}
@@ -128,7 +136,7 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
 
             {leadTime > 0 && leadTime <= HORIZON_DAYS && (
               <line
-                stroke="#475569"
+                className="stroke-titanium-dark"
                 strokeDasharray="2 2"
                 strokeWidth="1"
                 x1={xAt(leadTime)}
@@ -138,13 +146,13 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
               />
             )}
 
-            <path d={path} fill="none" stroke={color} strokeWidth="2.5" />
+            <path className={lineClass} d={path} fill="none" strokeWidth="2.5" />
 
             {ruptureInHorizon && (
               <>
-                <circle cx={xAt(ruptureDay!)} cy={Y_BASE} fill={color} r="4.5" />
+                <circle className={dotClass} cx={xAt(ruptureDay!)} cy={Y_BASE} r="4.5" />
                 <text
-                  fill="#F8FAFC"
+                  className="fill-ice-white"
                   fontFamily="JetBrains Mono"
                   fontSize="9"
                   fontWeight="600"
@@ -156,16 +164,16 @@ export function ForecastChart({ selectedItem }: ForecastChartProps) {
               </>
             )}
 
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x={X0} y="128">
+            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={X0} y="128">
               Hoje
             </text>
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x={xAt(15) - 8} y="128">
+            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={xAt(15) - 8} y="128">
               +15d
             </text>
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x={xAt(30) - 8} y="128">
+            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={xAt(30) - 8} y="128">
               +30d
             </text>
-            <text fill="#94A3B8" fontFamily="JetBrains Mono" fontSize="8" x={X1 - 16} y="128">
+            <text className="fill-titanium-muted" fontFamily="JetBrains Mono" fontSize="8" x={X1 - 16} y="128">
               +45d
             </text>
           </svg>

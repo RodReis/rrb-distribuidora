@@ -29,8 +29,19 @@
 | Sinais de negócio | `signal-buy` (#10B981), `signal-hold` (#F59E0B), `signal-risk` (#EF4444) | Badges e indicadores de status preditivo: comprar/ok, neutro/atenção, risco/ruptura |
 | Feedback | `tertiary` (#4edea3) e containers de erro do token | Sucessos e erros em formulários/toasts |
 
-- Tema **carbon dark é o padrão**; tema claro (`industrial_precision_steel`) só onde a spec pedir (ex.: Command Center no M4).
+- Tema **carbon dark é o padrão**. O tema claro (`industrial_precision_steel`) existe para o app inteiro, escolhido no alternador sol/lua da barra superior e guardado no navegador.
 - **Proibido:** cores hexadecimais inline fora do config, `bg-gray-*`, `bg-slate-*`, `text-blue-*` ou qualquer paleta nativa do Tailwind que não seja token do projeto.
+
+### 2.1.1 Como o tema funciona (obrigatório para telas novas)
+
+- Os tokens que mudam com o tema (`carbon-*`, `ice-white`, `subtle-white`, `titanium-*`, `signal-*`, `carmine-signal`, `tertiary`) são **variáveis CSS** em `src/app/globals.css` (`:root` = escuro, `.light` = claro). Use sempre a classe do token; nunca o valor.
+- `carmine-core`, `carmine-dark` e `carmine-deep` (marca) são fixos nos dois temas. Texto sobre fundo sólido de marca ou de sinal (`bg-carmine-*`, `bg-signal-*`) fica branco no claro por regra do CSS global.
+- No claro os sinais usam tons mais escuros que no escuro (verde `#127236`, âmbar `#9A440A`, vermelho `#C81E1E`) para manter contraste de texto sobre branco. Valem os tokens, não os hex do `DESIGN.md`.
+- **SVG:** use classes `fill-*` e `stroke-*` com o token (ex.: `stroke-carmine-core`), não atributos com hex.
+- **Bibliotecas que não leem CSS** (gráficos): peça a cor com `themeColor("token")` (`lib/theme.ts`) e recrie o gráfico quando `useTheme()` mudar (exemplo: `market-chart.tsx`).
+- **Itens impressos** (etiqueta, QR) usam `bg-paper` e `text-ink`: branco com tinta escura nos dois temas.
+- Chip colorido sobre botão de cor sólida: use `bg-black/25 text-white`, nunca `bg-carbon-*`, que clareia no tema claro.
+- **Camadas:** o Copiloto fica em `z-40`; drawers e modais em `z-50`, para cobri-lo.
 
 ### 2.2 Tipografia
 

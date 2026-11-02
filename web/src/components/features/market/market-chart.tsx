@@ -12,6 +12,8 @@ import {
 } from "lightweight-charts";
 import { sma } from "@/lib/market/indicators";
 import { fmtNum } from "@/lib/market/format";
+import { themeColor } from "@/lib/theme";
+import { useTheme } from "@/lib/use-theme";
 
 export interface ChartBar {
   time: number;
@@ -31,18 +33,20 @@ export interface MarketChartProps {
   rangeDays?: number | null;
 }
 
-// Hex necessários: a lib de gráfico não lê classes Tailwind. Valores = tokens do projeto.
-const COLORS = {
-  text: "#94A3B8",
-  grid: "rgba(255,255,255,0.05)",
-  border: "rgba(255,255,255,0.08)",
-  up: "#10B981",
-  down: "#EF4444",
-  line: "#F8FAFC",
-  sma20: "#F59E0B",
-  sma50: "#CBD5E1",
-  paid: "#DC2626",
-};
+// A lib de gráfico não lê classes Tailwind nem variáveis CSS: as cores saem dos tokens do tema ativo.
+function chartColors() {
+  return {
+    text: themeColor("titanium-muted"),
+    grid: themeColor("ice-white", 0.06),
+    border: themeColor("ice-white", 0.1),
+    up: themeColor("signal-buy"),
+    down: themeColor("signal-risk"),
+    line: themeColor("ice-white"),
+    sma20: themeColor("signal-hold"),
+    sma50: themeColor("titanium-light"),
+    paid: "rgb(220, 38, 38)",
+  };
+}
 
 export function MarketChart({
   bars,
@@ -55,10 +59,12 @@ export function MarketChart({
 }: MarketChartProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [legend, setLegend] = React.useState<string>("");
+  const theme = useTheme();
 
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el || bars.length === 0) return;
+    const COLORS = chartColors();
 
     const chart: IChartApi = createChart(el, {
       autoSize: true,
@@ -168,7 +174,7 @@ export function MarketChart({
     });
 
     return () => chart.remove();
-  }, [bars, mode, showSma20, showSma50, avgPaid, decimals, rangeDays]);
+  }, [bars, mode, showSma20, showSma50, avgPaid, decimals, rangeDays, theme]);
 
   return (
     <div className="relative h-[360px] w-full">

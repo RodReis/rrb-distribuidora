@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { openCopilot } from "@/lib/ai/copilot-events";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LiveTicker } from "@/components/features/market/live-ticker";
 import { NotificationBell } from "@/components/features/market/notification-bell";
 import {
@@ -243,8 +245,12 @@ export function AppShell({ children, user }: AppShellProps) {
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-titanium-dark" />
             <input
               type="text"
-              placeholder="Buscar (Ctrl+K)..."
-              className="w-full bg-carbon-950 text-body-sm pl-8 pr-3 py-1 rounded border border-carbon-800 placeholder-titanium-dark focus:outline-none focus:ring-1 focus:ring-carmine-core"
+              readOnly
+              onClick={() => openCopilot()}
+              onFocus={() => openCopilot()}
+              placeholder="Perguntar ao Copiloto (Ctrl+K)..."
+              aria-label="Abrir o Copiloto"
+              className="w-full cursor-pointer bg-carbon-950 text-body-sm pl-8 pr-3 py-1 rounded border border-carbon-800 placeholder-titanium-dark focus:outline-none focus:ring-1 focus:ring-carmine-core"
             />
           </div>
 
@@ -256,6 +262,8 @@ export function AppShell({ children, user }: AppShellProps) {
                 USINA MATRIZ
               </span>
             </div>
+
+            <ThemeToggle />
 
             <NotificationBell />
 
@@ -280,7 +288,7 @@ export function AppShell({ children, user }: AppShellProps) {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-carbon-950">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-20 bg-carbon-950">{children}</main>
       </div>
     </div>
   );
