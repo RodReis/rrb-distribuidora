@@ -1,6 +1,6 @@
 # Deploy — MetalAgents (M0)
 
-**Atualizado em:** 01/11/2026 · **Estado:** em produção · **Responsável:** Rodrigo Reis
+**Atualizado em:** 02/11/2026 · **Estado:** em produção · **Responsável:** Rodrigo Reis
 
 > Este documento descreve **como a aplicação está implantada hoje**, como operá-la e o que deu
 > errado no primeiro deploy. Segredos **nunca** entram aqui nem no repositório: somente os
@@ -129,6 +129,13 @@ definir o root directory `web` (no painel, ou pela API GraphQL — o `railway en
 
 Alternativa: usar o *Cron* do Railway chamando `POST /api/internal/jobs/ingest-ptax` e `/ingest-metals` com o Bearer token.
 
+### 4.2.1 Job de estoque preventivo (M2)
+
+- Endpoint: `POST /api/internal/jobs/calculate-predictive-stock` (recalcula cobertura, SS, ROP, status e ABC/XYZ de todos os tenants).
+- **Ainda não está agendado.** O `market-worker` só dispara os jobs de mercado; falta o `cron.schedule` das **04h00** (America/Sao_Paulo) ou um Cron do Railway chamando o endpoint com `Authorization: Bearer <CRON_SECRET>`.
+- **Atenção:** diferente dos jobs de mercado, este endpoint só valida o `CRON_SECRET` **se a variável existir**. Segundo a seção 4.2 ela está definida em produção (M1; não reverifiquei agora), mas o endpoint não deve depender disso — corrigir para recusar quando ausente.
+- Enquanto não houver agendamento, o recálculo ocorre a cada movimentação de estoque e pelo botão "Simular reposição" em `/estoque`.
+
 ### 4.3 Carga inicial dos dados de mercado
 
 As migrations rodam sozinhas no start. A carga histórica é manual, uma vez:
@@ -140,12 +147,19 @@ SEED_MODE=production pnpm db:seed-market   # PTAX (24 meses, BCB) e cadastra os 
 - Em produção **não** gera fixture de metais. O histórico de metais entra por CSV (*Configuração › Mercado › Importar*) ou acumula pela coleta diária.
 - CSV: colunas `date` (AAAA-MM-DD), `open`, `high`, `low`, `close`, `volume`; só `close` é obrigatório.
 
+### 4.4 Carga inicial do estoque (M2)
+
+- Em produção as tabelas `stock_*` nascem **vazias** e `/estoque` abre sem dados.
+- **Não** rode `pnpm db:seed-stock` em produção: ele grava produtos, fornecedores, lotes e métricas **de exemplo** do mockup (uso só em desenvolvimento).
+- Caminho correto: cadastrar produtos e depósitos e importar os saldos pela aba **Carga Inicial (CSV)** de `/estoque` (colunas: SKU, Depósito, Lote, Corrida, Quantidade, Custo Unitário, Data Entrada, Endereço). A importação é atômica: qualquer linha inválida aborta tudo.
+
 ## 5. Banco de dados
 
 - **Serviço:** Postgres do Railway com volume persistente.
 - **Acesso externo:** o TCP Proxy **não está habilitado**; não existe `DATABASE_PUBLIC_URL`. O banco só é
   alcançável de dentro do Railway (`railway ssh`) ou pelo CLI (`railway connect Postgres`, exige `psql`).
-- **Schema:** 11 tabelas, criadas por `drizzle-kit migrate` (migration `0000_strange_misty_knight`).
+- **Schema:** 21 tabelas, criadas por `drizzle-kit migrate` (migrations `0000` a `0003`; a `0003_hesitant_namora` adicionou as 5 tabelas do M2: `stock_lots`, `stock_movements`, `stock_remnants`, `stock_predictive_metrics`, `stock_cycle_counts`).
+- **Aplicação das migrations:** automática no start do serviço web (seção 2). A `0003` foi aplicada em produção no deploy `9c310f41` (02/11/2026), confirmado por consulta em `drizzle.__drizzle_migrations` (4 registros) e pela existência das tabelas `stock_*`.
 - **Migrations:** só para frente (sem `down`). Gerar com `pnpm db:generate`, revisar o SQL e commitar.
 - **Seed de produção** (cria tenant, admin e a matriz de 90 permissões; **sem** usuários de teste nem dados de exemplo):
 
@@ -172,6 +186,8 @@ Arquivo: `.github/workflows/ci.yml` — dispara em push e PR para `main`, com `w
 Usa Node **24** (igual à produção). Em 02/11/2026 o CI foi corrigido: `pnpm/action-setup` agora aponta para
 `web/package.json` (antes falhava por não achar a versão do pnpm) e o build em Node 20 caía com `SIGSEGV` no
 *Collecting page data*. Os PRs #1 e #2 passaram nele. **Os Vitest (`pnpm test`) ainda não rodam no CI.**
+
+> **Lição do PR #4:** o `format:check` falha o CI se arquivos novos não passarem no Prettier; rode `pnpm exec prettier --write <arquivos>` antes do push. No Windows o checkout em CRLF faz o `format:check` local acusar arquivos antigos que o CI (Linux) aceita — vale o resultado do CI.
 
 ## 7. Observabilidade
 
@@ -254,7 +270,11 @@ revertidas** automaticamente; só publique rollback de código compatível com o
 O container Postgres local já parou sozinho várias vezes durante o desenvolvimento; se aparecer `ECONNREFUSED`
 na porta 54320, rode `docker compose start`.
 
-## 12. Estado de produção em 01/11/2026
+## 12. Estado de produção
+
+**Atualização 02/11/2026 (M2):** deploy `9c310f41` (SUCCESS, 23:09 -03:00) após o merge do PR #4 (`9f49325`); migration `0003` aplicada; tabelas `stock_*` vazias; job de recálculo 04h00 **não agendado**; `/estoque` **não** foi testado em produção (apenas log de start `Ready` e consulta ao banco). Os itens abaixo são do snapshot de 01/11/2026.
+
+### Snapshot de 01/11/2026
 
 | Item | Situação |
 |---|---|
