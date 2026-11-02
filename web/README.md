@@ -1,36 +1,180 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MetalAgents — aplicação web
 
-## Getting Started
+Aplicação Next.js do **MetalAgents**, o SaaS de inteligência preventiva para distribuidoras de ferro, aço e alumínio
+da RRB Distribuidora. Este pacote contém a interface, as rotas de API, o motor preditivo de estoque, o motor
+metalúrgico de orçamento e os jobs de mercado.
 
-First, run the development server:
+> Documentação de produto, decisões e débitos ficam em [`../docs/`](../docs/README.md).
+> Regras de frontend (tokens, componentes, CRUD completo) são obrigatórias: [`../docs/regras-frontend.md`](../docs/regras-frontend.md).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+| Camada       | Tecnologia                                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| Framework    | Next.js **15.5.28** (App Router, React Server Components)                                                  |
+| UI           | React **19**, Tailwind com os tokens do design system (tema escuro carbon), Inter + JetBrains Mono, sonner |
+| Banco        | PostgreSQL 16 + Drizzle ORM 0.45 (`drizzle-kit` para migrations)                                           |
+| Autenticação | Auth.js (**next-auth 5 beta**) com credenciais, Argon2id e RBAC por módulo                                 |
+| PDF          | `@react-pdf/renderer` no servidor                                                                          |
+| Storage      | Cloudflare R2 (S3-compatible) com fallback local em `.data/quotes`                                         |
+| Testes       | Vitest (12 arquivos, 113 testes)                                                                           |
+| Runtime      | Node **24** · pnpm **10.33**                                                                               |
+
+## Módulos implementados
+
+| MVP                              | Escopo                                                                    | Rotas principais                                                                                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M0 — Fundação**                | Login multi-tenant, RBAC, shell, cadastros, importação CSV                | `/login`, `/produtos`, `/clientes`, `/fornecedores`, `/maquinas`, `/depositos`, `/importar`, `/configuracoes`, `/admin/usuarios`, `/admin/auditoria` |
+| **M1 — Inteligência de Mercado** | Cotações LME/HRC/PTAX, séries, alertas, paridade de importação            | `/mercado`, `/mercado/arbitragem`, `/api/market/*`, `/api/internal/jobs/*`                                                                           |
+| **M2 — Estoque Preventivo**      | Lotes, movimentos, previsão de demanda, matriz de ruptura, retalhos       | `/estoque`, `/estoque/lotes`, `/estoque/retalhos`, `/api/stock/*`                                                                                    |
+| **M3 — Orçamentos**              | Motor de peso/custo, precificação preventiva, funil, PDF, pedido de venda | `/vendas/orcamentos`, `/vendas/orcamentos/novo`, `/vendas/orcamentos/[id]`, `/api/quotes/*`                                                          |
+
+O M4 (copiloto com tool-calling) ainda não foi iniciado.
+
+## Pré-requisitos
+
+- **Node.js 24** (mesma versão do CI e da produção)
+- **pnpm 10.33** (`corepack enable` já resolve a versão declarada em `package.json`)
+- **Docker** — o Postgres de desenvolvimento roda no container `metalagents-postgres` (porta **54320**)
+
+## Instalação
+
+```powershell
+# 1. Dependências
+cd web
+pnpm install
+
+# 2. Banco de desenvolvimento (na raiz do repositório)
+cd ..
+docker compose up -d          # sobe metalagents-postgres em 127.0.0.1:54320
+
+# 3. Variáveis de ambiente
+cd web
+Copy-Item .env.example .env
+# ajuste DATABASE_URL para a porta 54320 (o exemplo aponta para 5432):
+# postgresql://metalagents:metalagents_secret@127.0.0.1:54320/metalagents
+
+# 4. Schema
+pnpm db:migrate
+
+# 5. Dados de desenvolvimento (tenant, usuários, permissões)
+pnpm db:seed
+
+# 6. Dados de demonstração dos MVPs 1 e 2 (opcional, só em desenvolvimento)
+pnpm db:seed-market
+pnpm db:seed-stock
+
+# 7. Aplicação
+pnpm dev                      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Atalho útil: o Postgres local já parou sozinho algumas vezes; se aparecer `ECONNREFUSED` na porta 54320,
+rode `docker compose start`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Acesso de desenvolvimento
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+O `pnpm db:seed` (sem `SEED_MODE=production`) cria cinco usuários com a senha **`Admin@123456`**:
 
-## Learn More
+| E-mail                               | Papel     | Permissões                                                                                                                     |
+| ------------------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `vendas@gfdistribuicao.com.br`       | vendedor  | escrita em **orçamentos** e no cadastro de clientes (criar, editar rascunho, gerar PDF, converter em pedido); leitura no resto |
+| `diretoria@gfdistribuicao.com.br`    | diretor   | leitura em todos os módulos + **liberação de margem** de orçamento bloqueado (alçada exclusiva)                                |
+| `rodrigo.reis@gfdistribuicao.com.br` | admin     | escrita em todos os módulos, inclusive `/admin/*`                                                                              |
+| `compras@gfdistribuicao.com.br`      | comprador | escrita em compras/RFQ, inteligência de mercado e fornecedores; leitura em vendas                                              |
+| `operador@gfdistribuicao.com.br`     | estoque   | escrita em estoque/retalhos, produtos, depósitos e máquinas; leitura em vendas                                                 |
 
-To learn more about Next.js, take a look at the following resources:
+> ⚠️ **Somente desenvolvimento.** O seed de produção (`SEED_MODE=production SEED_ADMIN_PASSWORD=…`) cria
+> apenas o admin `rodrigo.reis@gfdistribuicao.com.br`, com senha definida no comando — nunca use `Admin@123456`
+> em produção. A senha do admin de produção **não** está documentada (débito A4 em
+> [`../docs/debitos-tecnicos.md`](../docs/debitos-tecnicos.md)).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Variáveis de ambiente
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Referência completa: [`../docs/deploy.md`](../docs/deploy.md) §4.
 
-## Deploy on Vercel
+| Variável                                                                 | Obrigatória | Uso                                                                                                             |
+| ------------------------------------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                                           | sim         | Postgres (porta **54320** no Docker local; host interno no Railway)                                             |
+| `AUTH_SECRET`                                                            | sim         | Assinatura do JWT de sessão (≥ 32 caracteres)                                                                   |
+| `NEXTAUTH_URL`                                                           | sim         | URL pública da aplicação; precisa do `https://` em produção                                                     |
+| `RESEND_API_KEY`                                                         | não         | Convites e alertas por e-mail; sem ela a senha temporária aparece na tela                                       |
+| `CRON_SECRET`                                                            | não         | Protege `/api/internal/jobs/*` (worker de mercado)                                                              |
+| `METALS_API_KEY`                                                         | não         | Provedor de cotações; sem chave, em dev usa fixture sintética                                                   |
+| `COMMODITY_PRICE_API_KEY`                                                | não         | Provedor CommodityPriceAPI (cabeçalho `x-api-key`); cada mercado escolhe o provedor em _Configuração › Mercado_ |
+| `APP_INTERNAL_URL`                                                       | não         | URL que o worker usa para chamar o app                                                                          |
+| `METALS_CRON`                                                            | não         | Cron de coleta de metais (padrão `0 19 * * 1-5`, fuso São Paulo)                                                |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | não         | PDF no Cloudflare R2. **As quatro em conjunto**; faltando qualquer uma, grava em `.data/quotes`                 |
+| `R2_PUBLIC_BASE_URL`                                                     | não         | Se definida, o PDF é servido por URL pública                                                                    |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Comando                             | O que faz                                                 |
+| ----------------------------------- | --------------------------------------------------------- |
+| `pnpm dev`                          | servidor de desenvolvimento em `http://localhost:3000`    |
+| `pnpm build` / `pnpm start`         | build e execução de produção                              |
+| `pnpm lint`                         | ESLint                                                    |
+| `pnpm format` / `pnpm format:check` | Prettier (o CI exige `format:check` verde)                |
+| `pnpm test`                         | Vitest (suíte completa)                                   |
+| `pnpm db:generate`                  | gera migration a partir do schema Drizzle                 |
+| `pnpm db:migrate`                   | aplica as migrations pendentes (idempotente)              |
+| `pnpm db:seed`                      | tenant, usuários e matriz de permissões                   |
+| `pnpm db:seed-market`               | dados de mercado de demonstração (**só dev**)             |
+| `pnpm db:seed-stock`                | estoque/retalhos de demonstração (**só dev**)             |
+| `pnpm worker:market`                | worker de coleta de mercado (serviço separado no Railway) |
+
+## Estrutura
+
+```
+src/
+├── app/
+│   ├── (app)/            # área autenticada (shell, cadastros, estoque, mercado, vendas)
+│   ├── api/              # rotas de API (market, stock, quotes, files, auth)
+│   ├── login/            # tela de acesso
+│   └── layout.tsx        # fontes, providers e tema
+├── components/           # ui/, layout/ (shell), shared/ (DataTable, FormDrawer, ConfirmDialog…)
+├── lib/
+│   ├── auth/             # Auth.js, RBAC e sessão
+│   ├── db/               # schema Drizzle, migrations e seeds
+│   ├── market/           # ingestão, indicadores, paridade, alertas
+│   ├── stock/            # motor preditivo, movimentos, retalhos, KPIs
+│   ├── metallurgy/       # fórmulas de peso e tempo de corte (puro, testado)
+│   ├── quotes/           # precificação, serviço de orçamento, PDF
+│   └── storage/          # R2 com fallback local
+└── worker/               # market-worker (cron)
+```
+
+## Testes e qualidade
+
+```powershell
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm test
+pnpm build
+```
+
+- A suíte cobre o que é crítico e determinístico: motor metalúrgico, precificação/status, delta de mercado,
+  normalização de custo de reposição, motor preditivo de estoque e hardening do storage.
+- **Não** rode `pnpm build` com o `pnpm dev` ativo: os dois escrevem em `.next` e o dev passa a responder 500
+  (`Could not find the module ... in the React Client Manifest`). Pare o dev, rode o build, apague `.next` e suba de novo.
+
+## Migrations
+
+```powershell
+pnpm db:generate   # gera o SQL a partir de src/lib/db/schema.ts
+pnpm db:migrate    # aplica
+```
+
+As migrations são **só para frente** (sem `down`). Em produção elas são aplicadas automaticamente no start do
+serviço (`drizzle-kit migrate && next start`). Estado atual: `0000` a `0005`, 24 tabelas.
+
+## Deploy
+
+Railway (serviço web + Postgres + worker de mercado). Passo a passo, variáveis, seed de produção e diagnóstico:
+[`../docs/deploy.md`](../docs/deploy.md). O CI do GitHub Actions roda lint, `format:check` e build em cada PR.
+
+## Convenções do projeto
+
+- Documentação, specs, commits e comunicação em **PT-BR**; código e identificadores em **inglês**.
+- Textos de interface em **PT-BR**.
+- Nunca crie regra de produto por conta própria — a spec é o contrato.
+- Não suba instância própria do projeto no Docker; use a instância compartilhada.
