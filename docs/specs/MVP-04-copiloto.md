@@ -453,6 +453,48 @@ admin) verão o portão uma vez. A migration `0009` roda no start.
 **Limite.** Não há trilha específica de quem aceitou em tela administrativa: a tabela registra, mas
 a consulta é direta no banco. Se o PI quiser ver isso em *Usuários & Acesso*, é demanda nova.
 
+### 10.10 Provedores de IA por tenant (02/11/2026)
+
+Decisões do PI: chaves de IA saem do `.env` e passam a ser configuradas **por tenant**; nova aba
+**Configuração › Inteligência Artificial** com provedores OpenAI, Anthropic e NVIDIA NIM (grátis,
+build.nvidia.com); a combo no Copiloto lista os modelos dos provedores com chave; a escolha na
+combo vale **só para a conversa** (o padrão do tenant muda na aba); o briefing usa o modelo padrão.
+
+Implementação:
+
+- **`ai_provider_credentials`** (migrations `0010`/`0011`): chave cifrada com AES-256-GCM
+  (`APP_ENCRYPTION_KEY`, variável do servidor; a chave nunca vai ao cliente nem à auditoria, só os
+  4 últimos caracteres). Uma linha por tenant+provedor. Modelo padrão: colunas
+  `tenants.ai_default_provider/ai_default_model`.
+- **`lib/ai/providers.ts`:** listagem de modelos pela API de cada provedor (OpenAI `/v1/models`,
+  Anthropic `/v1/models` com `anthropic-version`, NVIDIA NIM compatível OpenAI). Se a chamada
+  falhar (chave restrita, rede), cai no fallback estático com os principais modelos e a UI avisa
+  "lista básica". Cache de 10 minutos por tenant+provedor+final da chave.
+- **Resolução:** `lib/ai/tenant-config.ts` — modelo escolhido na combo (se o provedor tem
+  credencial) ou o padrão do tenant. Sem credencial, erro claro; **não existe mais chave global**.
+- **Aba de IA** (`configuracoes?tab=ia`): por provedor, salvar/testar (a listagem valida a chave
+  antes de gravar), remover, e escolher o padrão marcando um modelo. Gravações vão para a
+  auditoria sem a chave.
+- **Combo no Copiloto** (cabeçalho do drawer): grupos por provedor, padrão marcado "(padrão)";
+  enviada por requisição via `prepareSendMessagesRequest`.
+- **Briefing e bateria** (`eval:copilot`) usam o modelo padrão do tenant; sem configuração, a
+  falha fica registrada na trilha como `[falha]`.
+- Seed de desenvolvimento importa a `OPENAI_API_KEY` do `.env` para o tenant (produção cadastra
+  pela tela).
+
+**Validação ao vivo (navegador, dev):** a rota `/api/copilot/models` devolve o padrão e o provedor;
+a aba mostra os três provedores, a chave mascarada e o modelo padrão marcado; a combo lista os
+modelos, marca "(padrão)" e aceita trocar; pergunta gravada na trilha com `resolveTenantModel`.
+**Achado fora do código:** a `OPENAI_API_KEY` do `.env` local começou a responder 401 no mesmo dia
+(401 direto da OpenAI, fora do sistema; funcionou de manhã na bateria 20/20) — chave revogada ou
+rotacionada. A trilha registrou as falhas como `[falha] Incorrect API key…`, exatamente o desenho
+esperado. Com chave válida, a listagem traz os modelos reais; com chave restrita, o fallback cobre.
+Tipos, lint, formatação, build e 302 testes passam (os de banco com `RUN_DB_TESTS=1`).
+
+**Limite.** A listagem depende do provedor aceitar `GET /models` com a chave — chaves restritas sem
+essa permissão caem no fallback estático (avisado na UI). Custos por tenant não são medidos além
+dos tokens da trilha.
+
 ## 11. Problemas Conhecidos / Limitações (implementação)
 
 - **Texto branco sobre branco (não corrigido):** em ambiente local, durante a validação visual, foi reportado texto branco sobre fundo branco em alguns campos das telas do Command Center / Governança. As cores computadas (DevTools) indicam fundo escuro (`carbon-900`) com texto claro (`ice-white`), ou seja, o problema não se reproduz de forma consistente em ambiente estável. A causa raiz não foi identificada — suspeita de cache de CSS / instabilidade do container Postgres (OOM) durante a validação. Recomenda-se revalidar em ambiente estável (produção ou dev sem queda de DB) e, se persistir, inspecionar o seletor exato do elemento afetado.

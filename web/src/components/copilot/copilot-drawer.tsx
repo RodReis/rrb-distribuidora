@@ -24,7 +24,12 @@ import {
 
 type CopilotMessage = UIMessage<{ actionId?: string }>;
 
-const transport = new DefaultChatTransport({ api: "/api/copilot/chat" });
+interface ModelGroup {
+  provider: string;
+  label: string;
+  models: string[];
+  fallback: boolean;
+}
 
 function formatToolInput(input: unknown): string {
   if (!input || typeof input !== "object") return "";
@@ -43,10 +48,54 @@ export function CopilotDrawer() {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const endRef = React.useRef<HTMLDivElement>(null);
 
+  // Modelos do tenant: um grupo por provedor com chave configurada (Configuração › IA).
+  const [modelGroups, setModelGroups] = React.useState<ModelGroup[] | null>(null);
+  const [tenantDefault, setTenantDefault] = React.useState<{
+    provider: string;
+    model: string;
+  } | null>(null);
+  const [modelsError, setModelsError] = React.useState<string | null>(null);
+  /** "provedor|modelo" — vale só para esta conversa (decisão do PI). */
+  const [selected, setSelected] = React.useState("");
+
+  const transport = React.useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/copilot/chat",
+        prepareSendMessagesRequest: ({ messages }) => {
+          const [provider, model] = selected.split("|");
+          return {
+            body: {
+              messages,
+              provider: provider || undefined,
+              model: model || undefined,
+            },
+          };
+        },
+      }),
+    [selected]
+  );
+
   const { messages, sendMessage, status, error, regenerate } = useChat<CopilotMessage>({
     transport,
   });
   const busy = status === "submitted" || status === "streaming";
+
+  React.useEffect(() => {
+    if (!open || modelGroups) return;
+    (async () => {
+      try {
+        const res = await fetch("/api/copilot/models");
+        const data = await res.json();
+        if (data.error && !(data.providers?.length > 0)) setModelsError(data.error);
+        setModelGroups(data.providers ?? []);
+        setTenantDefault(data.default ?? null);
+        if (data.default) setSelected(`${data.default.provider}|${data.default.model}`);
+      } catch {
+        setModelsError("Não foi possível carregar a lista de modelos.");
+      }
+    })();
+  }, [open, modelGroups]);
 
   const send = React.useCallback(
     (text: string) => {
@@ -130,21 +179,59 @@ export function CopilotDrawer() {
           aria-label="Copiloto MetalAgents"
           className="fixed bottom-16 right-4 z-40 flex h-[34rem] max-h-[80vh] w-[26rem] max-w-[calc(100vw-2rem)] flex-col rounded-md border border-carbon-700 bg-carbon-900 text-ice-white shadow-[0_8px_24px_-4px_rgba(0,0,0,0.8)]"
         >
-          <header className="flex items-center justify-between gap-2 border-b border-carbon-800 px-3 py-2.5">
-            <div className="flex flex-col">
-              <span className="text-body-md font-semibold">Copiloto MetalAgents</span>
-              <span className="font-mono text-label-code text-titanium-muted">
-                Somente leitura · dados via ferramentas auditadas
-              </span>
+          <header className="flex flex-col gap-2 border-b border-carbon-800 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col">
+                <span className="text-body-md font-semibold">Copiloto MetalAgents</span>
+                <span className="font-mono text-label-code text-titanium-muted">
+                  Somente leitura · dados via ferramentas auditadas
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Fechar Copiloto"
+                className="rounded p-1.5 text-titanium-muted transition-colors hover:bg-carbon-800 hover:text-ice-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Fechar Copiloto"
-              className="rounded p-1.5 text-titanium-muted transition-colors hover:bg-carbon-800 hover:text-ice-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {/* Modelos do tenant: escolha vale só para esta conversa */}
+            {modelsError ? (
+              <span className="font-mono text-label-code text-signal-hold">{modelsError}</span>
+            ) : modelGroups === null ? (
+              <span className="font-mono text-label-code text-titanium-dark">
+                Carregando modelos...
+              </span>
+            ) : modelGroups.length === 0 ? (
+              <span className="font-mono text-label-code text-signal-hold">
+                Nenhum modelo configurado para a empresa — cadastre em Configuração &rsaquo; IA
+              </span>
+            ) : (
+              <select
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
+                aria-label="Modelo de IA"
+                className="w-full rounded border border-carbon-700 bg-carbon-950 px-2 py-1 font-mono text-label-code text-ice-white focus:border-carmine-core focus:outline-none"
+              >
+                {modelGroups.map((group) => (
+                  <optgroup key={group.provider} label={group.label}>
+                    {group.models.map((model) => {
+                      const value = `${group.provider}|${model}`;
+                      const isDefault =
+                        tenantDefault?.provider === group.provider &&
+                        tenantDefault?.model === model;
+                      return (
+                        <option key={value} value={value}>
+                          {model}
+                          {isDefault ? " (padrão)" : ""}
+                        </option>
+                      );
+                    })}
+                  </optgroup>
+                ))}
+              </select>
+            )}
           </header>
 
           <div className="flex-1 space-y-3 overflow-y-auto p-3 text-body-md">

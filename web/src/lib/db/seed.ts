@@ -1,5 +1,7 @@
 import { db } from "./index";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { isEncryptionConfigured } from "@/lib/crypto/secret-box";
+import { saveAiCredential, setTenantDefaultModel } from "@/lib/ai/tenant-config";
 import {
   tenants,
   users,
@@ -167,6 +169,32 @@ async function runSeed() {
   if (isProd) {
     console.log("✅ Seed de produção concluído (tenant, admin e permissões).");
     process.exit(0);
+  }
+
+  // 3.1 Conveniência de desenvolvimento: credencial de IA a partir do .env (produção cadastra
+  // pela tela de Configuração). Requer APP_ENCRYPTION_KEY para cifrar a chave.
+  if (process.env.OPENAI_API_KEY) {
+    if (!isEncryptionConfigured()) {
+      console.warn(
+        "⚠ Defina APP_ENCRYPTION_KEY para migrar a OPENAI_API_KEY do .env para a configuração por tenant."
+      );
+    } else {
+      const [admin] = await db
+        .select()
+        .from(users)
+        .where(and(eq(users.tenantId, tenantId), eq(users.role, "admin")))
+        .limit(1);
+      if (admin) {
+        await saveAiCredential(tenantId, admin.id, "openai", process.env.OPENAI_API_KEY);
+        await setTenantDefaultModel(
+          tenantId,
+          admin.id,
+          "openai",
+          process.env.OPENAI_MODEL || "gpt-4o-mini"
+        );
+        console.log("✓ Credencial de IA (openai) importada do .env para o tenant.");
+      }
+    }
   }
 
   // 4. Seed Mockup Products (from reference RF-01 screen)

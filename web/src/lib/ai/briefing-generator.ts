@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { copilotModel } from "@/lib/ai/copilot-config";
+import { resolveTenantModel } from "@/lib/ai/tenant-config";
 import {
   BRIEFING_AGENT_NAME,
   briefingFailureResponse,
@@ -146,8 +146,11 @@ ${JSON.stringify(dataContext, null, 2)}`;
   let summaryText: string;
   let usage: { inputTokens?: number; outputTokens?: number } | undefined;
   try {
+    // Modelo padrão do tenant (Configuração › Inteligência Artificial); sem configuração,
+    // o erro também vai para a trilha como falha do briefing.
+    const { model } = await resolveTenantModel(tenantId);
     const result = await generateText({
-      model: copilotModel(),
+      model,
       prompt,
     });
     summaryText = result.text;

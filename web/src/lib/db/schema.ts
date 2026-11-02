@@ -101,6 +101,9 @@ export const tenants = pgTable("tenants", {
   defaultQuoteMarginPct: numeric("default_quote_margin_pct", { precision: 5, scale: 2 })
     .default("24.00")
     .notNull(),
+  /** Modelo de IA padrão do tenant (Copiloto e briefing): provedor + id do modelo. */
+  aiDefaultProvider: varchar("ai_default_provider", { length: 20 }),
+  aiDefaultModel: varchar("ai_default_model", { length: 120 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -899,5 +902,28 @@ export const aiTermsAcceptances = pgTable(
   },
   (t) => ({
     aiTermsUserVersionUq: unique("ai_terms_acceptances_user_version_uq").on(t.userId, t.version),
+  })
+);
+
+// Chave de API de provedor de IA, por tenant e provedor (uma linha por par). A chave vai
+// cifrada (AES-256-GCM, `lib/crypto/secret-box.ts`); `apiKeyLast4` existe para exibir sem abrir.
+export const aiProviderCredentials = pgTable(
+  "ai_provider_credentials",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    provider: varchar("provider", { length: 20 }).notNull(), // 'openai' | 'anthropic' | 'nvidia'
+    apiKeyEncrypted: text("api_key_encrypted").notNull(),
+    apiKeyLast4: varchar("api_key_last4", { length: 4 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    aiProviderTenantProviderUq: unique("ai_provider_credentials_tenant_provider_uq").on(
+      t.tenantId,
+      t.provider
+    ),
   })
 );

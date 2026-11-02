@@ -16,7 +16,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { tenants } from "@/lib/db/schema";
 import { createCopilotTools } from "@/lib/ai/tools";
-import { COPILOT_MAX_STEPS, COPILOT_SYSTEM_PROMPT, copilotModel } from "@/lib/ai/copilot-config";
+import { COPILOT_MAX_STEPS, COPILOT_SYSTEM_PROMPT } from "@/lib/ai/copilot-config";
+import { resolveTenantModel, getTenantAiConfig } from "@/lib/ai/tenant-config";
 import { buildCases } from "./cases";
 import {
   ACCEPTANCE_ACCURACY,
@@ -59,8 +60,11 @@ function describeCheck(c: Check): string {
 }
 
 async function ask(question: string, tenantId: string): Promise<RunResult> {
+  // Modelo padrão do tenant (Configuração › Inteligência Artificial); a bateria usa o mesmo
+  // caminho do Copiloto de verdade.
+  const { model } = await resolveTenantModel(tenantId);
   const result = await generateText({
-    model: copilotModel(),
+    model,
     system: COPILOT_SYSTEM_PROMPT,
     messages: [{ role: "user", content: question }],
     tools: createCopilotTools(tenantId),
@@ -167,8 +171,16 @@ async function main() {
     return 0;
   }
 
-  if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não configurada.");
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  // A bateria usa o modelo padrão do tenant (Configuração › Inteligência Artificial).
+  const aiConfig = await getTenantAiConfig(tenant.id);
+  if (!aiConfig.default) {
+    throw new Error(
+      "Nenhum modelo padrão configurado para o tenant. Cadastre em Configuração › Inteligência Artificial."
+    );
+  }
+  console.log(
+    `Modelo: ${aiConfig.default.provider}/${aiConfig.default.model} (padrão do tenant)\n`
+  );
 
   const rows: { c: EvalCase; run: RunResult | null; outcome: CaseOutcome; ms: number }[] = [];
   for (const c of cases) {
@@ -215,7 +227,7 @@ async function main() {
       file,
       reportMarkdown({
         date,
-        model,
+        model: `${aiConfig.default.provider}/${aiConfig.default.model}`,
         tenant: tenant.name,
         rows,
         skipped: built.skipped,

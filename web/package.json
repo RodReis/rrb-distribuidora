@@ -20,6 +20,7 @@
     "db:fix-replacement-cost": "tsx src/lib/db/fix-replacement-cost.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.94",
     "@ai-sdk/openai": "^4.0.106",
     "@ai-sdk/react": "^4.0.163",
     "@auth/drizzle-adapter": "^1.11.3",
