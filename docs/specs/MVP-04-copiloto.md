@@ -245,7 +245,7 @@ export const dailyBriefings = pgTable("daily_briefings", {
 ### 10.3 Pendências
 
 1. ~~Tema claro~~ ✅ (§10.6).
-2. **Termos de uso** da governança: o mockup traz texto jurídico (objeto, isenção, foro, SLA, LGPD) e afirmações que o produto não cumpre (RLS, ISO 27001, ledger criptográfico). Nada disso foi implementado: o texto oficial precisa vir do PI. Pelo `AGENTS.md`, privacidade e LGPD também ficam fora; o item "LGPD" que existia na tela foi removido.
+2. **Termos de uso** da governança: o mockup traz texto jurídico (objeto, isenção, foro, SLA, LGPD) e afirmações que o produto não cumpre (RLS, ISO 27001, ledger criptográfico). Nada disso foi implementado: o texto oficial precisa vir do PI. Pelo `AGENTS.md`, privacidade e LGPD também ficam fora; o item "LGPD" que existia na tela foi removido. **Rascunho pronto em 02/11/2026** para revisão do PI: [`termos-de-uso-rascunho.md`](termos-de-uso-rascunho.md), escrito para afirmar só o que o sistema faz. Depois da aprovação, falta a aba "Termos de Uso" na governança e decidir se há aceite no primeiro acesso.
 3. ~~Briefing sem registro na trilha~~ ✅ (§10.7). Segue pendente: domínio do Resend verificado (o remetente padrão só entrega ao dono da conta).
 4. ~~Auditoria só gravava quando o stream terminava bem~~ ✅ (§10.8). Segue pendente no Copiloto: permissão por papel e limite de uso/custo (são regras de produto, a decidir pelo PI); só OpenAI; sem renderização de markdown (só negrito).
 5. ~~Escrever as 20 perguntas de teste e o script de medição~~ ✅ (§10.5). Falta o PI **revisar as 20 perguntas** (fui eu quem as escreveu) e criar um conjunto reserva, porque os prompts e as descrições das ferramentas foram ajustados olhando estas mesmas perguntas. ✅ Os testes das tools com banco existem (§10.8).

@@ -79,7 +79,7 @@ Depois rode o recálculo (`POST /api/internal/jobs/calculate-predictive-stock`).
 - ⬜ Medir a latência na infraestrutura real. Os números locais não valem como aceite.
 
 ### M4 (relacionado)
-- ⬜ Texto dos termos de uso, que vem do PI.
+- 🟡 Termos de uso: rascunho pronto (`termos-de-uso-rascunho.md`) esperando revisão do PI; depois faltam a aba na governança e a decisão sobre aceite no primeiro acesso.
 - ⬜ O PI revisar as 20 perguntas da bateria do Copiloto.
 
 ## Achados que pedem decisão sua
