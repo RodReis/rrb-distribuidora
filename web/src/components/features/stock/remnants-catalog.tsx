@@ -5,17 +5,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Layers, Search, Printer, Plus, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
-  Layers,
-  Search,
-  Printer,
-  QrCode,
-  CheckCircle,
-  Scissors,
-  Plus,
-  ShieldCheck,
-  Grid,
-} from "lucide-react";
+  reserveRemnantAction,
+  releaseRemnantAction,
+  scrapRemnantAction,
+} from "@/app/(app)/estoque/actions";
 
 export interface RemnantItem {
   id: string;
@@ -44,15 +40,42 @@ export interface RemnantsCatalogProps {
   remnants: RemnantItem[];
   onNewRemnant?: () => void;
   onPrintLabel?: (remnant: RemnantItem) => void;
-  onReserveRemnant?: (remnant: RemnantItem) => void;
+  onChanged?: () => void;
+  canWrite?: boolean;
 }
 
 export function RemnantsCatalog({
   remnants,
   onNewRemnant,
   onPrintLabel,
-  onReserveRemnant,
+  onChanged,
+  canWrite = false,
 }: RemnantsCatalogProps) {
+  const [busyId, setBusyId] = React.useState<string | null>(null);
+  const [scrapTarget, setScrapTarget] = React.useState<RemnantItem | null>(null);
+
+  async function runAction(rem: RemnantItem, kind: "reserve" | "release" | "scrap") {
+    setBusyId(rem.id);
+    try {
+      if (kind === "reserve") await reserveRemnantAction(rem.id);
+      else if (kind === "release") await releaseRemnantAction(rem.id);
+      else await scrapRemnantAction(rem.id);
+      toast.success(
+        kind === "reserve"
+          ? `Retalho #${rem.code} reservado.`
+          : kind === "release"
+            ? `Retalho #${rem.code} liberado.`
+            : `Retalho #${rem.code} descartado.`
+      );
+      onChanged?.();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível concluir a ação.");
+    } finally {
+      setBusyId(null);
+      setScrapTarget(null);
+    }
+  }
+
   const [selectedAlloy, setSelectedAlloy] = React.useState("Todas");
   const [search, setSearch] = React.useState("");
   const [warehouseFilter, setWarehouseFilter] = React.useState("todos");
@@ -139,7 +162,7 @@ export function RemnantsCatalog({
             <Search className="w-4 h-4 text-titanium-dark absolute left-2 top-2" />
           </div>
 
-          {onNewRemnant && (
+          {canWrite && onNewRemnant && (
             <Button variant="primary" size="sm" onClick={onNewRemnant}>
               <Plus className="w-3.5 h-3.5 mr-1" />
               Novo Retalho
@@ -184,7 +207,7 @@ export function RemnantsCatalog({
                         </span>
                         {isAllocated ? (
                           <span className="bg-signal-buy/20 text-signal-buy font-mono text-label-code px-1.5 py-0.5 rounded border border-signal-buy/30 font-semibold">
-                            ALOCADO EM OP
+                            RESERVADO
                           </span>
                         ) : isSlitterOrCoil ? (
                           <span className="bg-signal-hold/20 text-signal-hold font-mono text-label-code px-1.5 py-0.5 rounded border border-signal-hold/30 font-semibold">
@@ -206,28 +229,32 @@ export function RemnantsCatalog({
                       {isSlitterOrCoil ? (
                         <svg className="w-full h-full" viewBox="0 0 40 30">
                           <circle
+                            className="stroke-signal-hold"
                             cx="20"
                             cy="15"
                             fill="none"
                             r="10"
-                            stroke="#F59E0B"
                             strokeWidth="2"
                           />
                           <circle
+                            className="fill-carbon-800 stroke-signal-hold"
                             cx="20"
                             cy="15"
-                            fill="#181C24"
                             r="4"
-                            stroke="#F59E0B"
                             strokeWidth="1"
                           />
                         </svg>
                       ) : (
                         <svg className="w-full h-full" viewBox="0 0 40 30">
                           <rect
-                            fill="#181C24"
+                            className={`fill-carbon-800 ${
+                              isAllocated
+                                ? "stroke-carmine-core"
+                                : isAvailable
+                                  ? "stroke-tertiary"
+                                  : "stroke-titanium-steel"
+                            }`}
                             height="22"
-                            stroke={isAllocated ? "#DC2626" : isAvailable ? "#4edea3" : "#64748B"}
                             strokeWidth="1.5"
                             width="34"
                             x="3"
@@ -235,7 +262,7 @@ export function RemnantsCatalog({
                           />
                           {isAllocated && (
                             <line
-                              stroke="#DC2626"
+                              className="stroke-carmine-core"
                               strokeDasharray="1 1"
                               strokeWidth="0.5"
                               x1="3"
@@ -280,7 +307,7 @@ export function RemnantsCatalog({
                     <div>
                       <span className="text-titanium-muted">Corrida Usina:</span>
                       <div className="text-titanium-light truncate">
-                        {rem.parentHeatNumber || "#C-99412B"}
+                        {rem.parentHeatNumber || "—"}
                       </div>
                     </div>
                   </div>
@@ -288,9 +315,9 @@ export function RemnantsCatalog({
                   {/* Traceability & QR Code Section */}
                   <div className="flex items-center gap-2.5 py-1.5">
                     {/* Simulated QR Code */}
-                    <div className="w-11 h-11 bg-ice-white p-1 rounded shrink-0 flex items-center justify-center">
+                    <div className="w-11 h-11 bg-paper p-1 rounded shrink-0 flex items-center justify-center">
                       <svg
-                        className="w-full h-full text-carbon-950"
+                        className="w-full h-full text-ink"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -302,7 +329,7 @@ export function RemnantsCatalog({
                       <span className="text-titanium-muted truncate">
                         Origem:{" "}
                         <strong className="text-titanium-light">
-                          {rem.notes || "OP de Corte CNC"}
+                          {rem.notes || "—"}
                         </strong>
                       </span>
                       <span className="text-titanium-muted truncate mt-0.5">
@@ -315,8 +342,10 @@ export function RemnantsCatalog({
                         )}
                       >
                         {isAllocated
-                          ? "Alocado p/ OP (Eco: R$ 1.840)"
-                          : "Livre p/ Matching em Vendas"}
+                          ? "Reservado para orçamento"
+                          : isAvailable
+                            ? "Livre p/ Matching em Vendas"
+                            : "Fora de estoque"}
                       </span>
                     </div>
                   </div>
@@ -333,46 +362,53 @@ export function RemnantsCatalog({
                     <Printer className="w-3.5 h-3.5" /> Etiqueta
                   </button>
 
-                  {isAvailable ? (
+                  {canWrite && isAvailable && (
                     <button
                       type="button"
-                      onClick={() => onReserveRemnant?.(rem)}
-                      className="flex-1 bg-carmine-core hover:bg-carmine-signal text-ice-white py-1 rounded font-mono text-label-code font-semibold flex items-center justify-center gap-1 transition-colors"
+                      disabled={busyId === rem.id}
+                      onClick={() => runAction(rem, "reserve")}
+                      className="flex-1 bg-carmine-core hover:bg-carmine-signal text-ice-white py-1 rounded font-mono text-label-code font-semibold flex items-center justify-center gap-1 transition-colors disabled:opacity-60"
                     >
-                      Vincular OP
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toast.info(
-                          `Nesting esquemático do retalho #${rem.code} exibido no terminal de corte.`
-                        )
-                      }
-                      className="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-mono text-label-code flex items-center justify-center gap-1 transition-colors border border-carbon-700"
-                    >
-                      <Scissors className="w-3.5 h-3.5" /> Nesting
+                      Reservar
                     </button>
                   )}
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      toast.success(
-                        `Certificado de Usina ${rem.parentHeatNumber || "C-99412B"} verificado e homologado.`
-                      )
-                    }
-                    className="bg-carbon-800 hover:bg-carbon-700 text-tertiary px-2 py-1 rounded font-mono text-label-code border border-carbon-700"
-                    title="Baixar Mill Cert Válido"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-tertiary" />
-                  </button>
+                  {canWrite && isAllocated && (
+                    <button
+                      type="button"
+                      disabled={busyId === rem.id}
+                      onClick={() => runAction(rem, "release")}
+                      className="flex-1 bg-carbon-800 hover:bg-carbon-700 text-ice-white py-1 rounded font-mono text-label-code flex items-center justify-center gap-1 transition-colors border border-carbon-700 disabled:opacity-60"
+                    >
+                      Liberar
+                    </button>
+                  )}
+                  {canWrite && (isAvailable || isAllocated) && (
+                    <button
+                      type="button"
+                      disabled={busyId === rem.id}
+                      onClick={() => setScrapTarget(rem)}
+                      className="bg-carbon-800 hover:bg-carbon-700 text-titanium-light px-2 py-1 rounded font-mono text-label-code border border-carbon-700 disabled:opacity-60"
+                      title="Descartar retalho"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(scrapTarget)}
+        title="Descartar retalho"
+        description={`O retalho #${scrapTarget?.code ?? ""} sairá do estoque disponível. Esta ação fica registrada na auditoria.`}
+        confirmLabel="Descartar"
+        loading={busyId !== null}
+        onConfirm={() => scrapTarget && runAction(scrapTarget, "scrap")}
+        onCancel={() => setScrapTarget(null)}
+      />
     </div>
   );
 }

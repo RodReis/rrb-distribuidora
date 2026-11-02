@@ -6,6 +6,12 @@ export const PTAX_CRONS = ["15 13 * * 1-5", "0 18 * * 1-5"] as const;
 /** Recálculo diário do estoque preventivo (M2), todos os dias às 04h00. */
 export const STOCK_PREDICTIVE_CRON = "0 4 * * *";
 
+/** Expiração de propostas vencidas (M3), de hora em hora. */
+export const QUOTE_EXPIRY_CRON = "0 * * * *";
+
+/** Briefing matinal (M4), todos os dias às 06h55 para estar pronto às 07h. */
+export const BRIEFING_CRON = "55 6 * * *";
+
 /** Expressão cron (5 campos) dos metais; configurável por METALS_CRON. */
 export function getMetalsCron(): string {
   const value = process.env.METALS_CRON?.trim();

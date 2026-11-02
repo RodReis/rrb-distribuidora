@@ -227,11 +227,11 @@ Os itens que **bloqueiam aceite em produção** ou afetam o CI:
 | ID | Débito | Correção sugerida | Esforço |
 |---|---|---|---|
 | OR1 | Upload/download em Cloudflare R2 **nunca exercitado** com credencial real — a validação usou o fallback local `.data/quotes`, que não tem volume persistente no Railway | configurar `R2_*`, testar geração e download em produção e definir retenção dos PDFs | M |
-| OR2 | `replacement_cost_base` do MVP-02 grava chapa em tonelada e barra por unidade; o M3 normaliza para R$/kg **só na leitura** | corrigir a origem (cadastro/seed do M2) e revisar quem mais lê esse campo | M |
-| OR3 | Reserva/consumo de retalho e conversão em pedido não têm teste automatizado (só smoke manual contra o Postgres de dev) | testes de integração com banco de teste no fluxo `orçamento → reserva → aprovação → pedido` | M |
-| OR4 | Expiração de proposta não é automática: `expired` é calculado pelo relógio e o vendedor encerra manualmente | job diário marcando `expirado` (e liberando retalhos) quando `valid_until` vence | P |
+| OR2 | ~~`replacement_cost_base` do MVP-02 grava chapa em tonelada e barra por unidade; o M3 normaliza só na leitura~~ | **Resolvido em 02/11/2026**: ver seção 5 | — |
+| ~~OR3~~ | **Resolvido.** Testes de integração com Postgres (`RUN_DB_TESTS=1`): `expiry.integration.test.ts` (código de retalho em paralelo, expiração, devolução) e `order-flow.integration.test.ts` (reserva → aprovação → pedido, consumo do retalho, conversão atômica e idempotente, reserva concorrente). O teste de concorrência achou e corrigiu um defeito: duas reservas simultâneas do mesmo retalho passavam | — | — |
+| ~~OR4~~ | **Resolvido.** Job `expire-quotes` (de hora em hora) marca `expirado` só `enviado` e `em_negociacao` com `valid_until` vencido e devolve retalhos; auditoria como ação do sistema (`user_id` nulo). **Decisão pendente do PI:** confirmar que `rascunho`, `bloqueado_margem` e `aprovado` não expiram sozinhos | — | — |
 | OR5 | Edição reprecifica e descarta `manualUnitPrice` do rascunho | persistir o override por item, se o PI quiser preço congelado | P |
-| OR6 | Fórmulas de peso comparadas apenas com cálculo manual, não com tabela oficial de usina (aceite < 1%) | planilha de referência com 10–20 SKUs reais | P |
+| OR6 | **Parcial.** Fórmulas conferidas contra a NBR 7480 (vergalhão CA-50, 9 bitolas) e tabela de chapas (5 espessuras), erro < 0,5% (`weight-reference.test.ts`). Falta a tabela oficial de usina com 10–20 SKUs reais | planilha de referência com SKUs reais | P |
 | OR7 | Vitest agora roda no CI (`pnpm vitest run`, 02/11/2026) - vale para M1, M2 e M3 | resolvido; cobertura de integracao com banco e Playwright segue pendente | P |
 
 ---
@@ -248,6 +248,7 @@ Os itens que **bloqueiam aceite em produção** ou afetam o CI:
 | — | Template CSV de produtos com coluna a mais e auto-mapeamento errado por apelido curto | 01/11/2026 |
 | — | CI quebrado desde o início (`pnpm/action-setup` sem caminho do `package.json`; build em Node 20 com `SIGSEGV`) → corrigido, Node 24 | 02/11/2026 (PR #1, `c44b037`) |
 | — | Ticker da barra superior estático (M4 deste documento) → cotações reais do banco | 02/11/2026 (PR #1) |
+| OR2 | `replacement_cost_base` com dois significados (R$/kg no cadastro, mas por t/un/m em quem gravava e lia). Agora é **sempre R$/kg**: conversão única em `lib/stock/units.ts`; entrada de compra e importação de saldos convertem o custo do lote antes de gravar; KPIs, ABC, Command Center e ferramenta do Copiloto convertem quantidade para kg antes de valorar; seed e listagem de produtos corrigidos; script `pnpm db:fix-replacement-cost` repara bancos legados (dry-run por padrão) | 02/11/2026 |
 
 ---
 

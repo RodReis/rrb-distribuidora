@@ -51,6 +51,16 @@ export interface EstoqueClientProps {
   cycleCountCandidates: any[];
   accuracyPct: number | null;
   kpis: StockKpis;
+  canWrite: boolean;
+}
+
+function ReadOnlyNotice() {
+  return (
+    <div className="bg-carbon-900 border border-carbon-800 rounded p-4 text-body-sm text-titanium-light">
+      Seu perfil pode consultar o estoque, mas não registrar alterações. Peça acesso de escrita ao
+      administrador para usar esta aba.
+    </div>
+  );
 }
 
 export function EstoqueClient({
@@ -65,6 +75,7 @@ export function EstoqueClient({
   cycleCountCandidates,
   accuracyPct,
   kpis,
+  canWrite,
 }: EstoqueClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState(initialTab);
@@ -195,29 +206,33 @@ export function EstoqueClient({
 
         {/* Quick Actions CTA Buttons (Mockup 1:1) */}
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setMovementDrawerOpen(true)}
-            className="flex items-center gap-1.5 bg-carmine-core hover:bg-carmine-signal text-ice-white px-3 py-2 rounded font-mono text-label-caps transition-all shadow-md active:bg-carmine-deep font-semibold"
-          >
-            <QrCode className="w-4 h-4" />
-            <span>NOVO APONTAMENTO [QR SCAN]</span>
-            <span className="bg-carbon-950/40 text-titanium-light px-1 py-0.2 rounded font-mono text-label-code ml-1">
-              F1
-            </span>
-          </button>
+          {canWrite && (
+            <button
+              type="button"
+              onClick={() => setMovementDrawerOpen(true)}
+              className="flex items-center gap-1.5 bg-carmine-core hover:bg-carmine-signal text-ice-white px-3 py-2 rounded font-mono text-label-caps transition-all shadow-md active:bg-carmine-deep font-semibold"
+            >
+              <QrCode className="w-4 h-4" />
+              <span>NOVO APONTAMENTO [QR SCAN]</span>
+              <span className="bg-black/25 text-white px-1 py-0.2 rounded font-mono text-label-code ml-1">
+                F1
+              </span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={handleRecalculate}
-            disabled={recalculating}
-            className="flex items-center gap-1.5 bg-carbon-800 hover:bg-carbon-700 text-ice-white px-3 py-2 rounded font-mono text-label-caps transition-colors border border-carbon-700"
-          >
-            <RefreshCw
-              className={cn("w-4 h-4 text-signal-hold", recalculating && "animate-spin")}
-            />
-            <span>{recalculating ? "CALCULANDO..." : "SIMULAR REPOSIÇÃO"}</span>
-          </button>
+          {canWrite && (
+            <button
+              type="button"
+              onClick={handleRecalculate}
+              disabled={recalculating}
+              className="flex items-center gap-1.5 bg-carbon-800 hover:bg-carbon-700 text-ice-white px-3 py-2 rounded font-mono text-label-caps transition-colors border border-carbon-700"
+            >
+              <RefreshCw
+                className={cn("w-4 h-4 text-signal-hold", recalculating && "animate-spin")}
+              />
+              <span>{recalculating ? "CALCULANDO..." : "SIMULAR REPOSIÇÃO"}</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -421,27 +436,39 @@ export function EstoqueClient({
       {activeTab === "retalhos" && (
         <RemnantsCatalog
           remnants={remnants}
+          canWrite={canWrite}
           onNewRemnant={() => setRemnantDrawerOpen(true)}
           onPrintLabel={(rem) => setLabelModalRemnant(rem)}
-          onReserveRemnant={(rem) => toast.success(`Retalho #${rem.code} reservado com sucesso.`)}
+          onChanged={() => router.refresh()}
         />
       )}
 
       {activeTab === "lotes" && (
-        <LotsTable lots={lots} onNewMovement={() => setMovementDrawerOpen(true)} />
+        <LotsTable
+          lots={lots}
+          onNewMovement={canWrite ? () => setMovementDrawerOpen(true) : undefined}
+        />
       )}
 
       {activeTab === "movimentacoes" && <MovementsTable movements={movements} />}
 
-      {activeTab === "inventario" && (
-        <CycleCountView
-          candidates={cycleCountCandidates}
-          accuracyPct={accuracyPct}
-          onCountSubmitted={() => router.refresh()}
-        />
-      )}
+      {activeTab === "inventario" &&
+        (canWrite ? (
+          <CycleCountView
+            candidates={cycleCountCandidates}
+            accuracyPct={accuracyPct}
+            onCountSubmitted={() => router.refresh()}
+          />
+        ) : (
+          <ReadOnlyNotice />
+        ))}
 
-      {activeTab === "importar" && <StockImportView onImportSuccess={() => router.refresh()} />}
+      {activeTab === "importar" &&
+        (canWrite ? (
+          <StockImportView onImportSuccess={() => router.refresh()} />
+        ) : (
+          <ReadOnlyNotice />
+        ))}
 
       {/* Modals & Drawers */}
       <MovementDrawer

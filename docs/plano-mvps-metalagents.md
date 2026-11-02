@@ -151,6 +151,8 @@ GitHub (main)
 
 **Aceite:** 20 perguntas de teste com > 90% de precisão; toda ação registrada em trilha; nenhuma ação destrutiva automática.
 
+> **Status (02/11/2026):** 🟡 implementado parcialmente, não homologado. Briefing agendado, e-mail, Command Center, governança e drawer do copiloto refeitos nesta data. Bateria das 20 perguntas criada (`pnpm eval:copilot`) e aprovada com 20/20; revelou que a rota do copiloto não gerava resposta final. Tema claro implementado para o app inteiro, com alternador no topo. Faltam termos de uso (texto do PI) e revisão das 20 perguntas pelo PI. Detalhes na seção 10 da spec.
+
 **Telas:** `metalagents_command_center_do_diretor_briefing_07h`, `metalagents_termos_de_uso_governan_a_de_ia_privacidade`.
 
 ---

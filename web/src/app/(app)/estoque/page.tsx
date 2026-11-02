@@ -27,6 +27,7 @@ export default async function EstoquePage({
   if (!(await checkPermission("estoque_retalhos", "read"))) {
     return <Forbidden module="Estoque & Retalhos" />;
   }
+  const canWrite = await checkPermission("estoque_retalhos", "write");
   const resolvedParams = searchParams ? await searchParams : {};
   const currentTab = resolvedParams?.tab || "matriz";
 
@@ -193,6 +194,7 @@ export default async function EstoquePage({
       cycleCountCandidates={cycleCountCandidates}
       accuracyPct={accuracy.accuracyPct}
       kpis={kpis}
+      canWrite={canWrite}
     />
   );
 }
