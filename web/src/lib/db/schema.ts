@@ -861,8 +861,9 @@ export const dailyBriefings = pgTable(
         criticalRupturesCount: number;
         pendingQuotesCount: number;
         potentialLossAmount: number;
-        usdRate: number;
-        lmeAluRate: number;
+        /** Nulo quando a cotação não está disponível: zero pareceria um preço real. */
+        usdRate: number | null;
+        lmeAluRate: number | null;
       }>()
       .notNull(),
     recommendedActions: jsonb("recommended_actions").$type<

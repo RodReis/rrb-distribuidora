@@ -184,8 +184,8 @@ ${JSON.stringify(dataContext, null, 2)}`;
       criticalRupturesCount,
       pendingQuotesCount,
       potentialLossAmount,
-      usdRate: usd?.value ?? 0,
-      lmeAluRate: lme?.value ?? 0,
+      usdRate: usd?.value ?? null,
+      lmeAluRate: lme?.value ?? null,
     },
     recommendedActions,
   };
