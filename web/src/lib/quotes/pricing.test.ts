@@ -263,7 +263,7 @@ describe("canTransitionQuoteStatus", () => {
 
   it("não deixa pular etapas do funil", () => {
     expect(canTransitionQuoteStatus("rascunho", "aprovado")).toBe(false);
-    expect(canTransitionQuoteStatus("enviado", "aprovado")).toBe(true);
+    expect(canTransitionQuoteStatus("enviado", "aprovado")).toBe(false);
     expect(canTransitionQuoteStatus("rascunho", "em_negociacao")).toBe(false);
   });
 

@@ -219,7 +219,9 @@ export function QuoteDocument({ data }: { data: QuotePdfData }) {
           </View>
           <View style={styles.card}>
             <Text style={styles.cardLabel}>RESUMO</Text>
-            <Text style={styles.cardValue}>{data.items.length} item(ns)</Text>
+            <Text style={styles.cardValue}>
+              {data.items.length} {data.items.length === 1 ? "item" : "itens"}
+            </Text>
             <Text style={styles.cellMuted}>Peso líquido: {kg(totalWeight)}</Text>
             <Text style={styles.cellMuted}>Proposta válida até {data.validUntilLabel}</Text>
           </View>

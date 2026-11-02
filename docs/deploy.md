@@ -30,7 +30,7 @@
 ```
 git push origin main
       │
-      ├──► GitHub Actions (.github/workflows/ci.yml): lint + prettier + build   ← informativo, NÃO bloqueia o deploy
+      ├──► GitHub Actions (.github/workflows/ci.yml): lint + prettier + testes + build   ← informativo, NÃO bloqueia o deploy
       │
       └──► Railway detecta o push
               │  build:  pnpm install --frozen-lockfile  →  pnpm run build

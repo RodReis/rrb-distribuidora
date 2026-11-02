@@ -214,7 +214,7 @@ seção 5 com a data e o commit. Itens marcados *(spec)* descumprem algo escrito
 | MK6 | E-mail de alerta nunca testado (sem `RESEND_API_KEY` no teste); remetente padrão `onboarding@resend.dev` | validar domínio no Resend e testar o envio | P |
 | MK7 | "Preço médio pago" é um campo manual guardado no navegador (sem compras no sistema) | calcular a partir das compras no M2 | M |
 | MK8 | `market_price_series` sem partição mensal (spec) e sem retenção/compactação | particionar se passar de ~1 M de linhas | M |
-| MK9 | Testes do M1 cobrem só funções puras; ingestores, alertas, rotas e telas sem teste; Vitest fora do CI | testes de integração com banco de teste; `pnpm test` no CI; Playwright para `/mercado` | M |
+| MK9 | Testes do M1 cobrem só funções puras; ingestores, alertas, rotas e telas sem teste; Vitest agora no CI (02/11/2026) | testes de integração com banco de teste; `pnpm test` no CI; Playwright para `/mercado` | M |
 | MK10 | Rotas `/api/market/*` redirecionam para `/login` (307) em vez de responder 401 quando a sessão expira (o `authorized()` do middleware) | devolver 401 JSON para `/api/*` | P |
 | MK11 | Latência de `/mercado` não medida formalmente (meta < 2 s) | Lighthouse/RUM em produção | P |
 | MK12 | Mercados cadastrados em *Configuração* não aparecem nas faixas de topo nem no ticker (símbolos fixos em `ASSET_SYMBOLS`) | tornar as faixas configuráveis | P |
@@ -232,7 +232,7 @@ Os itens que **bloqueiam aceite em produção** ou afetam o CI:
 | OR4 | Expiração de proposta não é automática: `expired` é calculado pelo relógio e o vendedor encerra manualmente | job diário marcando `expirado` (e liberando retalhos) quando `valid_until` vence | P |
 | OR5 | Edição reprecifica e descarta `manualUnitPrice` do rascunho | persistir o override por item, se o PI quiser preço congelado | P |
 | OR6 | Fórmulas de peso comparadas apenas com cálculo manual, não com tabela oficial de usina (aceite < 1%) | planilha de referência com 10–20 SKUs reais | P |
-| OR7 | Vitest continua fora do CI (`pnpm test` não roda no GitHub Actions) — vale para M1, M2 e M3 | adicionar `pnpm test` ao workflow | P |
+| OR7 | Vitest agora roda no CI (`pnpm vitest run`, 02/11/2026) - vale para M1, M2 e M3 | resolvido; cobertura de integracao com banco e Playwright segue pendente | P |
 
 ---
 

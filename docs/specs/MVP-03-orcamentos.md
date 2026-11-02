@@ -256,6 +256,7 @@ export const salesOrders = pgTable("sales_orders", {
 | Validade dinâmica | 5–7 dias calmo; 48–72 h volátil (> 3%/semana) | ≤ 1,5% → 7 dias (até 18h); 1,5–3% → 72 h; > 3% → 48 h | usa a maior volatilidade entre os itens do orçamento |
 | Unidade do custo de reposição | `replacement_cost_base` | normalização para R$/kg na leitura (`t`, `un`, `m`, `kg`) | o MVP-02 grava chapa em `t` e barra em `un`; o seed não foi alterado |
 | `aprovado` | status do funil | significa **cliente aprovou**; a liberação interna de margem volta a `rascunho` | separa alçada interna de aceite do cliente |
+| Funil na API | spec lista os status, sem grafo de transições | `enviado → aprovado` só passa por `em_negociacao` (o atalho existia e foi fechado) | UI e API contam a mesma história; o aceite fica registrado na etapa de negociação |
 | Piso de reposição | bloqueio de margem | diretor libera margem abaixo da política, **nunca** preço abaixo do custo de reposição | proteção contra venda com prejuízo real |
 | Edição | não definida | somente `rascunho`/`bloqueado_margem`; editar reprecifica com a reposição do momento | evita reabrir proposta enviada/aprovada e descartar o aceite |
 | Expiração | status `EXPIRADO` | `expired` calculado pelo relógio + selo "Fora da validade"; transição manual para `expirado` | não há worker de expiração no MVP |

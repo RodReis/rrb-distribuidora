@@ -12,7 +12,7 @@ defaults:
 
 jobs:
   quality:
-    name: Lint + Typecheck + Build
+    name: Lint + Format + Test + Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,6 +38,12 @@ jobs:
 
       - name: Format check (Prettier)
         run: pnpm format:check
+
+      - name: Unit tests (Vitest)
+        run: pnpm vitest run
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          AUTH_SECRET: ci_placeholder_secret_at_least_32_characters_long
 
       - name: Build (includes typecheck)
         run: pnpm build

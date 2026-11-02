@@ -87,7 +87,7 @@ export function orderStatusLabel(status: string): string {
 export const QUOTE_STATUS_TRANSITIONS: Record<QuoteStatus, readonly QuoteStatus[]> = {
   rascunho: ["enviado", "bloqueado_margem", "perdido", "expirado"],
   bloqueado_margem: ["rascunho", "perdido", "expirado"],
-  enviado: ["em_negociacao", "aprovado", "perdido", "expirado"],
+  enviado: ["em_negociacao", "perdido", "expirado"],
   em_negociacao: ["aprovado", "perdido", "expirado"],
   aprovado: ["perdido", "expirado"],
   perdido: [],
