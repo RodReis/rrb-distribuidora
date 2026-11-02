@@ -110,8 +110,10 @@ A PTAX (Banco Central) não precisa de chave.
 
 | Variável | Onde | Observações |
 |---|---|---|
-| `OPENAI_API_KEY` | web | Lida pelo SDK da IA. Sem ela o Copiloto e o briefing falham (o resto do sistema segue normal) |
-| `OPENAI_MODEL` | web (opcional) | Padrão `gpt-4o-mini` |
+| `APP_ENCRYPTION_KEY` | web | 64 caracteres hex (32 bytes; `openssl rand -hex 32`). Cifra as chaves de IA por tenant (AES-256-GCM, `lib/crypto/secret-box.ts`). **Obrigatória** para usar a aba de IA; sem ela a tela avisa |
+| `OPENAI_MODEL` | web (removida) | Não é mais lida: o modelo de cada empresa vem de **Configuração › Inteligência Artificial** |
+
+**Mudança de 02/11/2026 — chaves de IA por tenant:** `OPENAI_API_KEY` deixou de ser lida do ambiente. Cada empresa cadastra as próprias chaves (OpenAI, Anthropic, NVIDIA NIM) na tela de Configuração, cifradas em `ai_provider_credentials`; o modelo padrão do tenant fica em `tenants.ai_default_*`. O Copiloto lista na combo os modelos dos provedores com chave; o briefing usa o modelo padrão. Para migrar: cadastrar a chave na tela, conferir o teste (a listagem de modelos valida a chave) e **remover `OPENAI_API_KEY` do Railway**. A bateria (`pnpm eval:copilot`) usa o modelo padrão do tenant.
 
 Ordem completa de subida: [`roteiro-deploy-railway.md`](roteiro-deploy-railway.md).
 

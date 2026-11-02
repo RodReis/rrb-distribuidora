@@ -1,4 +1,7 @@
-import { openai } from "@ai-sdk/openai";
+/**
+ * Configuração fixa do Copiloto. O modelo e a chave vêm do tenant
+ * (`lib/ai/tenant-config.ts`), nunca do ambiente.
+ */
 
 /** Passos máximos por pergunta: chamadas de ferramenta + a resposta final. */
 export const COPILOT_MAX_STEPS = 5;
@@ -11,7 +14,3 @@ Você é SOMENTE LEITURA: não altera, apaga, cria nem aprova nada. Se pedirem p
 Se uma ferramenta puder responder a pergunta, chame-a direto. Filtros opcionais não devem ser pedidos ao usuário: use os que a pergunta já traz ou nenhum. Só peça esclarecimento quando faltar algo indispensável que você não consegue deduzir.
 Escreva números no padrão brasileiro: milhar com ponto e decimal com vírgula (1.234,56), e valores em reais como R$ 1.234,56.
 Depois de consultar, responda com os valores retornados (números, SKUs e nomes exatos) e diga quais filtros foram aplicados.`;
-
-export function copilotModel() {
-  return openai(process.env.OPENAI_MODEL || "gpt-4o-mini");
-}

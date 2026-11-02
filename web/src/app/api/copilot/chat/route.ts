@@ -1,10 +1,11 @@
-import { streamText, convertToModelMessages, isStepCount } from "ai";
+import { streamText, convertToModelMessages, isStepCount, type LanguageModel } from "ai";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/rbac";
 import { createCopilotTools } from "@/lib/ai/tools";
 import { extractPromptText } from "@/lib/ai/prompt-text";
 import { briefingFailureResponse } from "@/lib/ai/briefing-audit";
-import { COPILOT_MAX_STEPS, COPILOT_SYSTEM_PROMPT, copilotModel } from "@/lib/ai/copilot-config";
+import { COPILOT_MAX_STEPS, COPILOT_SYSTEM_PROMPT } from "@/lib/ai/copilot-config";
+import { AiNotConfiguredError, resolveTenantModel } from "@/lib/ai/tenant-config";
 import { db } from "@/lib/db";
 import { agentActions } from "@/lib/db/schema";
 
@@ -23,6 +24,23 @@ export async function POST(req: Request) {
   const messages = await convertToModelMessages(uiMessages);
   const startedAt = Date.now();
   const actionId = crypto.randomUUID();
+
+  // Modelo escolhido na combo (vale só para esta conversa) ou o padrão do tenant.
+  let llm: LanguageModel;
+  try {
+    llm = (
+      await resolveTenantModel(user.tenantId, {
+        provider: typeof body.provider === "string" ? body.provider : undefined,
+        model: typeof body.model === "string" ? body.model : undefined,
+      })
+    ).model;
+  } catch (err) {
+    const message =
+      err instanceof AiNotConfiguredError || err instanceof Error
+        ? err.message
+        : "Não foi possível resolver o modelo de IA.";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 
   const tools = createCopilotTools(user.tenantId);
 
@@ -61,7 +79,7 @@ export async function POST(req: Request) {
   };
 
   const result = streamText({
-    model: copilotModel(),
+    model: llm,
     system: COPILOT_SYSTEM_PROMPT,
     messages,
     tools,

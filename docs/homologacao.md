@@ -72,7 +72,9 @@ Depois rode o recálculo (`POST /api/internal/jobs/calculate-predictive-stock`).
 - ⬜ Dados reais de cliente e orçamento para homologar preço e margem.
 
 ### Produção (Railway)
-- ✅ Deploy de web e `market-worker` em 02/11/2026 (PR #8); migrations `0006` a `0008` aplicadas (9 no total); jobs de expiração, estoque e PTAX respondem 200 com o token e 401 sem ele.
+- ✅ Deploy de web e `market-worker` em 02/11/2026 (PR #8); migrations aplicadas; jobs de expiração, estoque e PTAX respondem 200 com o token e 401 sem ele.
+- ✅ `APP_ENCRYPTION_KEY` definida no serviço web (necessária para as chaves de IA por tenant, PR #12).
+- 🟡 **Chaves de IA por tenant** (PR #12): `OPENAI_API_KEY` do ambiente deixou de ser usada — cadastrar a chave **atual** em Configuração › IA (a chave do `.env` local começou a responder 401 em 02/11/2026; revogada ou rotacionada) e depois remover `OPENAI_API_KEY` do Railway. A listagem de modelos na tela valida a chave.
 - ⬜ Observar as execuções automáticas nos horários: PTAX, metais, estoque 04:00, briefing 06:55 e expiração de hora em hora.
 - ⬜ Testar o job do briefing em produção (envia e-mail e usa a OpenAI, por isso não foi disparado sem a sua autorização).
 - ⬜ Reparo `pnpm db:fix-replacement-cost`: só se houver lotes antigos. Produção está sem lotes, então não é necessário agora.

@@ -6,6 +6,18 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { auditLog, marketAssets } from "@/lib/db/schema";
 import { getCurrentUser, requirePermission } from "@/lib/auth/rbac";
+import {
+  clearAiCredential,
+  getTenantAiConfig,
+  saveAiCredential,
+  setTenantDefaultModel,
+} from "@/lib/ai/tenant-config";
+import {
+  isAiProviderId,
+  listProviderModelsCached,
+  testProviderKey,
+  type AiProviderId,
+} from "@/lib/ai/providers";
 import { evaluateAlerts } from "@/lib/market/alerts";
 import { importSeriesCsv } from "@/lib/market/import-csv";
 import { fetchProviderPrice, ingestMetals } from "@/lib/market/ingest-metals";
@@ -221,5 +233,70 @@ export async function importAssetCsv(
     return { ok: true, data: res };
   } catch (err) {
     return failure(err, "Não foi possível importar o CSV.");
+  }
+}
+
+// ---- Inteligência Artificial: provedores, chaves por tenant e modelo padrão ----
+
+export async function saveAiProviderKey(
+  provider: string,
+  apiKey: string
+): Promise<ActionResult<{ modelsCount: number }>> {
+  try {
+    const user = await guard();
+    const key = apiKey.trim();
+    if (!key) return { ok: false, error: "Informe a chave do provedor." };
+    // Testa antes de gravar: a chamada lista os modelos; chave rejeitada não vira credencial.
+    const test = await testProviderKey(provider as AiProviderId, key);
+    if (!test.ok) return { ok: false, error: test.error };
+    await saveAiCredential(user.tenantId, user.id, provider, key);
+    revalidatePath("/configuracoes");
+    return { ok: true, data: { modelsCount: test.modelsCount } };
+  } catch (err) {
+    return failure(err, "Não foi possível salvar a chave.");
+  }
+}
+
+export async function clearAiProviderKey(provider: string): Promise<ActionResult> {
+  try {
+    const user = await guard();
+    await clearAiCredential(user.tenantId, user.id, provider);
+    revalidatePath("/configuracoes");
+    return { ok: true };
+  } catch (err) {
+    return failure(err, "Não foi possível remover a chave.");
+  }
+}
+
+export async function setAiDefaultModel(provider: string, model: string): Promise<ActionResult> {
+  try {
+    const user = await guard();
+    await setTenantDefaultModel(user.tenantId, user.id, provider, model);
+    revalidatePath("/configuracoes");
+    return { ok: true };
+  } catch (err) {
+    return failure(err, "Não foi possível definir o modelo padrão.");
+  }
+}
+
+/** Lista os modelos de um provedor com a chave salva (cache de 10 min). */
+export async function listAiProviderModels(
+  provider: string
+): Promise<ActionResult<{ models: string[]; fallback: boolean }>> {
+  try {
+    const user = await getCurrentUser();
+    await requirePermission("usuarios_sistema", "read");
+    if (!isAiProviderId(provider)) return { ok: false, error: "Provedor desconhecido." };
+    const config = await getTenantAiConfig(user.tenantId);
+    const credential = config.credentials[provider as AiProviderId];
+    if (!credential) return { ok: false, error: "Este provedor não tem chave configurada." };
+    const listed = await listProviderModelsCached(
+      user.tenantId,
+      provider as AiProviderId,
+      credential.apiKey
+    );
+    return { ok: true, data: { models: listed.models, fallback: listed.fallback } };
+  } catch (err) {
+    return failure(err, "Não foi possível listar os modelos.");
   }
 }

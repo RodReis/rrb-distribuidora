@@ -71,6 +71,20 @@
       "when": 1793645602218,
       "tag": "0009_abnormal_smasher",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793647988410,
+      "tag": "0010_parched_vargas",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793648003910,
+      "tag": "0011_curvy_adam_warlock",
+      "breakpoints": true
     }
   ]
 }
