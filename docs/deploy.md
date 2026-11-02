@@ -14,7 +14,7 @@
 |---|---|
 | URL de produção | https://rrb-distribuidora-production.up.railway.app |
 | Plataforma | Railway |
-| Projeto / ambiente | `amusing-abundance` / `production` |
+| Projeto / ambiente | `Distribuidora-Metal` / `production` (o `railway status` de 02/11/2026 mostra este nome; versões antigas deste documento diziam `amusing-abundance`) |
 | Serviço web | `rrb-distribuidora` (Next.js) |
 | Serviço de banco | `Postgres` (volume `postgres-volume`) |
 | Repositório | https://github.com/RodReis/rrb-distribuidora (branch `main`) |
@@ -322,6 +322,8 @@ na porta 54320, rode `docker compose start`.
 > da porta 3000 (`Get-NetTCPConnection -LocalPort 3000`) e encerre-os antes de reiniciar.
 
 ## 12. Estado de produção
+
+**Atualização 02/11/2026, 15h24 (PR #8: M4 + homologação de M1 a M3):** web `55a989df` e `market-worker` `600600d0`, ambos SUCCESS. Migrations `0006`, `0007` e `0008` aplicadas (9 registros em `drizzle.__drizzle_migrations`; `remnant_code_seq` criada; `agent_actions.user_id` anulável). `/login` responde 200. O worker registrou os 5 agendamentos (PTAX, metais, estoque 04:00, briefing 06:55, expiração de hora em hora). Jobs chamados com o token: `expire-quotes` (200, nada a expirar), `calculate-predictive-stock` (200, 3 produtos) e `ingest-ptax` (200, 0 novos: 02/11 é feriado e o PTAX tem 499 pontos até 30/10); sem token respondem 401. Dados em produção: 3 produtos, 1 usuário, nenhum lote, orçamento ou retalho. **Pendente:** variáveis `R2_*` e chave do provedor de metais (os 3 mercados de metais estão sem dados), job do briefing não testado (envia e-mail e consome a OpenAI), primeira execução automática de cada horário não observada, reparo `db:fix-replacement-cost` desnecessário por ora (sem lotes).
 
 **Atualização 02/11/2026 (M2):** deploy `9c310f41` (SUCCESS, 23:09 -03:00) após o merge do PR #4 (`9f49325`); migration `0003` aplicada; tabelas `stock_*` vazias; job de recálculo 04h00 **não agendado**; `/estoque` **não** foi testado em produção (apenas log de start `Ready` e consulta ao banco). Os itens abaixo são do snapshot de 01/11/2026.
 

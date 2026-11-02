@@ -403,6 +403,8 @@ Toda geração do briefing (e toda falha dele) agora vira uma linha em `agent_ac
 | "0 liberaçãoões" no rodapé da fila de decisões (erro meu, de plural) | `pluralize`, com teste |
 | "Sistema (automá…" cortado na coluna | Rótulo "Sistema", com dica "Execução automática, sem usuário" |
 
+**Defeito achado em produção (02/11/2026, ao rodar o briefing no Railway) e corrigido:** com a cotação indisponível, o texto dizia "Indisponível" mas `key_metrics` gravava `lmeAluRate: 0`, que parece um preço real. Agora grava nulo (`usdRate` também). É campo JSON, sem migration; os briefings já gravados continuam com 0 até serem regerados.
+
 **Limite.** O briefing é texto livre de um modelo de linguagem: cada geração pode variar. Os números vêm de código e vão no contexto, mas o texto que os cita não é conferido automaticamente (diferente do Copiloto, que tem a bateria).
 
 ### 10.8 Auditoria completa e testes das ferramentas (02/11/2026)
