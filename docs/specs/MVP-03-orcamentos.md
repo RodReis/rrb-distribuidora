@@ -260,6 +260,9 @@ export const salesOrders = pgTable("sales_orders", {
 | Edição | não definida | somente `rascunho`/`bloqueado_margem`; editar reprecifica com a reposição do momento | evita reabrir proposta enviada/aprovada e descartar o aceite |
 | Expiração | status `EXPIRADO` | `expired` calculado pelo relógio + selo "Fora da validade"; transição manual para `expirado` | não há worker de expiração no MVP |
 | Status do pedido | `aguardando_producao`, `em_corte`, … | rótulos PT-BR centralizados (`ORDER_STATUS_LABELS`) | consistência entre lista, detalhe e PDF |
+| Modalidade de entrega | não definida | **obrigatória** no builder e no contrato de criação/edição (`min 1`); a prévia aceita vazio | a proposta não pode sair sem a modalidade; a prévia roda enquanto o vendedor digita |
+| Valores em R$ | não definido | máscara pt-BR (`1.234,56`) em todo campo monetário; percentuais e PTAX sem máscara | evitar erro de leitura/typing de `1.234,56` como `1,234` |
+| Modalidade ausente no PDF | não definido | `A combinar` (não inventa `Retirada no balcão`) | mesmo tratamento dos demais campos livres |
 
 ### 10.3 Pendências e dívidas técnicas
 
@@ -273,7 +276,10 @@ export const salesOrders = pgTable("sales_orders", {
 
 ### 10.4 Evidências
 
-- `pnpm lint`, `pnpm exec tsc --noEmit` e `pnpm build` passam; **65 testes** Vitest do M3 (113 na suíte completa): 17 de metalurgia, 29 de precificação/status, 11 de delta de mercado, 5 de normalização de reposição e 3 de armazenamento (traversal e content-type).
+- `pnpm lint`, `pnpm exec tsc --noEmit` e `pnpm build` passam; **129 testes** Vitest (13 arquivos): 17 de metalurgia, 29 de precificação/status, 11 de delta de mercado, 5 de normalização de reposição, 3 de armazenamento (traversal e content-type), 16 da máscara de moeda e o restante da plataforma.
+- **Máscara de moeda (smoke de browser):** frete `1234567` → `1.234.567`, serviços `1250,5` → `1.250,5`, usina nacional `4321.5` → `43.215` (ponto é milhar: só a vírgula é decimal), porto `98765` → `98.765`. Os helpers (`sanitize`/`format`/`parse`/`toText`) são puros, ficam em `lib/utils.ts` e têm teste de ciclo digitar → exibir → ler sem deriva.
+- **Modalidade obrigatória (smoke de API):** `POST /api/quotes` sem `deliveryMethod` → 422 `expected string, received undefined`; com `"   "` → 422 `Informe a modalidade de entrega.`; com valor → 200 e orçamento criado. No builder, salvar sem modalidade é bloqueado por toast e o select abre em *"Selecione a modalidade"*.
+- **Condição de pagamento na conversão:** `convert-to-order` copia `quote.payment_terms` para `sales_orders` (o orçamento #1017 com *À vista (PIX)* gerou o pedido #9 com o mesmo valor). Pedidos com `payment_terms` nulo vêm de orçamentos criados por script sem o campo — não é perda na conversão.
 - **Smoke de API** (PowerShell, sessão autenticada): prévia A36 ≈ R$ 5,55/kg com validade de 72 h → criação → transição inválida 400 → `enviado` → `em_negociacao` → `aprovado` → PDF local → pedido gerado → conversão duplicada 400 → matching e reserva de `RET-8942` → perda libera o retalho → bloqueio a 10% de margem → liberação pelo diretor → `rascunho` → `RET-8943` consumido na conversão → busca por número do orçamento.
 - **Guarda de edição:** `PUT` em orçamento `enviado` responde 400; orçamento `bloqueado_margem` aceita edição e volta a `rascunho` com a margem recalculada.
 - **Guarda de conversão:** com a reserva do retalho removida por fora, `convert-to-order` responde 400 e **nenhum pedido é criado** (transação revertida); com a reserva restaurada, o pedido é gerado e o retalho fica `consumido`.
