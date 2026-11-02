@@ -4,6 +4,7 @@ import {
   DEFAULT_METALS_CRON,
   MARKET_TIMEZONE,
   PTAX_CRONS,
+  STOCK_PREDICTIVE_CRON,
   getMetalsCron,
 } from "../lib/market/schedule";
 
@@ -23,7 +24,7 @@ if (!cron.validate(metalsCron)) {
   metalsCron = DEFAULT_METALS_CRON;
 }
 
-async function trigger(job: "ingest-ptax" | "ingest-metals") {
+async function trigger(job: "ingest-ptax" | "ingest-metals" | "calculate-predictive-stock") {
   const startedAt = new Date().toISOString();
   try {
     const res = await fetch(`${APP_URL}/api/internal/jobs/${job}`, {
@@ -46,7 +47,10 @@ for (const expr of PTAX_CRONS) {
   cron.schedule(expr, () => void trigger("ingest-ptax"), { timezone: MARKET_TIMEZONE });
 }
 cron.schedule(metalsCron, () => void trigger("ingest-metals"), { timezone: MARKET_TIMEZONE });
+cron.schedule(STOCK_PREDICTIVE_CRON, () => void trigger("calculate-predictive-stock"), {
+  timezone: MARKET_TIMEZONE,
+});
 
 console.log(
-  `[market-worker] agendado (${MARKET_TIMEZONE}): PTAX ${PTAX_CRONS.join(" | ")}; metais "${metalsCron}".`
+  `[market-worker] agendado (${MARKET_TIMEZONE}): PTAX ${PTAX_CRONS.join(" | ")}; metais "${metalsCron}"; estoque "${STOCK_PREDICTIVE_CRON}".`
 );

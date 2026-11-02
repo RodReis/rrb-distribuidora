@@ -31,7 +31,7 @@ export interface CycleCountItem {
 
 export interface CycleCountViewProps {
   candidates: CycleCountItem[];
-  accuracyPct: number;
+  accuracyPct: number | null;
   onCountSubmitted?: () => void;
 }
 
@@ -142,11 +142,18 @@ export function CycleCountView({ candidates, accuracyPct, onCountSubmitted }: Cy
           <div className="my-2">
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-metric-display text-ice-white font-bold">
-                {accuracyPct.toFixed(1)}%
+                {accuracyPct === null ? "—" : `${accuracyPct.toFixed(1)}%`}
               </span>
-              <span className="font-mono text-label-code text-signal-buy font-semibold">
-                ALTO RIGOR
-              </span>
+              {accuracyPct !== null && (
+                <span
+                  className={cn(
+                    "font-mono text-label-code font-semibold",
+                    accuracyPct >= 98 ? "text-signal-buy" : "text-signal-hold"
+                  )}
+                >
+                  {accuracyPct >= 98 ? "ALTO RIGOR" : "ATENÇÃO"}
+                </span>
+              )}
             </div>
             <div className="text-body-sm text-titanium-light mt-0.5">
               Auditoria contínua sem necessidade de parada fabril

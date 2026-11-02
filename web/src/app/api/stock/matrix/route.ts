@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { products, stockPredictiveMetrics, suppliers, stockLots } from "@/lib/db/schema";
-import { getCurrentUser } from "@/lib/auth/rbac";
+import { guardStock } from "@/lib/stock/api-auth";
 import { and, eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
   try {
-    const user = await getCurrentUser();
+    const guard = await guardStock("read");
+    if (guard.error) return guard.error;
+    const user = guard.user;
     const { searchParams } = new URL(req.url);
     const statusFilter = searchParams.get("status"); // 'CRITICAL_RUPTURE', 'WARNING', etc.
     const familyFilter = searchParams.get("family");
@@ -39,7 +41,7 @@ export async function GET(req: Request) {
         curveXyz: stockPredictiveMetrics.curveXyz,
       })
       .from(products)
-      .leftJoin(stockPredictiveMetrics, eq(products.id, stockPredictiveMetrics.productId))
+      .innerJoin(stockPredictiveMetrics, eq(products.id, stockPredictiveMetrics.productId))
       .where(and(...conditions));
 
     const filtered =

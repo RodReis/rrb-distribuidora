@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser, requirePermission } from "@/lib/auth/rbac";
+import { guardStock } from "@/lib/stock/api-auth";
 import {
   getDailyCycleCountCandidates,
   submitCycleCount,
@@ -8,7 +8,9 @@ import {
 
 export async function GET(req: Request) {
   try {
-    const user = await getCurrentUser();
+    const guard = await guardStock("read");
+    if (guard.error) return guard.error;
+    const user = guard.user;
     const candidates = await getDailyCycleCountCandidates(user.tenantId);
     const accuracy = await getCycleInventoryAccuracy(user.tenantId);
 
@@ -24,8 +26,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = await getCurrentUser();
-    await requirePermission("estoque_retalhos", "write");
+    const guard = await guardStock("write");
+    if (guard.error) return guard.error;
+    const user = guard.user;
 
     const body = await req.json();
 

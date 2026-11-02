@@ -9,9 +9,11 @@ import {
   suppliers,
   stockCycleCounts,
 } from "@/lib/db/schema";
-import { getCurrentUser } from "@/lib/auth/rbac";
+import { checkPermission, getCurrentUser } from "@/lib/auth/rbac";
+import { Forbidden } from "@/components/shared/forbidden";
 import { and, desc, eq } from "drizzle-orm";
 import { EstoqueClient } from "./estoque-client";
+import { getStockKpis } from "@/lib/stock/kpis";
 import { getDailyCycleCountCandidates, getCycleInventoryAccuracy } from "@/lib/stock/cycle-count";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +24,9 @@ export default async function EstoquePage({
   searchParams?: Promise<{ tab?: string }>;
 }) {
   const user = await getCurrentUser();
+  if (!(await checkPermission("estoque_retalhos", "read"))) {
+    return <Forbidden module="Estoque & Retalhos" />;
+  }
   const resolvedParams = searchParams ? await searchParams : {};
   const currentTab = resolvedParams?.tab || "matriz";
 
@@ -49,7 +54,7 @@ export default async function EstoquePage({
       curveXyz: stockPredictiveMetrics.curveXyz,
     })
     .from(products)
-    .leftJoin(stockPredictiveMetrics, eq(products.id, stockPredictiveMetrics.productId))
+    .innerJoin(stockPredictiveMetrics, eq(products.id, stockPredictiveMetrics.productId))
     .where(and(eq(products.tenantId, user.tenantId), eq(products.status, "ativo")));
 
   // 2. Fetch remnants
@@ -173,6 +178,7 @@ export default async function EstoquePage({
   // 6. Cycle Count candidates & accuracy
   const cycleCountCandidates = await getDailyCycleCountCandidates(user.tenantId);
   const accuracy = await getCycleInventoryAccuracy(user.tenantId);
+  const kpis = await getStockKpis(user.tenantId);
 
   return (
     <EstoqueClient
@@ -186,6 +192,7 @@ export default async function EstoquePage({
       suppliers={allSuppliers}
       cycleCountCandidates={cycleCountCandidates}
       accuracyPct={accuracy.accuracyPct}
+      kpis={kpis}
     />
   );
 }

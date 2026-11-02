@@ -249,7 +249,7 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 | 5 | Ações de movimentação | 🟡 entrada de compra e saída (server actions/API) ok; **drawer não permite saída/descarte** (só informa um toast) |
 | 6 | Inventário cíclico | ✅ `lib/stock/cycle-count.ts`, API e aba (responsiva) |
 | 7 | Importador CSV | ✅ `lib/stock/import-stock.ts` (validação atômica, reconciliação) + aba "Carga Inicial" |
-| 8 | Worker 04h00 | ⬜ **só o endpoint** `POST /api/internal/jobs/calculate-predictive-stock` existe; **não há agendamento** no `market-worker` nem cron no Railway |
+| 8 | Worker 04h00 | 🟡 agendado no `market-worker` (`STOCK_PREDICTIVE_CRON = "0 4 * * *"`, fuso São Paulo, todos os dias); endpoint exige `CRON_SECRET` (503 sem ele, 401 com token errado). **Entra em vigor só após deploy do worker**; execução ainda não observada em produção |
 
 ### 10.2 Desvios e decisões em relação à spec
 
@@ -262,23 +262,38 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 | Rotas | `/estoque/retalhos`, `/estoque/lotes` | redirecionam para `/estoque?tab=…` | `regras-frontend.md` §7 (abas com URL) |
 | Rotas extras | — | `GET /api/stock/lots`, `GET /api/stock/movements` | apoiar as abas |
 | Reposição | `RETALHO_ENTRADA`, lote mínimo | lote mínimo **não** modelado; sugestão = ROP − saldo + 30 dias de consumo | sem regra de lote mínimo definida — **pergunta em aberto ao PI** |
-| Permissões | — | escrita exige `estoque_retalhos`; **leitura (APIs GET) só exige sessão**, sem `checkPermission` | a corrigir |
-| Cron | `CRON_SECRET` | job só valida o segredo **se** a variável existir | evita 503 local; **em produção deve ser obrigatório** |
+| Permissões | — | leitura e escrita exigem `estoque_retalhos` (`lib/stock/api-auth.ts` nas APIs; `checkPermission` + `Forbidden` na página) | corrigido; botões de escrita ainda aparecem para papéis só-leitura (a ação é recusada no servidor) |
+| Matriz | todos os produtos | só produtos **com linha em `stock_predictive_metrics`** (após o 1º recálculo); status vem do motor, não é recalculado no cliente; ordenada por urgência | evitar "ruptura" falsa e divergência com o KPI |
+| Status EXCESSO | azul | `titanium-light` sobre `titanium-steel/20` | `regras-frontend.md` §2.1 proíbe cores fora da paleta |
+| Matching (US-04) | alerta no orçamento (M3) | bloco informativo "nenhum pedido sob medida" + simulador manual que **reserva** o retalho (`reserveRemnantAction`) | M3 não existe; o pedido PV-4491 do mockup era fictício |
+| Sugestão de compra | botão "Gerar PO" | modal informativo (quantidade, comprar até, ruptura em); **não emite pedido** | não há módulo de Compras |
+| Gráfico | "Projeção Prophet" com IC 95% | projeção **linear** (estoque − consumo × dia) com ROP, segurança e lead time | não há modelo Prophet nem IC; spec veda ML não linear |
+| Removido do mockup | "Varredura LIDAR + RFID", "Matching IA 88,6%", "Redução -24% pós IA", "RFQ disparado (5 usinas)" | não implementados | não existem no produto |
 
-### 10.3 Dados de demonstração (não são cálculo real)
+### 10.3 KPIs e dados de demonstração
 
-Os itens abaixo são **valores fixos de protótipo** copiados do mockup e **não derivam do banco**:
+**KPIs agora calculados do banco** (`lib/stock/kpis.ts`):
 
-- KPIs: "Déficit Potencial R$ 380k", "Retalhos Reclassificados 42,8 t / R$ 248.500", "Capital Parado R$ 94.200 / 18,2 t", "Giro Médio 41 dias", "Lead Time Médio 14,2 dias", "Matching Taxa Sucesso 88,6%" e "Último ciclo 06:00".
-- Banner de matching: pedido `#PV-4491`, chapa 6000×2400, R$ 8.920 / R$ 4.290 e `RET-8941 + RET-8920`; "Aprovar matching" reserva apenas o `RET-8941`. O M3 (orçamentos) ainda não existe, então a US-04 está **só no simulador manual**.
-- Modal "Gerar PO": **não persiste nada** (apenas toast); a fornecedor é inferido pelo `erpCode`.
-- Etiqueta/ZPL, "Nesting", "Mill Cert" e "RFQ disparado": apenas toast.
-- `seed-stock.ts` grava métricas preditivas com valores do mockup; elas só passam a ser reais após o recálculo (botão "Simular reposição" ou job).
+| KPI | Definição |
+|---|---|
+| Ruptura iminente | nº de produtos com `predictive_status = CRITICAL_RUPTURE` |
+| Déficit potencial | Σ (`suggested_purchase_qty` × `replacement_cost_base`) dos críticos |
+| Retalhos reclassificados (mês) | peso e valor dos retalhos `reservado`/`consumido` com `updated_at` no mês; variação vs mês anterior (omitida sem base). Valor só para produtos com custo em `kg` ou `t` |
+| Capital parado | Σ (saldo × custo unitário) dos lotes ativos com entrada > 180 dias, e nº de lotes |
+| DIO | valor em estoque ÷ (consumo dos últimos 90 dias em R$ ÷ 90); "—" sem consumo |
+| Lead time médio | média de `lead_time_days` das métricas |
+| Acuracidade | contagens sem diferença ÷ total; "—" sem contagens (antes havia 99,4% fixo) |
+| Último ciclo | `counted_at` mais recente |
+
+**Ainda não são reais:**
+
+- Etiqueta/ZPL, "Nesting" e "Mill Cert": apenas toast.
+- `seed-stock.ts` (só desenvolvimento) grava métricas com valores do mockup; em produção as tabelas começam vazias (ver `deploy.md` §4.4).
 
 ### 10.4 Não conformidades com `regras-frontend.md` (a corrigir)
 
 - Sem `DataTable`/`SearchFilterBar`/`Pagination`/`MetricTile` compartilhados; tabelas e filtros montados na tela.
-- Cor fora da paleta: `blue-400`/`blue-500` no status EXCESSO (usar token do projeto).
+- ~~Cor fora da paleta (`blue-*`)~~ ✅ corrigido.
 - Inputs e `textarea` com estilo repetido, sem componente `ui/`; ícones `lucide` no lugar de Material Symbols nas ações.
 - Matriz sem os 4 estados completos (skeleton/erro com retry); sem 403 amigável.
 - CRUD de retalhos incompleto (§8): falta editar, detalhe, excluir/descarte pela UI e coluna "Ações" com tooltip.
@@ -286,9 +301,9 @@ Os itens abaixo são **valores fixos de protótipo** copiados do mockup e **não
 
 ### 10.5 Pendências para aceitar o MVP-02
 
-1. **Agendar o recálculo às 04h00** (`cron.schedule` no worker ou cron do Railway) e tornar `CRON_SECRET` obrigatório em produção.
-2. Trocar os valores fixos da §10.3 por consultas reais (KPIs, DIO, capital parado > 180 dias, valor recuperado).
-3. Aplicar `checkPermission("estoque_retalhos", "read")` nas rotas GET e nas páginas.
+1. ~~Agendar o recálculo às 04h00 e tornar `CRON_SECRET` obrigatório~~ ✅ feito no código; **falta o deploy do `market-worker` e observar a 1ª execução** (log `[market-worker] … calculate-predictive-stock`).
+2. ~~Trocar os valores fixos por consultas reais~~ ✅ (§10.3).
+3. ~~`checkPermission` de leitura nas rotas GET e na página~~ ✅. Falta esconder botões de escrita para papéis só-leitura.
 4. Implementar saída/descarte no drawer de movimentação e CRUD completo de retalhos (§8 das regras).
 5. Migrar tabelas para `DataTable` padrão, remover cores fora da paleta e comparar com `screen.png`.
 6. Gerar o código do retalho por sequência (hoje `RET-` + número aleatório de 4 dígitos, sujeito a colisão; coluna `code` é `unique`).
@@ -298,6 +313,7 @@ Os itens abaixo são **valores fixos de protótipo** copiados do mockup e **não
 
 ### 10.6 Evidências
 
-- `pnpm lint`, `pnpm build` e `pnpm test` (33 testes: 10 do M1 + 23 do M2) passam.
-- Testes do M2: consumo ponderado, σ, SS (`Z=1,645`), ROP, cobertura, transições de status, sugestão de compra, XYZ, peso teórico, encaixe direto/rotacionado, ordenação por menor desperdício e importador CSV (com `db` mockado).
-- **Não cobertos por teste:** transações de `movements.ts` (bloqueio de saldo negativo), `cycle-count.ts` e as rotas/telas.
+- `pnpm lint`, `tsc --noEmit`, `pnpm build` e `pnpm test` (48 testes: 10 do M1 + 38 do M2) passam.
+- Testes do M2: consumo ponderado, σ, SS (`Z=1,645`), ROP, cobertura, transições de status, sugestão de compra, XYZ, peso teórico, encaixe direto/rotacionado, menor desperdício, importador CSV, **bloqueio de saldo negativo e ajuste com justificativa (`movements.ts`, `db` mockado)**, regra de divergência do inventário cíclico e fórmulas dos KPIs.
+- Verificação manual local: rotas `/api/stock/*` sem sessão redirecionam ao login (307); job sem `CRON_SECRET` ou com token errado responde 503.
+- **Não cobertos por teste:** seleção diária de candidatos (`getDailyCycleCountCandidates`), consultas de `getStockKpis` e as rotas/telas. Sem smoke autenticado nem comparação com `screen.png`.

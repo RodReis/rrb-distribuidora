@@ -132,9 +132,9 @@ Alternativa: usar o *Cron* do Railway chamando `POST /api/internal/jobs/ingest-p
 ### 4.2.1 Job de estoque preventivo (M2)
 
 - Endpoint: `POST /api/internal/jobs/calculate-predictive-stock` (recalcula cobertura, SS, ROP, status e ABC/XYZ de todos os tenants).
-- **Ainda não está agendado.** O `market-worker` só dispara os jobs de mercado; falta o `cron.schedule` das **04h00** (America/Sao_Paulo) ou um Cron do Railway chamando o endpoint com `Authorization: Bearer <CRON_SECRET>`.
-- **Atenção:** diferente dos jobs de mercado, este endpoint só valida o `CRON_SECRET` **se a variável existir**. Segundo a seção 4.2 ela está definida em produção (M1; não reverifiquei agora), mas o endpoint não deve depender disso — corrigir para recusar quando ausente.
-- Enquanto não houver agendamento, o recálculo ocorre a cada movimentação de estoque e pelo botão "Simular reposição" em `/estoque`.
+- **Agendamento:** o `market-worker` dispara o job todos os dias às **04h00** (America/Sao_Paulo; `STOCK_PREDICTIVE_CRON` em `lib/market/schedule.ts`). Só vale depois que o deploy com essa alteração subir no serviço do worker; confirmar a primeira execução no log (`[market-worker] … calculate-predictive-stock -> HTTP 200`).
+- **Autenticação:** como os jobs de mercado, exige `Authorization: Bearer <CRON_SECRET>` (503 se a variável não existir, 401 com token errado).
+- Além do job, o recálculo ocorre a cada movimentação de estoque e pelo botão "Simular reposição" em `/estoque`.
 
 ### 4.3 Carga inicial dos dados de mercado
 

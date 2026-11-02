@@ -7,11 +7,8 @@ import { guardCron } from "@/lib/market/api-auth";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  // If CRON_SECRET is configured, guard with authorization header
-  if (process.env.CRON_SECRET) {
-    const denied = guardCron(request);
-    if (denied) return denied;
-  }
+  const denied = guardCron(request);
+  if (denied) return denied;
 
   const startedAt = Date.now();
   try {
