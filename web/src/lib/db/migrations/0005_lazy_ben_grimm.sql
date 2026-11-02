@@ -1,0 +1,2 @@
+ALTER TABLE "quotes" ADD COLUMN "target_margin_pct" numeric(5, 2) DEFAULT '24.00' NOT NULL;--> statement-breakpoint
+ALTER TABLE "quotes" ADD COLUMN "discount_pct" numeric(5, 2) DEFAULT '0.00' NOT NULL;

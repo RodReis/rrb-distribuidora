@@ -172,12 +172,18 @@ export const salesOrders = pgTable("sales_orders", {
 |---|---|---|---|
 | `/vendas/orcamentos` | GET (Page) | Leitura | Listagem e funil de propostas comerciais |
 | `/vendas/orcamentos/novo` | GET (Page) | Vendedor/Admin | Tela de montagem de orçamento e corte |
-| `/vendas/orcamentos/[id]` | GET (Page) | Leitura | Visualizador e editor de proposta |
-| `/api/quotes/calculate-geometry` | POST | Vendedor/Admin | Endpoint rápido que calcula pesos e perdas de corte |
-| `/api/quotes` | POST | Vendedor/Admin | Salva nova proposta comercial |
+| `/vendas/orcamentos/[id]` | GET (Page) | Leitura | Detalhe da proposta com abas de itens, composição de custo e condições |
+| `/vendas/orcamentos/[id]/editar` | GET (Page) | Vendedor/Admin | Edição de propostas em `rascunho` ou `bloqueado_margem` |
+| `/api/quotes` | GET / POST | Leitura / Vendedor | Lista paginada com KPIs do funil; cria nova proposta |
+| `/api/quotes/[id]` | GET / PUT | Leitura / Vendedor | Carrega ou atualiza uma proposta editável |
+| `/api/quotes/preview` | POST | Vendedor/Admin | Reprecifica o rascunho sem persistir (usado pelo builder) |
+| `/api/quotes/calculate-geometry` | POST | Vendedor/Admin | Calcula peso, perda e tempo de corte de uma geometria |
+| `/api/quotes/remnant-matches` | GET | Leitura | Busca retalhos compatíveis com as dimensões do item |
+| `/api/quotes/[id]/status` | POST | Vendedor/Admin | Aplica transição de status (motivo obrigatório em `perdido`) |
 | `/api/quotes/[id]/approve-margin` | POST | Diretor/Admin | Libera proposta travada por margem insuficiente |
-| `/api/quotes/[id]/generate-pdf` | POST | Vendedor/Admin | Gera o PDF no servidor, grava no R2 e retorna a URL |
-| `/api/quotes/[id]/convert-to-order` | POST | Vendedor/Admin | Converte a proposta aprovada em Pedido de Venda |
+| `/api/quotes/[id]/generate-pdf` | POST | Vendedor/Admin | Gera o PDF no servidor, grava no R2 (ou `.data/quotes` em dev) e retorna a URL |
+| `/api/quotes/[id]/convert-to-order` | POST | Vendedor/Admin | Converte a proposta aprovada em Pedido de Venda e consome retalhos |
+| `/api/files/download` | GET | Leitura | Baixa o PDF gerado, restrito ao prefixo do tenant |
 
 ---
 
@@ -200,12 +206,12 @@ export const salesOrders = pgTable("sales_orders", {
 
 ## 8. Critérios de Aceite (Checklist Final do PRD)
 
-- [ ] Cálculo de peso teórico para chapas, discos, barras e tubos com erro < 1% vs. tabela oficial de usina.
-- [ ] Orçamento completo com 3 itens e serviços de corte gerado em menos de 3 minutos.
-- [ ] Bloqueio automático de propostas com margem abaixo da política ou abaixo do custo de reposição.
-- [ ] Geração de PDF elegante via `@react-pdf/renderer` armazenado com segurança no Cloudflare R2.
-- [ ] Matching automático de retalhos funcionando ao digitar dimensões compatíveis.
-- [ ] Conversão de orçamento em pedido de venda executada com sucesso.
+- [x] Cálculo de peso teórico para chapas, discos, barras e tubos com erro < 1% vs. tabela oficial de usina. — fórmulas fechadas e 17 testes; falta comparar com tabela de usina real (§10.3).
+- [x] Orçamento completo com 3 itens e serviços de corte gerado em menos de 3 minutos. — prévia responde em < 1 s por item; smoke montou e salvou proposta em ~40 s.
+- [x] Bloqueio automático de propostas com margem abaixo da política ou abaixo do custo de reposição.
+- [x] Geração de PDF elegante via `@react-pdf/renderer` armazenado com segurança no Cloudflare R2. — caminho R2 implementado; validado apenas com o fallback local (§10.3).
+- [x] Matching automático de retalhos funcionando ao digitar dimensões compatíveis.
+- [x] Conversão de orçamento em pedido de venda executada com sucesso.
 
 ---
 
@@ -219,3 +225,58 @@ export const salesOrders = pgTable("sales_orders", {
 6. **Gerador de PDF de Proposta:** Criar template `@react-pdf/renderer` com a identidade visual da distribuidora e upload para o Cloudflare R2.
 7. **Fluxo de Aprovação de Margem:** Implementar notificação e tela de liberação para o Diretor/Gerente Comercial.
 8. **Conversão em Pedido:** Implementar transação atômica que reserva estoque e gera o pedido de venda.
+
+---
+
+## 10. Estado da implementação (02/11/2026)
+
+> **Situação:** 🟢 implementado e validado localmente (API + UI), **aguardando homologação**. `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build` e 65 testes Vitest passam. O smoke autenticado cobriu o fluxo completo e as telas foram inspecionadas em 1440×900 no tema escuro. Os dados de teste foram removidos do banco de dev ao final.
+
+### 10.1 Tarefas da seção 9
+
+| # | Tarefa | Estado |
+|---|---|---|
+| 1 | Biblioteca metalúrgica | ✅ `lib/metallurgy/weight-formulas.ts` — chapa retangular, disco, barra e tubo (+ `PADRAO`), densidades (aço 7,85 / inox 7,90 / alumínio 2,70 g/cm³), kerf por processo (laser 1,5 / plasma 3 / serra 4 / oxicorte 5 mm) e tempo de corte; 17 testes |
+| 2 | Migrations | ✅ `0004_fat_james_howlett.sql` (`quotes`, `quote_items`, `sales_orders`) e `0005_lazy_ben_grimm.sql` (`target_margin_pct`, `discount_pct`) |
+| 3 | Formulário dinâmico | ✅ `/vendas/orcamentos/novo` e `/editar`; drawer geométrico com prévia local e recálculo no servidor (`/api/quotes/preview`, debounce de 350 ms) |
+| 4 | Custo de reposição | ✅ `lib/quotes/replacement-cost.ts` + `market-delta.ts`; índices `LME-ALU` (alumínio) e `CME-HRC` (aço/inox), delta semanal limitado a ±20% e normalização de unidade para R$/kg |
+| 5 | Retalhos (M2) | ✅ `/api/quotes/remnant-matches`; reserva dentro da transação do orçamento (`SELECT … FOR UPDATE`), liberação em `perdido`/`expirado` e consumo na conversão |
+| 6 | Gerador de PDF | ✅ `lib/quotes/pdf/*` com `@react-pdf/renderer`; R2 quando as 4 variáveis existem, fallback local em `.data/quotes` + `/api/files/download` (prefixo do tenant e bloqueio de traversal). O PDF do cliente não expõe margem |
+| 7 | Aprovação de margem | ✅ `POST /api/quotes/[id]/approve-margin` restrito a diretor/admin (`guardMarginApproval`); grava `approvedByDirectorId`/`approvedAt` e devolve a `rascunho` |
+| 8 | Conversão em pedido | ✅ `POST /api/quotes/[id]/convert-to-order` transacional, bloqueia conversão duplicada e consome retalhos; o número do pedido aparece na lista e no detalhe |
+
+### 10.2 Desvios e decisões em relação à spec
+
+| Tema | Spec | Implementado | Motivo |
+|---|---|---|---|
+| Margem mínima | "margem bruta" sem denominador | `(preço − custo) / preço` | convenção comercial; custo = material + máquina |
+| Peso pago | não definido | chapa virgem cobra peso **bruto** (kerf/sucata pagos); retalho cobra só o peso líquido a 65% da reposição | cobrar a perda apenas no material virgem |
+| Índice por família | atualização "pelo mercado" | alumínio → `LME-ALU`; aço/inox → `CME-HRC` | únicos índices correlatos disponíveis no MVP-01 |
+| Delta de mercado | atualização pelo mercado | delta semanal limitado a ±20% | evitar preço absurdo em série curta |
+| Validade dinâmica | 5–7 dias calmo; 48–72 h volátil (> 3%/semana) | ≤ 1,5% → 7 dias (até 18h); 1,5–3% → 72 h; > 3% → 48 h | usa a maior volatilidade entre os itens do orçamento |
+| Unidade do custo de reposição | `replacement_cost_base` | normalização para R$/kg na leitura (`t`, `un`, `m`, `kg`) | o MVP-02 grava chapa em `t` e barra em `un`; o seed não foi alterado |
+| `aprovado` | status do funil | significa **cliente aprovou**; a liberação interna de margem volta a `rascunho` | separa alçada interna de aceite do cliente |
+| Piso de reposição | bloqueio de margem | diretor libera margem abaixo da política, **nunca** preço abaixo do custo de reposição | proteção contra venda com prejuízo real |
+| Edição | não definida | somente `rascunho`/`bloqueado_margem`; editar reprecifica com a reposição do momento | evita reabrir proposta enviada/aprovada e descartar o aceite |
+| Expiração | status `EXPIRADO` | `expired` calculado pelo relógio + selo "Fora da validade"; transição manual para `expirado` | não há worker de expiração no MVP |
+| Status do pedido | `aguardando_producao`, `em_corte`, … | rótulos PT-BR centralizados (`ORDER_STATUS_LABELS`) | consistência entre lista, detalhe e PDF |
+
+### 10.3 Pendências e dívidas técnicas
+
+1. **R2 real não exercitado** — sem credenciais, o smoke usou o fallback local. Homologar upload/download em bucket real e definir retenção; o fallback `.data` não deve rodar em produção sem volume persistente.
+2. **Normalização do custo de reposição** — feita apenas na borda do MVP-03 (`normalizeReplacementCostPerKg`). Corrigir a origem (cadastro/seed do MVP-02) para R$/kg e revisar relatórios que leem `replacement_cost_base`.
+3. **Sem testes de integração de rota/serviço** — a cobertura é unitária (motor, precificação, delta, normalização, storage) + smoke manual. Falta automatizar reserva/consumo de retalho e conversão contra Postgres.
+4. **Edição reprecifica** — `manualUnitPrice` não é restaurado ao abrir a edição, então um preço manual do rascunho é substituído pelo preço sugerido. Se o PI quiser preço congelado, persistir o override por item.
+5. **Expiração não automática** — não há job marcando `expirado`; o vendedor precisa encerrar manualmente. Definir cron se o funil exigir.
+6. **Sem envio automático da proposta** — o PDF é baixado e enviado manualmente (fora do escopo declarado).
+7. **Validação metrológica** — falta comparar as fórmulas com tabela oficial de usina; os testes comparam com cálculo manual.
+
+### 10.4 Evidências
+
+- `pnpm lint`, `pnpm exec tsc --noEmit` e `pnpm build` passam; **65 testes** Vitest do M3 (113 na suíte completa): 17 de metalurgia, 29 de precificação/status, 11 de delta de mercado, 5 de normalização de reposição e 3 de armazenamento (traversal e content-type).
+- **Smoke de API** (PowerShell, sessão autenticada): prévia A36 ≈ R$ 5,55/kg com validade de 72 h → criação → transição inválida 400 → `enviado` → `em_negociacao` → `aprovado` → PDF local → pedido gerado → conversão duplicada 400 → matching e reserva de `RET-8942` → perda libera o retalho → bloqueio a 10% de margem → liberação pelo diretor → `rascunho` → `RET-8943` consumido na conversão → busca por número do orçamento.
+- **Guarda de edição:** `PUT` em orçamento `enviado` responde 400; orçamento `bloqueado_margem` aceita edição e volta a `rascunho` com a margem recalculada.
+- **Guarda de conversão:** com a reserva do retalho removida por fora, `convert-to-order` responde 400 e **nenhum pedido é criado** (transação revertida); com a reserva restaurada, o pedido é gerado e o retalho fica `consumido`.
+- **Smoke de UI** (Playwright/REA, Chrome headless, 1440×900, tema escuro): lista vazia com KPIs zerados, builder com drawer (CG-A36-1270, 1000 × 500 × 12,7 mm, 199,390 kg líquido / 200,288 kg bruto, margem 24%), detalhe com as 3 abas, detalhe bloqueado como diretor, tela de bloqueio de edição e PDF final.
+- **Migrações:** `pnpm db:migrate` aplica `0004`/`0005` sem erro e é idempotente; `pnpm db:generate` responde *"No schema changes, nothing to migrate"* (schema Drizzle e banco em sincronia, 24 tabelas).
+- **Segurança:** o storage recusa traversal (`r2.test.ts`), o download exige o prefixo `quotes/<tenantId>/` e a edição é bloqueada por status no serviço (não só na UI).

@@ -29,6 +29,20 @@
       "when": 1793582237679,
       "tag": "0003_hesitant_namora",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793587841220,
+      "tag": "0004_fat_james_howlett",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793588655789,
+      "tag": "0005_lazy_ben_grimm",
+      "breakpoints": true
     }
   ]
 }
