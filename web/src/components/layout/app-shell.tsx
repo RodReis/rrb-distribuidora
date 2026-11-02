@@ -47,11 +47,9 @@ const NAVIGATION: NavGroup[] = [
     group: "OP-MODULES",
     items: [
       {
-        label: "Visão Geral",
+        label: "Command Center",
         href: "/dashboard",
         icon: LayoutDashboard,
-        disabled: true,
-        badge: "M4",
       },
       {
         label: "Inteligência & LME",
@@ -118,6 +116,7 @@ const NAVIGATION: NavGroup[] = [
     items: [
       { label: "Usuários & Acesso", href: "/admin/usuarios", icon: Shield },
       { label: "Trilha de Auditoria", href: "/admin/auditoria", icon: FileText },
+      { label: "Governança de IA", href: "/governanca", icon: Shield },
     ],
   },
 ];
