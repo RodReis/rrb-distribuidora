@@ -234,6 +234,23 @@ Os itens que **bloqueiam aceite em produção** ou afetam o CI:
 | OR6 | **Parcial.** Fórmulas conferidas contra a NBR 7480 (vergalhão CA-50, 9 bitolas) e tabela de chapas (5 espessuras), erro < 0,5% (`weight-reference.test.ts`). Falta a tabela oficial de usina com 10–20 SKUs reais | planilha de referência com SKUs reais | P |
 | OR7 | Vitest agora roda no CI (`pnpm vitest run`, 02/11/2026) - vale para M1, M2 e M3 | resolvido; cobertura de integracao com banco e Playwright segue pendente | P |
 
+### 4.3 Débitos do LAC-01 — Compras *(03/11/2026)*
+
+O detalhamento funcional está em [`specs/LAC-01-compras-operacionais.md` §13](specs/LAC-01-compras-operacionais.md#13-estado-da-implementação-03112026).
+
+| ID | Débito | Correção sugerida | Esforço |
+|---|---|---|---|
+| CP1 | Entrada manual de estoque "por compra" do M2 (`recordStockEntry`) continua aceitando entrada sem PC emitido; a LAC-01 pede restringir (tarefa 7 do §11) | separar "recebimento de compra" de "ajuste de inventário" e exigir PC emitido na entrada normal — só depois de homologar o fluxo de recebimento | M |
+| CP2 | Emissão do PDF é "documento em homologação" enquanto o cadastro fiscal da distribuidora não existir (LAC-12) | provisionar dados fiscais validados e remover o aviso do template | M |
+| CP3 | Capabilities de compras (`purchase.*`) estão em mapa de código por papel; a matriz de alçadas só escolhe a capability aprovadora | substituir por autorização configurável na LAC-13 e revisar MFA/sessão | M |
+| CP4 | `audit_log` e `purchase_events` são append-only **na aplicação**; operador privilegiado ainda pode alterar | LAC-15: encadeamento criptográfico/checkpoint e cópia externa com retenção | G |
+| CP5 | Estorno é sempre do recebimento inteiro (a SPEC não prevê estorno parcial) | decidir se o PI quer estorno parcial e, se sim, especificar | P |
+| CP6 | Matriz de alçadas sem teste dedicado de duas aprovações simultâneas (a proteção existe: unique constraint + `FOR UPDATE`) | teste de concorrência no padrão de `receipts.integration.test.ts` | P |
+| CP7 | CSV de compras não neutraliza injeção de fórmula (`=`, `+`, `-`, `@`) | prefixar `'` quando a exportação for compartilhada externamente | P |
+| CP8 | PDF do PC é regerado a cada `GET` (não há coluna de `fileKey` no pedido) | persistir a chave do documento se o custo de geração incomodar | P |
+| CP9 | Sem smoke ao vivo (Playwright não está instalado no repositório); a validação foi HTTP + integração de banco | instalar Playwright e cobrir o fluxo de compras | M |
+| CP10 | Preço médio pago continua sem fórmula aprovada; o módulo grava preço unitário bruto e custos discriminados, mas não agrega (LAC-05) | aprovar a regra contábil e ligar o overlay do M1 só então | M |
+
 ---
 
 ## 5. Resolvidos

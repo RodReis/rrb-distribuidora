@@ -8,6 +8,9 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Tabs, type TabItem } from "@/components/ui/tabs";
 import { MarketSettings } from "@/components/features/settings/market-settings";
 import { AiSettings } from "@/components/features/settings/ai-settings";
+import { ApprovalMatrixSettings } from "@/components/features/purchases/approval-matrix-settings";
+import { listApprovalMatrixHistory } from "@/lib/purchases/approval-rules";
+import { getPurchaseCapabilities } from "@/lib/purchases/capabilities";
 import { getMetalsCron } from "@/lib/market/schedule";
 import { isCommodityPriceApiConfigured, isMetalsApiConfigured } from "@/lib/market/ingest-metals";
 import { isEncryptionConfigured } from "@/lib/crypto/secret-box";
@@ -25,9 +28,11 @@ export default async function ConfiguracoesPage({
   }
   const canWrite = await checkPermission("usuarios_sistema", "write");
   const user = await getCurrentUser();
+  const purchaseCapabilities = getPurchaseCapabilities(user.role);
+  const canConfigureApproval = purchaseCapabilities.includes("purchase.configure_approval");
   const params = (searchParams ? await searchParams : {}) ?? {};
   const requested = Array.isArray(params.tab) ? params.tab[0] : params.tab;
-  const active = requested === "ia" ? "ia" : "mercado";
+  const active = requested === "ia" ? "ia" : requested === "compras" ? "compras" : "mercado";
 
   const rows = await db
     .select({
@@ -66,9 +71,16 @@ export default async function ConfiguracoesPage({
     // Sem credenciais (ou sem APP_ENCRYPTION_KEY): a tela mostra o aviso e o estado vazio.
   }
 
+  // Matriz de alçadas de compras: só carrega para quem pode configurar (a capability é checada na API).
+  const approvalHistory =
+    active === "compras" && canConfigureApproval
+      ? await listApprovalMatrixHistory(user.tenantId)
+      : null;
+
   const tabs: TabItem[] = [
     { key: "mercado", label: "Mercado", href: "/configuracoes?tab=mercado" },
     { key: "ia", label: "Inteligência Artificial", href: "/configuracoes?tab=ia" },
+    { key: "compras", label: "Compras", href: "/configuracoes?tab=compras" },
   ];
 
   return (
@@ -77,12 +89,19 @@ export default async function ConfiguracoesPage({
         items={[
           { label: "Início", href: "/" },
           { label: "Configuração", href: "/configuracoes" },
-          { label: active === "ia" ? "Inteligência Artificial" : "Mercado" },
+          {
+            label:
+              active === "ia"
+                ? "Inteligência Artificial"
+                : active === "compras"
+                  ? "Compras"
+                  : "Mercado",
+          },
         ]}
       />
       <PageHeader
         title="Configuração"
-        description="Parâmetros do sistema · fontes de dados, automações e IA"
+        description="Parâmetros do sistema · fontes de dados, automações, IA e alçadas de compras"
       />
       <Tabs items={tabs} active={active} />
 
@@ -93,6 +112,8 @@ export default async function ConfiguracoesPage({
           defaultModel={aiState.default}
           credentials={aiState.credentials}
         />
+      ) : active === "compras" ? (
+        <ApprovalMatrixSettings canConfigure={canConfigureApproval} history={approvalHistory} />
       ) : (
         <MarketSettings
           canWrite={canWrite}
