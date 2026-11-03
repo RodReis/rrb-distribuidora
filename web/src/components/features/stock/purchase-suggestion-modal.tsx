@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, X } from "lucide-react";
 
@@ -112,14 +113,28 @@ export function PurchaseSuggestionModal({ isOpen, onClose, item }: PurchaseSugge
           )}
 
           <p className="text-body-sm text-titanium-muted">
-            A emissão do pedido de compra depende do módulo de Compras, ainda não disponível.
+            A quantidade sugerida é apenas uma{" "}
+            <strong className="text-titanium-light">estimativa</strong> do estoque — não é reserva
+            de estoque nem pedido confirmado. O rascunho de compra é aberto com essa quantidade para
+            você revisar fornecedor, preço e quantidades antes de salvar.
           </p>
         </div>
 
-        <div className="pt-3 border-t border-carbon-800 flex items-center justify-end">
+        <div className="pt-3 border-t border-carbon-800 flex items-center justify-end gap-2">
           <Button variant="secondary" size="md" onClick={onClose}>
             Fechar
           </Button>
+          <Link
+            href={`/compras/nova?productId=${encodeURIComponent(item.productId)}&quantity=${encodeURIComponent(
+              String(suggestedQty).replace(".", ",")
+            )}`}
+            onClick={onClose}
+          >
+            <Button variant="primary" size="md">
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Gerar pedido de compra
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

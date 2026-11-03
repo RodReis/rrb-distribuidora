@@ -17,6 +17,7 @@ import {
   index,
   unique,
   uniqueIndex,
+  foreignKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -925,5 +926,325 @@ export const aiProviderCredentials = pgTable(
       t.tenantId,
       t.provider
     ),
+  })
+);
+
+// ==========================================
+// 15. COMPRAS OPERACIONAIS (LAC-01)
+//
+// Pedido de compra manual com aprovação humana por alçada versionada. Nenhum
+// campo aqui tem default de negócio: faixa de alçada, fórmula de preço médio e
+// dados fiscais dependem de decisão do PI (ver docs/specs/LAC-01).
+// ==========================================
+
+export const purchaseOrderStatusEnum = pgEnum("purchase_order_status", [
+  "rascunho",
+  "submetido",
+  "aprovado",
+  "emitido",
+  "parcialmente_recebido",
+  "recebido_completo",
+  "rejeitado",
+  "cancelado",
+  "aguardando_alcada_configurada",
+]);
+
+/** Decisão do aprovador. Nomes em inglês como na SPEC LAC-01 §6. */
+export const purchaseApprovalDecisionEnum = pgEnum("purchase_approval_decision", [
+  "approved",
+  "rejected",
+]);
+
+export const purchaseEventTypeEnum = pgEnum("purchase_event_type", [
+  "created",
+  "updated",
+  "deleted",
+  "submitted",
+  "approved",
+  "rejected",
+  "issued",
+  "follow_up",
+  "received",
+  "receipt_reversed",
+  "cancelled",
+  "denied",
+]);
+
+export const purchaseOrders = pgTable(
+  "purchase_orders",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    /** Gerado apenas na emissão (sequência `purchase_order_number_seq`). */
+    number: integer("number"),
+    supplierId: uuid("supplier_id")
+      .notNull()
+      .references(() => suppliers.id),
+    status: purchaseOrderStatusEnum("status").default("rascunho").notNull(),
+    currency: varchar("currency", { length: 3 }).default("BRL").notNull(),
+    expectedDeliveryAt: timestamp("expected_delivery_at", { withTimezone: true }),
+    subtotal: numeric("subtotal", { precision: 16, scale: 2 }).default("0").notNull(),
+    discountTotal: numeric("discount_total", { precision: 16, scale: 2 }).default("0").notNull(),
+    additionalCostsTotal: numeric("additional_costs_total", { precision: 16, scale: 2 })
+      .default("0")
+      .notNull(),
+    grandTotal: numeric("grand_total", { precision: 16, scale: 2 }).default("0").notNull(),
+    /** Versão congelada mais recente (0 = nunca submetido). */
+    currentVersion: integer("current_version").default(0).notNull(),
+    approvedVersionHash: varchar("approved_version_hash", { length: 64 }),
+    approvedRuleVersion: integer("approved_rule_version"),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    issuedAt: timestamp("issued_at", { withTimezone: true }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    cancellationReason: text("cancellation_reason"),
+    /** Exclusão lógica do rascunho: histórico e aprovações permanecem. */
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: uuid("deleted_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    poTenantStatusIdx: index("idx_purchase_orders_tenant_status").on(t.tenantId, t.status),
+    poTenantSupplierIdx: index("idx_purchase_orders_tenant_supplier").on(t.tenantId, t.supplierId),
+    poTenantCreatedIdx: index("idx_purchase_orders_tenant_created").on(t.tenantId, t.createdAt),
+    // Número só existe depois da emissão; a unicidade vale por tenant.
+    poTenantNumberUq: uniqueIndex("uq_purchase_orders_tenant_number")
+      .on(t.tenantId, t.number)
+      .where(sql`number is not null`),
+    // Alvo das FKs compostas que impedem referência cross-tenant nas tabelas filhas.
+    // Precisa ser CONSTRAINT (não índice único): o Postgres exige a constraint ao
+    // criar a FK e o drizzle emite as constraints antes dos ALTER TABLE ... FOREIGN KEY.
+    poTenantIdUq: unique("uq_purchase_orders_tenant_id").on(t.id, t.tenantId),
+  })
+);
+
+export const purchaseOrderItems = pgTable(
+  "purchase_order_items",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    purchaseOrderId: uuid("purchase_order_id").notNull(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    /** Descrição congelada no momento do pedido. */
+    productDescriptionSnapshot: text("product_description_snapshot").notNull(),
+    quantityOrdered: numeric("quantity_ordered", { precision: 12, scale: 4 }).notNull(),
+    quantityReceived: numeric("quantity_received", { precision: 12, scale: 4 })
+      .default("0")
+      .notNull(),
+    unit: productUnitEnum("unit").default("kg").notNull(),
+    unitPrice: numeric("unit_price", { precision: 14, scale: 4 }).notNull(),
+    discountAmount: numeric("discount_amount", { precision: 14, scale: 4 }).default("0").notNull(),
+    additionalCosts: jsonb("additional_costs")
+      .$type<{ description: string; amount: number }[]>()
+      .default([])
+      .notNull(),
+    lineTotal: numeric("line_total", { precision: 16, scale: 2 }).notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    poiOrderIdx: index("idx_purchase_order_items_order").on(t.purchaseOrderId),
+    poiProductIdx: index("idx_purchase_order_items_product").on(t.productId),
+    poiOrderFk: foreignKey({
+      name: "purchase_order_items_order_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }).onDelete("cascade"),
+  })
+);
+
+export const purchaseOrderVersions = pgTable(
+  "purchase_order_versions",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    purchaseOrderId: uuid("purchase_order_id").notNull(),
+    version: integer("version").notNull(),
+    /** Cabeçalho + itens congelados como JSON canônico. */
+    content: jsonb("content").notNull(),
+    contentHash: varchar("content_hash", { length: 64 }).notNull(),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    povOrderVersionUq: unique("purchase_order_versions_order_version_uq").on(
+      t.purchaseOrderId,
+      t.version
+    ),
+    povOrderFk: foreignKey({
+      name: "purchase_order_versions_order_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }).onDelete("cascade"),
+  })
+);
+
+export const purchaseApprovalRules = pgTable(
+  "purchase_approval_rules",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    /** Versão da matriz de alçadas. Salvar cria uma nova versão inteira. */
+    version: integer("version").notNull(),
+    /** Faixa em BRL: `minTotal` inclusivo, `maxTotal` exclusivo (nulo = sem teto). */
+    minTotal: numeric("min_total", { precision: 16, scale: 2 }).notNull(),
+    maxTotal: numeric("max_total", { precision: 16, scale: 2 }),
+    currency: varchar("currency", { length: 3 }).default("BRL").notNull(),
+    /** Capability exigida do aprovador (ex.: `purchase.approve`). */
+    approverPermission: varchar("approver_permission", { length: 40 }).notNull(),
+    requiredApprovals: integer("required_approvals").default(1).notNull(),
+    activeFrom: timestamp("active_from", { withTimezone: true }).notNull(),
+    activeUntil: timestamp("active_until", { withTimezone: true }),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    approvedBy: uuid("approved_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    parVersionUq: unique("purchase_approval_rules_version_uq").on(
+      t.tenantId,
+      t.version,
+      t.minTotal
+    ),
+    parTenantActiveIdx: index("idx_purchase_approval_rules_tenant_active").on(
+      t.tenantId,
+      t.activeFrom
+    ),
+  })
+);
+
+export const purchaseApprovals = pgTable(
+  "purchase_approvals",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    purchaseOrderId: uuid("purchase_order_id").notNull(),
+    orderVersion: integer("order_version").notNull(),
+    contentHash: varchar("content_hash", { length: 64 }).notNull(),
+    ruleVersion: integer("rule_version").notNull(),
+    decision: purchaseApprovalDecisionEnum("decision").notNull(),
+    actorUserId: uuid("actor_user_id")
+      .notNull()
+      .references(() => users.id),
+    justification: text("justification"),
+    decidedAt: timestamp("decided_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    paActorUq: unique("purchase_approvals_actor_version_uq").on(
+      t.purchaseOrderId,
+      t.orderVersion,
+      t.actorUserId
+    ),
+    paOrderIdx: index("idx_purchase_approvals_order").on(t.purchaseOrderId, t.orderVersion),
+    paOrderFk: foreignKey({
+      name: "purchase_approvals_order_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }).onDelete("cascade"),
+  })
+);
+
+export const purchaseEvents = pgTable(
+  "purchase_events",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    purchaseOrderId: uuid("purchase_order_id").notNull(),
+    itemId: uuid("item_id"),
+    eventType: purchaseEventTypeEnum("event_type").notNull(),
+    /** Nulo = ação automática do sistema. */
+    actorUserId: uuid("actor_user_id").references(() => users.id),
+    payload: jsonb("payload"),
+    idempotencyKey: varchar("idempotency_key", { length: 120 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    peOrderIdx: index("idx_purchase_events_order").on(t.purchaseOrderId, t.createdAt),
+    peIdemUq: uniqueIndex("uq_purchase_events_tenant_idem")
+      .on(t.tenantId, t.idempotencyKey)
+      .where(sql`idempotency_key is not null`),
+    peOrderFk: foreignKey({
+      name: "purchase_events_order_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }).onDelete("cascade"),
+  })
+);
+
+export const purchaseReceipts = pgTable(
+  "purchase_receipts",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    purchaseOrderId: uuid("purchase_order_id").notNull(),
+    purchaseOrderItemId: uuid("purchase_order_item_id")
+      .notNull()
+      .references(() => purchaseOrderItems.id),
+    lotId: uuid("lot_id")
+      .notNull()
+      .references(() => stockLots.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+    unit: productUnitEnum("unit").notNull(),
+    unitCost: numeric("unit_cost", { precision: 14, scale: 4 }).notNull(),
+    receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
+    supplierDocumentReference: text("supplier_document_reference"),
+    receivedBy: uuid("received_by")
+      .notNull()
+      .references(() => users.id),
+    reversedAt: timestamp("reversed_at", { withTimezone: true }),
+    reversedBy: uuid("reversed_by").references(() => users.id),
+    reversalReason: text("reversal_reason"),
+    idempotencyKey: varchar("idempotency_key", { length: 120 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    prIdemUq: unique("purchase_receipts_tenant_idem_uq").on(t.tenantId, t.idempotencyKey),
+    prOrderIdx: index("idx_purchase_receipts_order").on(t.purchaseOrderId),
+    prOrderFk: foreignKey({
+      name: "purchase_receipts_order_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }).onDelete("cascade"),
   })
 );

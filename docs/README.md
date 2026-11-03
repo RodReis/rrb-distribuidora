@@ -9,7 +9,8 @@ SaaS de inteligência preventiva para distribuidoras de ferro, aço e alumínio.
 | M1 — Inteligência de Mercado | 🟡 implementado e integrado na `main` (PRs #1 e #2); **aguardando homologação** — pendências em [`specs/MVP-01-mercado.md`](./specs/MVP-01-mercado.md#10-estado-da-implementação-02112026) |
 | M2 — Estoque Preventivo | 🟡 implementado localmente (lint, build e 33 testes ok); **aguardando homologação** — falta CRUD completo de retalhos, `DataTable` padrão e validação em produção (job 04h00 agendado, aguardando deploy do worker); ver [`specs/MVP-02-estoque.md`](./specs/MVP-02-estoque.md#10-estado-da-implementação-02112026) |
 | M3 — Orçamento de Corte | 🟡 implementado localmente (lint, build e 113 testes ok); **aguardando homologação** — falta exercitar o upload real no Cloudflare R2, testes de integração com Postgres e validar as fórmulas contra tabela de usina; ver [`specs/MVP-03-orcamentos.md`](./specs/MVP-03-orcamentos.md#10-estado-da-implementação-02112026) |
-| M4 — Copiloto + Governança | ⬜ não iniciado |
+| M4 — Copiloto + Governança | 🟡 implementado parcialmente (briefing 07h, Command Center, auditoria, termos de uso, provedores de IA por tenant); **aguardando homologação** — pendências em [`specs/MVP-04-copiloto.md`](./specs/MVP-04-copiloto.md#103-pendências) |
+| LAC-01 — Compras operacionais | 🟡 implementado localmente (schema, API, telas e testes); **não homologado** — emissão bloqueada até o PI aprovar a matriz de alçadas; ver [`specs/LAC-01-compras-operacionais.md`](./specs/LAC-01-compras-operacionais.md#13-estado-da-implementação-03112026) |
 
 ## Índice de documentos
 
@@ -18,7 +19,7 @@ SaaS de inteligência preventiva para distribuidoras de ferro, aço e alumínio.
 | [`PRD.md`](./PRD.md) | Product Requirements Document v1.0 — visão completa do produto (12–18 meses) |
 | [`plano-mvps-metalagents.md`](./plano-mvps-metalagents.md) | **Plano mestre v1.1** — fatiamento em MVPs, decisões técnicas, arquitetura, cronograma |
 | [`specs/BACKLOG-LACUNAS-PRD.md`](./specs/BACKLOG-LACUNAS-PRD.md) | Inventário rastreável das lacunas entre PRD, plano e specs; pacotes propostos e decisões ainda pendentes (não autoriza implementação) |
-| [`specs/LAC-01-compras-operacionais.md`](./specs/LAC-01-compras-operacionais.md) | SPEC detalhada proposta — pedido manual, aprovação, emissão e recebimento de compras (não implementada; requer aprovações de negócio) |
+| [`specs/LAC-01-compras-operacionais.md`](./specs/LAC-01-compras-operacionais.md) | SPEC detalhada — pedido manual, aprovação, emissão e recebimento de compras. **Implementada localmente em 03/11/2026**; emissão bloqueada até o PI aprovar a matriz de alçadas |
 | [`specs/LAC-02-fornecedores-desempenho.md`](./specs/LAC-02-fornecedores-desempenho.md) | SPEC proposta — fornecedor preferencial, lead time e OTIF |
 | [`specs/LAC-03-estoque-reservas-depositos.md`](./specs/LAC-03-estoque-reservas-depositos.md) | SPEC proposta — reservas, depósitos, transferências, QR e sazonalidade |
 | [`specs/LAC-04-producao-apontamento.md`](./specs/LAC-04-producao-apontamento.md) | SPEC proposta — ordens de produção, consumo e apontamento mobile/offline |

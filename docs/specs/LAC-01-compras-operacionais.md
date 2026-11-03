@@ -1,7 +1,7 @@
 # SPEC LAC-01 — Compras operacionais e aprovação humana
 
-**Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta detalhada para priorização/aprovação do PI; não implementada  
+**Projeto:** MetalAgents · **Versão:** 1.1 · **Data:** 03/11/2026  
+**Status:** implementada localmente em 03/11/2026 (schema, serviço, API, telas, testes); **não homologada**. A emissão permanece bloqueada até o PI configurar e aprovar a matriz de alçadas (§3). A aprovação formal dos parâmetros de negócio continua pendente — ver §13.  
 **Dependências:** M0 (usuários, fornecedores, produtos, depósitos, RBAC), M2 (lotes e movimentos), LAC-13 (autorização), LAC-15 (auditoria íntegra)  
 **Complementos:** RFQ/comparativo multi-fornecedor e integração externa permanecem em etapa posterior/Fase 2, conforme plano.  
 **Regras de interface:** seguir [`../regras-frontend.md`](../regras-frontend.md).
@@ -236,4 +236,73 @@ RFQ/disparo para vários fornecedores, comparativo, conectores/API de fornecedor
 | Preço médio distorcido por componentes desconhecidos | Persistir componentes e manter agregado automático desligado até regra aprovada |
 | Diretor somente leitura no M0 | Capability explícita e usuários aprovadores nomeados; não presumir que role implica alçada |
 | PDF sem dados da distribuidora | Bloquear emissão final até LAC-12 fornecer cadastro verificado |
+
+---
+
+## 13. Estado da implementação (03/11/2026)
+
+**Implementado localmente, ainda não homologado.** A emissão continua bloqueada até o PI configurar e aprovar a matriz de alçadas (§3); sem faixa aplicável o PC fica em `aguardando_alcada_configurada` e nenhuma rota emite. Os valores de negócio continuam pendentes — nada foi inferido em código.
+
+### 13.1 O que existe
+
+| Camada | Entrega |
+|---|---|
+| Banco | migration `0012` com as 7 tabelas do §6, FKs compostas `(id, tenant_id)` para barrar referência cross-tenant, unicidade de número por tenant e sequência `purchase_order_number_seq` (consumida só na emissão) |
+| Domínio | `web/src/lib/purchases/`: máquina de estados (§5), hash canônico do conteúdo aprovado, alçada versionada com validação de lacunas/sobreposições, capabilities por papel, precificação no servidor, serviço de rascunho/submissão/decisão/emissão/follow-up/cancelamento, recebimento e estorno atômicos |
+| API | `GET/POST /api/purchases`, `GET/PATCH/DELETE /api/purchases/[id]`, `POST .../submit`, `.../decision`, `.../issue`, `.../events`, `.../cancel`, `.../receipts`, `POST /api/purchases/receipts/[receiptId]/reverse`, `GET/POST /api/purchases/approval-rules`, `GET /api/purchases/export` (CSV) e `GET /api/purchases/[id]/pdf` |
+| Telas | `/compras` (lista, KPIs, filtros, abas e ações por estado), `/compras/nova`, `/compras/[id]` (abas Itens/Aprovações/Timeline/Recebimentos/Documento), `/compras/[id]/editar` e Configurações › Compras (matriz de alçadas versionada) |
+| Integração M2 | “Gerar pedido” da sugestão de compra abre `/compras/nova` com a quantidade sugerida marcada como estimativa; não emite, não aprova e não reserva estoque |
+| Testes | regras puras (precificação, hash, estados, capabilities, matriz), fluxo de integração com Postgres real (rascunho → submissão → aprovação → emissão idempotente → edição que invalida aprovação → rejeição → cancelamento) e recebimento/estorno (parcial, retry, excesso, cross-tenant, concorrência) |
+
+### 13.2 Decisões técnicas da implementação
+
+| Tema | Decisão |
+|---|---|
+| Autorização | capabilities `purchase.*` / `stock.receive_purchase` mapeadas por papel em código (`lib/purchases/capabilities.ts`), negando por padrão. Não deriva de `role_permissions.can_write` (§7); a substituição por autorização configurável fica na LAC-13 |
+| Faixas | `min_total` inclusivo e `max_total` exclusivo; última faixa aberta. Matriz sem faixa aplicável ⇒ `aguardando_alcada_configurada` |
+| Versão aprovada | hash SHA-256 de JSON canônico (chaves ordenadas, decimais normalizados) gravado em `purchase_order_versions`; a emissão recalcula o hash do conteúdo atual e recusa divergência, inclusive edição feita fora da aplicação |
+| Alçada na emissão | além do hash, a emissão exige que a versão da matriz ainda seja a vigente e que as aprovações exigidas existam |
+| Idempotência | emissão, recebimento e estorno usam chave por tenant (`purchase_events.idempotency_key` e `purchase_receipts.idempotency_key`); mesma chave + conteúdo diferente ⇒ 409 |
+| Numeração | sequência global consumida na emissão, unicidade por tenant (`number` nulo enquanto rascunho) |
+| Recebimento | lote + movimento `ENTRADA_COMPRA` + `purchase_receipts` + saldo do item + estado do PC na mesma transação, com `FOR UPDATE` no pedido (serializa concorrência) |
+| Estorno | não apaga nada: marca o recebimento e grava movimento compensatório `ESTORNO_COMPRA`; estorno é sempre do recebimento inteiro |
+| Documento | PDF do PC emitido com aviso fixo de homologação enquanto a LAC-12 (cadastro fiscal) não existir |
+| CSV | lista filtrada, BOM UTF-8, separador `;`, teto de 5.000 linhas com aviso `X-Export-Truncated` |
+| Telas de alçada | `/configuracoes?tab=compras` (adaptação da rota `/configuracoes/compras/alçadas` do §7 ao padrão de abas já existente) |
+
+### 13.3 Desvios registrados em relação à SPEC
+
+1. `deleted_at`/`deleted_by` foram adicionados a `purchase_orders` para a exclusão lógica de rascunho exigida no US-01, que não constava do DDL do §6.
+2. O vínculo movimento ↔ pedido é feito por `purchase_receipts` (FK para PC e item) mais `referenceDocument = #PC-0001`; não foram criadas colunas novas em `stock_movements` para não alterar o modelo do M2.
+3. O cabeçalho do PC não tem campo de observações (a SPEC só prevê observação por item); a timeline cobre o contexto.
+4. O estorno parcial de um recebimento não está previsto na SPEC e não foi implementado.
+5. A navegação exibe “Compras & RFQ Auto”; o RFQ continua fora desta entrega (Fase 2).
+6. A entrada manual de estoque “por compra” do M2 (`recordStockEntry`) continua existindo; restringi-la a PC emitido é a tarefa 7 do §11 e fica para a homologação, para não quebrar fluxos do M2 já em uso.
+
+### 13.4 Checklist de aceite (§10)
+
+| Item | Situação |
+|---|---|
+| Matriz de alçada aprovada e ativa antes de emissão | 🟡 bloqueio implementado e testado; **aprovação dos valores pelo PI pendente** |
+| Emissão só com aprovação válida da versão/hash exatos | ✅ |
+| Criador não aprova; papel/tenant/estado negados no servidor | ✅ |
+| Edição material invalida aprovação; sem bypass por API/job/retry | ✅ (revalidação de hash na emissão) |
+| Emissão idempotente, numerada, auditada e documento da versão aprovada | ✅ |
+| Rascunho/aprovação/emissão não altera estoque | ✅ |
+| Recebimento parcial atômico e sem duplicar sob retry | ✅ |
+| PC não emitido/cancelado/de outro tenant não gera entrada | ✅ |
+| Rejeição/cancelamento/estorno com justificativa e histórico preservado | ✅ |
+| CSV respeita filtro, tenant e autorização; logs sem segredos | ✅ |
+| Concorrência em aprovações e recebimentos | 🟡 recebimentos cobertos por teste; aprovação protegida por constraint/`FOR UPDATE`, sem teste dedicado |
+| M1 diferencia preço pago manual × transacional | ⏳ depende da LAC-05 (fórmula aprovada); nada foi alterado no M1 |
+
+### 13.5 Pendências de homologação
+
+1. PI aprovar faixas, aprovadores e quantidades da matriz (sem isso não há go-live de emissão).
+2. LAC-12/termos: cadastro fiscal da distribuidora para o PDF deixar de ser “homologação”.
+3. LAC-05: fórmula de preço médio pago (componentes, janela, devoluções) e overlay no M1.
+4. LAC-13: trocar o mapa de capabilities em código por autorização configurável e revisar MFA/sessão.
+5. LAC-15: encadeamento/immutabilidade da trilha (hoje `audit_log` e `purchase_events` são append-only na aplicação).
+6. Retirar/limitar a entrada manual “por compra” do M2 (tarefa 7 do §11) depois de validar os fluxos equivalentes no PC.
+7. Smoke ao vivo com Playwright e homologação do PDF gerado no ambiente real.
 

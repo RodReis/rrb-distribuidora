@@ -17,19 +17,23 @@ metalúrgico de orçamento e os jobs de mercado.
 | Autenticação | Auth.js (**next-auth 5 beta**) com credenciais, Argon2id e RBAC por módulo                                 |
 | PDF          | `@react-pdf/renderer` no servidor                                                                          |
 | Storage      | Cloudflare R2 (S3-compatible) com fallback local em `.data/quotes`                                         |
-| Testes       | Vitest (12 arquivos, 113 testes)                                                                           |
+| Testes       | Vitest (unitários + integração com Postgres opt-in via `RUN_DB_TESTS=1`)                                   |
 | Runtime      | Node **24** · pnpm **10.33**                                                                               |
 
 ## Módulos implementados
 
-| MVP                              | Escopo                                                                    | Rotas principais                                                                                                                                     |
-| -------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **M0 — Fundação**                | Login multi-tenant, RBAC, shell, cadastros, importação CSV                | `/login`, `/produtos`, `/clientes`, `/fornecedores`, `/maquinas`, `/depositos`, `/importar`, `/configuracoes`, `/admin/usuarios`, `/admin/auditoria` |
-| **M1 — Inteligência de Mercado** | Cotações LME/HRC/PTAX, séries, alertas, paridade de importação            | `/mercado`, `/mercado/arbitragem`, `/api/market/*`, `/api/internal/jobs/*`                                                                           |
-| **M2 — Estoque Preventivo**      | Lotes, movimentos, previsão de demanda, matriz de ruptura, retalhos       | `/estoque`, `/estoque/lotes`, `/estoque/retalhos`, `/api/stock/*`                                                                                    |
-| **M3 — Orçamentos**              | Motor de peso/custo, precificação preventiva, funil, PDF, pedido de venda | `/vendas/orcamentos`, `/vendas/orcamentos/novo`, `/vendas/orcamentos/[id]`, `/api/quotes/*`                                                          |
+| MVP                              | Escopo                                                                                              | Rotas principais                                                                                                                                     |
+| -------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M0 — Fundação**                | Login multi-tenant, RBAC, shell, cadastros, importação CSV                                          | `/login`, `/produtos`, `/clientes`, `/fornecedores`, `/maquinas`, `/depositos`, `/importar`, `/configuracoes`, `/admin/usuarios`, `/admin/auditoria` |
+| **M1 — Inteligência de Mercado** | Cotações LME/HRC/PTAX, séries, alertas, paridade de importação                                      | `/mercado`, `/mercado/arbitragem`, `/api/market/*`, `/api/internal/jobs/*`                                                                           |
+| **M2 — Estoque Preventivo**      | Lotes, movimentos, previsão de demanda, matriz de ruptura, retalhos                                 | `/estoque`, `/estoque/lotes`, `/estoque/retalhos`, `/api/stock/*`                                                                                    |
+| **M3 — Orçamentos**              | Motor de peso/custo, precificação preventiva, funil, PDF, pedido de venda                           | `/vendas/orcamentos`, `/vendas/orcamentos/novo`, `/vendas/orcamentos/[id]`, `/api/quotes/*`                                                          |
+| **LAC-01 — Compras**             | Pedido de compra, alçada versionada, aprovação, emissão idempotente, follow-up, recebimento/estorno | `/compras`, `/compras/nova`, `/compras/[id]`, `/configuracoes?tab=compras`, `/api/purchases/*`                                                       |
 
-O M4 (copiloto com tool-calling) ainda não foi iniciado.
+O M4 (copiloto com tool-calling) está implementado parcialmente: briefing 07h, Command Center,
+trilha de auditoria, termos de uso com aceite e provedores de IA por tenant; ainda sem homologação.
+O LAC-01 (compras) está implementado localmente e não homologado — a emissão fica bloqueada até o
+PI configurar a matriz de alçadas em _Configuração › Compras_.
 
 ## Pré-requisitos
 
@@ -137,6 +141,7 @@ src/
 │   ├── db/               # schema Drizzle, migrations e seeds
 │   ├── market/           # ingestão, indicadores, paridade, alertas
 │   ├── stock/            # motor preditivo, movimentos, retalhos, KPIs
+│   ├── purchases/        # compras: estado, alçada, versão/hash, recebimento, PDF e CSV
 │   ├── metallurgy/       # fórmulas de peso e tempo de corte (puro, testado)
 │   ├── quotes/           # precificação, serviço de orçamento, PDF
 │   └── storage/          # R2 com fallback local
@@ -153,7 +158,10 @@ pnpm build
 ```
 
 - A suíte cobre o que é crítico e determinístico: motor metalúrgico, precificação/status, delta de mercado,
-  normalização de custo de reposição, motor preditivo de estoque e hardening do storage.
+  normalização de custo de reposição, motor preditivo de estoque, hardening do storage, regras de compras
+  (alçada, versão/hash, estados) e recebimento/estorno.
+- Os testes de integração com Postgres rodam só com `RUN_DB_TESTS=1` e o banco de dev no ar; eles criam os
+  próprios registros e limpam ao final (`pnpm test` sem a variável os ignora).
 - **Não** rode `pnpm build` com o `pnpm dev` ativo: os dois escrevem em `.next` e o dev passa a responder 500
   (`Could not find the module ... in the React Client Manifest`). Pare o dev, rode o build, apague `.next` e suba de novo.
 

@@ -1,7 +1,7 @@
 # Backlog de specs — lacunas do PRD
 
-**Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** specs LAC-01 a LAC-15 detalhadas como propostas de backlog; não autoriza implementação nem altera o escopo já homologado dos MVPs.
+**Projeto:** MetalAgents · **Versão:** 1.1 · **Data:** 03/11/2026  
+**Status:** specs LAC-01 a LAC-15 detalhadas como propostas de backlog. A LAC-01 foi implementada localmente em 03/11/2026 (não homologada; emissão bloqueada até o PI aprovar a matriz de alçadas) — ver §13 da spec. As demais não autorizam implementação nem alteram o escopo já homologado dos MVPs.
 
 ## 1. Objetivo e regra de leitura
 
@@ -13,7 +13,7 @@ Este documento fecha as lacunas entre `PRD.md`, `plano-mvps-metalagents.md` e `s
 
 | ID | Spec proposta | Conteúdo e lacunas cobertas | Dependências |
 |---|---|---|---|
-| [LAC-01](./LAC-01-compras-operacionais.md) | Compras operacionais e governança de aprovação | Pedido manual, itens/fornecedor, alçada por valor e papel, estados, aprovação humana, emissão, follow-up, recebimento referenciado ao PC, comparativo/RFQ como etapa separada; preço médio pago alimentado por compras reais; lote mínimo configurável; nenhuma compra emitida sem aprovação válida | M0, M2 |
+| [LAC-01](./LAC-01-compras-operacionais.md) | Compras operacionais e governança de aprovação | Pedido manual, itens/fornecedor, alçada por valor e papel, estados, aprovação humana, emissão, follow-up, recebimento referenciado ao PC, comparativo/RFQ como etapa separada; preço médio pago alimentado por compras reais; lote mínimo configurável; nenhuma compra emitida sem aprovação válida. **Implementada localmente em 03/11/2026 (não homologada);** faixas de alçada e demais parâmetros de negócio continuam pendentes de aprovação do PI | M0, M2 |
 | [LAC-02](./LAC-02-fornecedores-desempenho.md) | Fornecedores e desempenho | Fornecedor preferencial por produto/família, lead time por produto e fornecedor, histórico de entrega, cálculo OTIF com definição de pontualidade/completude e dados ausentes | M0, LAC-01 |
 | [LAC-03](./LAC-03-estoque-reservas-depositos.md) | Estoque multi-depósito, reserva e identificação | Reserva por pedido de venda, transferências entre depósitos, matriz/filiais, QR real (geração, impressão, leitura e destino), previsão sazonal e fixture mensurável de ruptura | M2, M3 |
 | [LAC-04](./LAC-04-producao-apontamento.md) | Produção e apontamento | Ciclo de ordem de produção, transições incluindo `em_corte`, consumo de lote/retalho, apontamento mobile/offline, perdas e retalhos gerados | M3, LAC-03 |
@@ -39,7 +39,7 @@ Pesos 50/30/20 versus janelas 30/60/90 dias são decisão de negócio. Até apro
 
 ### 3.2 Compras e preços (LAC-01/LAC-05)
 
-Enquanto não existir pedido de compra aprovado, o aceite “nenhuma compra emitida sem aprovação humana” é **não aplicável**, não aprovado por vacuidade. A SPEC deve estabelecer evento verificável de emissão externa/interna, aprovador distinto quando configurado, valor/moeda, versão do conteúdo aprovado, idempotência e bloqueio para edição posterior. Sugestão de compra no M2 deve ser rotulada como simulação sem efeito e ter destino explícito para LAC-01; não pode se apresentar como pedido emitido.
+Enquanto não existir pedido de compra aprovado, o aceite “nenhuma compra emitida sem aprovação humana” é **não aplicável**, não aprovado por vacuidade. Com a implementação local da LAC-01 (03/11/2026) o aceite passou a ser verificável: a emissão revalida o hash da versão aprovada, a faixa da matriz vigente e as aprovações exigidas, e sem faixa aplicável o pedido fica `aguardando_alcada_configurada`. A SPEC estabeleceu evento verificável de emissão externa/interna, aprovador distinto quando configurado, valor/moeda, versão do conteúdo aprovado, idempotência e bloqueio para edição posterior. Sugestão de compra no M2 continua rotulada como simulação sem efeito e agora tem destino explícito (`/compras/nova` com quantidade estimada); não se apresenta como pedido emitido.
 
 Preço médio pago deve derivar de linhas recebidas/faturadas de compras conforme regra contábil a definir (quantidade, frete/impostos/descontos, devoluções, moeda, unidade e janela). O campo manual existente permanece fonte manual identificada até haver fonte transacional; não misturar os dois sem proveniência.
 
