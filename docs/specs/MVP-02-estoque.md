@@ -257,7 +257,7 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 |---|---|---|---|
 | Tabela extra | 4 tabelas | + `stock_cycle_counts`; coluna `stock_remnants.notes` | persistir contagens/acuracidade e a origem do retalho |
 | Consumo | média 30/60/90 | média ponderada 50% / 30% / 20% | pesos não definidos na spec — **confirmar com o PI** |
-| Lead time | do fornecedor homologado | `suppliers.lead_time_days` do **primeiro lote com fornecedor**; padrão 15 d | não há fornecedor padrão por produto no M0 |
+| Lead time | do fornecedor homologado | A implementação descrita usa `suppliers.lead_time_days` do **primeiro lote com fornecedor** e padrão 15 d | Esta regra não identifica fornecedor padrão por produto e pode mascarar dado ausente. LAC-02 define preferência/lead time por produto; até migração e validação, o valor legado deve aparecer como estimativa com origem, não como lead time homologado |
 | Curva ABC | faturamento/valor imobilizado | valor imobilizado (saldo em kg × `replacement_cost_base` em R$/kg), cortes 80/95%; sem conversão para kg usa o valor contábil dos lotes | não há vendas antes do M3 |
 | Rotas | `/estoque/retalhos`, `/estoque/lotes` | redirecionam para `/estoque?tab=…` | `regras-frontend.md` §7 (abas com URL) |
 | Rotas extras | — | `GET /api/stock/lots`, `GET /api/stock/movements` | apoiar as abas |
@@ -266,7 +266,7 @@ export const stockPredictiveMetrics = pgTable("stock_predictive_metrics", {
 | Matriz | todos os produtos | só produtos **com linha em `stock_predictive_metrics`** (após o 1º recálculo); status vem do motor, não é recalculado no cliente; ordenada por urgência | evitar "ruptura" falsa e divergência com o KPI |
 | Status EXCESSO | azul | `titanium-light` sobre `titanium-steel/20` | `regras-frontend.md` §2.1 proíbe cores fora da paleta |
 | Matching (US-04) | alerta no orçamento (M3) | bloco informativo "nenhum pedido sob medida" + simulador manual que **reserva** o retalho (`reserveRemnantAction`) | M3 não existe; o pedido PV-4491 do mockup era fictício |
-| Sugestão de compra | botão "Gerar PO" | modal informativo (quantidade, comprar até, ruptura em); **não emite pedido** | não há módulo de Compras |
+| Sugestão de compra | botão "Gerar PO" | modal informativo (quantidade, comprar até, ruptura em); **não emite pedido** | LAC-01 especifica destino futuro para criar rascunho de PC; sugestão não aprova, não emite e não reserva estoque |
 | Gráfico | "Projeção Prophet" com IC 95% | projeção **linear** (estoque − consumo × dia) com ROP, segurança e lead time | não há modelo Prophet nem IC; spec veda ML não linear |
 | Removido do mockup | "Varredura LIDAR + RFID", "Matching IA 88,6%", "Redução -24% pós IA", "RFQ disparado (5 usinas)" | não implementados | não existem no produto |
 

@@ -5,6 +5,12 @@
 **Autor:** Rodrigo Reis  
 **Base:** `PRD.md` (PRD v1.0) + análise dos 14 mockups de tela + especificações detalhadas em `specs/`
 
+**Lacunas e backlog posterior:** ver [`specs/BACKLOG-LACUNAS-PRD.md`](./specs/BACKLOG-LACUNAS-PRD.md). Os pacotes LAC são destinos documentais propostos, não parte automática dos MVPs 0–4 nem autorização de implementação.
+
+O backlog LAC-01 a LAC-15 possui specs propostas e rastreáveis; prioridade, fase e parâmetros de negócio permanecem sujeitos à aprovação do PI. Consulte o índice em [`docs/README.md`](./README.md#índice-de-documentos).
+
+**SPEC detalhada proposta:** [`specs/LAC-01-compras-operacionais.md`](./specs/LAC-01-compras-operacionais.md) descreve pedido manual, aprovação, emissão e recebimento, sem alterar a classificação de RFQ/comparativo como etapa posterior.
+
 ---
 
 ## 1. Contexto

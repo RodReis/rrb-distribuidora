@@ -17,6 +17,22 @@ SaaS de inteligência preventiva para distribuidoras de ferro, aço e alumínio.
 |---|---|
 | [`PRD.md`](./PRD.md) | Product Requirements Document v1.0 — visão completa do produto (12–18 meses) |
 | [`plano-mvps-metalagents.md`](./plano-mvps-metalagents.md) | **Plano mestre v1.1** — fatiamento em MVPs, decisões técnicas, arquitetura, cronograma |
+| [`specs/BACKLOG-LACUNAS-PRD.md`](./specs/BACKLOG-LACUNAS-PRD.md) | Inventário rastreável das lacunas entre PRD, plano e specs; pacotes propostos e decisões ainda pendentes (não autoriza implementação) |
+| [`specs/LAC-01-compras-operacionais.md`](./specs/LAC-01-compras-operacionais.md) | SPEC detalhada proposta — pedido manual, aprovação, emissão e recebimento de compras (não implementada; requer aprovações de negócio) |
+| [`specs/LAC-02-fornecedores-desempenho.md`](./specs/LAC-02-fornecedores-desempenho.md) | SPEC proposta — fornecedor preferencial, lead time e OTIF |
+| [`specs/LAC-03-estoque-reservas-depositos.md`](./specs/LAC-03-estoque-reservas-depositos.md) | SPEC proposta — reservas, depósitos, transferências, QR e sazonalidade |
+| [`specs/LAC-04-producao-apontamento.md`](./specs/LAC-04-producao-apontamento.md) | SPEC proposta — ordens de produção, consumo e apontamento mobile/offline |
+| [`specs/LAC-05-historico-preco-pago.md`](./specs/LAC-05-historico-preco-pago.md) | SPEC proposta — exportação de mercado, preço pago e alertas |
+| [`specs/LAC-06-analises-mercado.md`](./specs/LAC-06-analises-mercado.md) | SPEC proposta — sazonalidade, correlações e spread histórico |
+| [`specs/LAC-07-sinal-backtesting.md`](./specs/LAC-07-sinal-backtesting.md) | SPEC proposta — sinal composto e backtesting reproduzível |
+| [`specs/LAC-08-noticias-regulatorio.md`](./specs/LAC-08-noticias-regulatorio.md) | SPEC proposta — notícias, sentimento e feed regulatório |
+| [`specs/LAC-09-financeiro-credito.md`](./specs/LAC-09-financeiro-credito.md) | SPEC proposta — títulos, crédito, inadimplência e fluxo financeiro |
+| [`specs/LAC-10-logistica.md`](./specs/LAC-10-logistica.md) | SPEC proposta — expedição, romaneio e rastreio |
+| [`specs/LAC-11-qualidade-rastreabilidade.md`](./specs/LAC-11-qualidade-rastreabilidade.md) | SPEC proposta — certificados, qualidade e rastreabilidade de lotes |
+| [`specs/LAC-12-parametros-comerciais-documentos.md`](./specs/LAC-12-parametros-comerciais-documentos.md) | SPEC proposta — parâmetros comerciais/fiscais e dados da distribuidora |
+| [`specs/LAC-13-identidade-permissoes.md`](./specs/LAC-13-identidade-permissoes.md) | SPEC proposta — MFA, recuperação de senha, desativação, SSO e permissões de agente |
+| [`specs/LAC-14-operacao-sre.md`](./specs/LAC-14-operacao-sre.md) | SPEC proposta — confiabilidade, backup/restore, migrations e jobs |
+| [`specs/LAC-15-auditoria-integra-agentes.md`](./specs/LAC-15-auditoria-integra-agentes.md) | SPEC proposta — trilha de auditoria verificável e ações de agentes |
 | [`regras-frontend.md`](./regras-frontend.md) | ⛔ **Regras obrigatórias de frontend** — fidelidade ao protótipo, tokens, componentes, toasts, breadcrumbs, abas e CRUD completo |
 | [`specs/MVP-00-fundacao.md`](./specs/MVP-00-fundacao.md) | Spec M0 — Auth/RBAC, shell, cadastros (RF-01), importação CSV (~3 sem) |
 | [`specs/MVP-01-mercado.md`](./specs/MVP-01-mercado.md) | Spec M1 — Cotações LME/HRC/PTAX, gráficos, alertas, paridade de importação (~4 sem) |
