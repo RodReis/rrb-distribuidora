@@ -18,6 +18,7 @@ import {
   unique,
   uniqueIndex,
   foreignKey,
+  check,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -552,6 +553,9 @@ export const stockReservations = pgTable(
       .notNull()
       .references(() => warehouses.id),
     quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+    consumedQuantity: numeric("consumed_quantity", { precision: 12, scale: 4 })
+      .default("0")
+      .notNull(),
     status: varchar("status", { length: 20 }).notNull().default("ativa"),
     reservedBy: uuid("reserved_by")
       .notNull()
@@ -560,6 +564,10 @@ export const stockReservations = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
+    consumedQuantityCheck: check(
+      "stock_reservations_consumed_quantity_ck",
+      sql`${t.consumedQuantity} >= 0 and ${t.consumedQuantity} <= ${t.quantity}`
+    ),
     tenantSourceIdx: index("stock_reservations_tenant_source_idx").on(
       t.tenantId,
       t.sourceType,
@@ -969,6 +977,270 @@ export const salesOrders = pgTable(
     salesOrderTenantIdx: index("idx_sales_orders_tenant").on(t.tenantId, t.orderStatus),
     salesOrderQuoteIdx: index("idx_sales_orders_quote").on(t.quoteId),
     salesOrderCustomerIdx: index("idx_sales_orders_customer").on(t.customerId),
+  })
+);
+
+// ==========================================
+// 13. PRODUÇÃO (LAC-04)
+// ==========================================
+
+export const productionOrders = pgTable(
+  "production_orders",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    number: serial("number").notNull().unique(),
+    salesOrderId: uuid("sales_order_id")
+      .notNull()
+      .references(() => salesOrders.id),
+    status: varchar("status", { length: 30 }).notNull().default("planejada"),
+    priority: integer("priority").notNull().default(0),
+    plannedStart: timestamp("planned_start", { withTimezone: true }),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    version: integer("version").notNull().default(1),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    productionOrderSalesUq: uniqueIndex("production_orders_tenant_sales_order_uq").on(
+      t.tenantId,
+      t.salesOrderId
+    ),
+    productionOrderTenantStatusIdx: index("production_orders_tenant_status_idx").on(
+      t.tenantId,
+      t.status,
+      t.priority,
+      t.createdAt
+    ),
+    productionOrderVersionCheck: check("production_orders_version_ck", sql`${t.version} > 0`),
+    productionOrderPriorityCheck: check("production_orders_priority_ck", sql`${t.priority} >= 0`),
+    productionOrderStatusCheck: check(
+      "production_orders_status_ck",
+      sql`${t.status} in ('planejada', 'liberada', 'em_corte', 'pausada', 'bloqueada_qualidade', 'concluida', 'cancelada')`
+    ),
+  })
+);
+
+export const productionOrderItems = pgTable(
+  "production_order_items",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => productionOrders.id, { onDelete: "cascade" }),
+    quoteItemId: uuid("quote_item_id")
+      .notNull()
+      .references(() => quoteItems.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    plannedQty: numeric("planned_qty", { precision: 12, scale: 4 }).notNull(),
+    completedQty: numeric("completed_qty", { precision: 12, scale: 4 }).default("0").notNull(),
+    cancelledQty: numeric("cancelled_qty", { precision: 12, scale: 4 }).default("0").notNull(),
+    cancellationReason: text("cancellation_reason"),
+    specSnapshot: jsonb("spec_snapshot").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    productionItemQuoteUq: uniqueIndex("production_order_items_order_quote_uq").on(
+      t.orderId,
+      t.quoteItemId
+    ),
+    productionItemProductIdx: index("production_order_items_product_idx").on(t.productId),
+    productionItemQuantitiesCheck: check(
+      "production_order_items_quantities_ck",
+      sql`${t.plannedQty} > 0 and ${t.completedQty} >= 0 and ${t.cancelledQty} >= 0 and ${t.completedQty} + ${t.cancelledQty} <= ${t.plannedQty}`
+    ),
+  })
+);
+
+export const productionOperations = pgTable(
+  "production_operations",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    orderItemId: uuid("order_item_id")
+      .notNull()
+      .references(() => productionOrderItems.id, { onDelete: "cascade" }),
+    sequence: integer("sequence").notNull(),
+    machineId: uuid("machine_id").references(() => machines.id),
+    status: varchar("status", { length: 20 }).notNull().default("planejada"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    operatorId: uuid("operator_id").references(() => users.id),
+  },
+  (t) => ({
+    productionOperationSequenceUq: uniqueIndex("production_operations_item_sequence_uq").on(
+      t.orderItemId,
+      t.sequence
+    ),
+    productionOperationSequenceCheck: check(
+      "production_operations_sequence_ck",
+      sql`${t.sequence} > 0`
+    ),
+  })
+);
+
+export const productionReports = pgTable(
+  "production_reports",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => productionOrders.id),
+    operationId: uuid("operation_id").references(() => productionOperations.id),
+    clientOperationId: uuid("client_operation_id").notNull(),
+    deviceId: uuid("device_id").notNull(),
+    sequence: integer("sequence").notNull(),
+    payloadVersion: integer("payload_version").notNull(),
+    expectedOrderVersion: integer("expected_order_version").notNull(),
+    reporterId: uuid("reporter_id")
+      .notNull()
+      .references(() => users.id),
+    localOccurredAt: timestamp("local_occurred_at", { withTimezone: true }).notNull(),
+    payload: jsonb("payload").notNull(),
+    reconciliationStatus: varchar("reconciliation_status", { length: 30 })
+      .notNull()
+      .default("pendente"),
+    reconciliationReason: text("reconciliation_reason"),
+    approvedBy: uuid("approved_by").references(() => users.id),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    resultingOrderVersion: integer("resulting_order_version"),
+  },
+  (t) => ({
+    productionReportClientUq: uniqueIndex("production_reports_tenant_client_operation_uq").on(
+      t.tenantId,
+      t.clientOperationId
+    ),
+    productionReportDeviceSeqUq: uniqueIndex("production_reports_tenant_device_sequence_uq").on(
+      t.tenantId,
+      t.deviceId,
+      t.sequence
+    ),
+    productionReportOrderIdx: index("production_reports_order_status_idx").on(
+      t.orderId,
+      t.reconciliationStatus,
+      t.receivedAt
+    ),
+    productionReportSequenceCheck: check(
+      "production_reports_sequence_ck",
+      sql`${t.sequence} > 0 and ${t.payloadVersion} > 0 and ${t.expectedOrderVersion} > 0`
+    ),
+    productionReportStatusCheck: check(
+      "production_reports_status_ck",
+      sql`${t.reconciliationStatus} in ('pendente', 'aguardando_aprovacao', 'aprovado', 'conflito', 'aplicado', 'rejeitado')`
+    ),
+  })
+);
+
+export const productionConsumptions = pgTable(
+  "production_consumptions",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => productionOrders.id),
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => productionOrderItems.id),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => productionReports.id),
+    reservationId: uuid("reservation_id").references(() => stockReservations.id),
+    lotId: uuid("lot_id").references(() => stockLots.id),
+    remnantId: uuid("remnant_id").references(() => stockRemnants.id),
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+    movementId: uuid("movement_id")
+      .notNull()
+      .references(() => stockMovements.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    productionConsumptionReportIdx: index("production_consumptions_report_idx").on(t.reportId),
+    productionConsumptionLotIdx: index("production_consumptions_lot_idx").on(t.lotId),
+    productionConsumptionSourceCheck: check(
+      "production_consumptions_source_ck",
+      sql`(${t.lotId} is not null) <> (${t.remnantId} is not null)`
+    ),
+    productionConsumptionQuantityCheck: check(
+      "production_consumptions_quantity_ck",
+      sql`${t.quantity} > 0`
+    ),
+  })
+);
+
+export const productionResiduals = pgTable(
+  "production_residuals",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => productionOrders.id),
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => productionOrderItems.id),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => productionReports.id),
+    consumptionId: uuid("consumption_id")
+      .notNull()
+      .references(() => productionConsumptions.id),
+    stockRemnantId: uuid("stock_remnant_id")
+      .notNull()
+      .references(() => stockRemnants.id),
+    parentLotId: uuid("parent_lot_id")
+      .notNull()
+      .references(() => stockLots.id),
+    thicknessMm: numeric("thickness_mm", { precision: 8, scale: 2 }).notNull(),
+    widthMm: numeric("width_mm", { precision: 8, scale: 2 }),
+    lengthMm: numeric("length_mm", { precision: 8, scale: 2 }),
+    diameterMm: numeric("diameter_mm", { precision: 8, scale: 2 }),
+    measuredWeightKg: numeric("measured_weight_kg", { precision: 10, scale: 3 }).notNull(),
+    measuredBy: uuid("measured_by")
+      .notNull()
+      .references(() => users.id),
+    clientOperationId: uuid("client_operation_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    productionResidualClientUq: uniqueIndex("production_residuals_tenant_client_uq").on(
+      t.tenantId,
+      t.clientOperationId
+    ),
+    productionResidualConsumptionIdx: index("production_residuals_consumption_idx").on(
+      t.consumptionId
+    ),
+    productionResidualMeasurementsCheck: check(
+      "production_residuals_measurements_ck",
+      sql`${t.thicknessMm} > 0 and ${t.measuredWeightKg} > 0 and (${t.widthMm} is not null or ${t.lengthMm} is not null or ${t.diameterMm} is not null)`
+    ),
   })
 );
 

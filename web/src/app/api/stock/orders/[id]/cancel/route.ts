@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { guardQuotes, quotesErrorResponse } from "@/lib/quotes/api-auth";
+import { guardProduction, productionErrorResponse } from "@/lib/production/api-auth";
 import { cancelSalesOrder } from "@/lib/stock/reservations";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const guard = await guardQuotes("write");
+  const guard = await guardProduction("production.close");
   if (guard.error) return guard.error;
   try {
     const body = await req.json();
@@ -22,6 +22,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
     return NextResponse.json(result);
   } catch (error) {
-    return quotesErrorResponse(error);
+    return productionErrorResponse(error);
   }
 }

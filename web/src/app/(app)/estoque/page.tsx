@@ -73,7 +73,7 @@ export default async function EstoquePage({
     .select({
       productId: stockReservations.productId,
       warehouseId: stockReservations.warehouseId,
-      reserved: sql<string>`coalesce(sum(${stockReservations.quantity}), 0)`,
+      reserved: sql<string>`coalesce(sum(${stockReservations.quantity} - ${stockReservations.consumedQuantity}), 0)`,
     })
     .from(stockReservations)
     .where(

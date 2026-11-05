@@ -3,8 +3,8 @@
  *
  *   RUN_DB_TESTS=1 pnpm exec vitest run src/lib/quotes/order-flow.integration.test.ts
  *
- * Cobre o fluxo orçamento → reserva de retalho → aprovação → pedido (débito OR3):
- * consumo do retalho, atomicidade da conversão, idempotência e reserva concorrente.
+ * Cobre o fluxo orçamento → reserva de retalho → aprovação → pedido → OP:
+ * reserva preservada até apontamento, atomicidade, idempotência e concorrência.
  * Cria os próprios dados e remove tudo ao final.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -13,6 +13,7 @@ import { db } from "@/lib/db";
 import {
   auditLog,
   products,
+  productionOrders,
   quoteItems,
   quotes,
   salesOrders,
@@ -108,7 +109,23 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
           .from(salesOrders)
           .where(inArray(salesOrders.quoteId, quoteIds))
       : [];
-    const entityIds = [...quoteIds, ...remnantIds, ...orders.map((o) => o.id)];
+    const production = orders.length
+      ? await db
+          .select({ id: productionOrders.id })
+          .from(productionOrders)
+          .where(
+            inArray(
+              productionOrders.salesOrderId,
+              orders.map((order) => order.id)
+            )
+          )
+      : [];
+    const entityIds = [
+      ...quoteIds,
+      ...remnantIds,
+      ...orders.map((o) => o.id),
+      ...production.map((o) => o.id),
+    ];
     if (entityIds.length) await db.delete(auditLog).where(inArray(auditLog.entityId, entityIds));
     const orderIds = orders.map((o) => o.id);
     if (orderIds.length) {
@@ -121,6 +138,13 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
           )
         );
     }
+    if (orders.length)
+      await db.delete(productionOrders).where(
+        inArray(
+          productionOrders.id,
+          production.map((o) => o.id)
+        )
+      );
     if (orders.length)
       await db.delete(salesOrders).where(
         inArray(
@@ -135,7 +159,7 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     if (quoteIds.length) await db.delete(quotes).where(inArray(quotes.id, quoteIds));
   });
 
-  it("reserva, aprova e converte: o retalho é consumido e o pedido nasce uma única vez", async () => {
+  it("reserva, aprova e converte: retalho permanece reservado e OP nasce uma única vez", async () => {
     const remnant = await newRemnant();
     const quote = await newQuote("em_negociacao", remnant.id);
 
@@ -146,14 +170,20 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     const order = await convertQuoteToOrder(tenantId, userId, quote.id);
     expect(order.quoteId).toBe(quote.id);
     expect(order.orderStatus).toBe("aguardando_producao");
-    expect((await remnantStatus(remnant.id)).status).toBe("consumido");
+    expect((await remnantStatus(remnant.id)).status).toBe("reservado");
+    const production = await db
+      .select()
+      .from(productionOrders)
+      .where(eq(productionOrders.salesOrderId, order.id));
+    expect(production).toHaveLength(1);
+    expect(production[0].status).toBe("planejada");
 
     const audits = await db
       .select()
       .from(auditLog)
       .where(and(eq(auditLog.entity, "sales_orders"), eq(auditLog.entityId, order.id)));
     expect(audits).toHaveLength(1);
-    expect(audits[0].after).toMatchObject({ consumedRemnants: 1 });
+    expect(audits[0].after).toMatchObject({ reservedRemnantsForProduction: 1 });
 
     await expect(convertQuoteToOrder(tenantId, userId, quote.id)).rejects.toThrow(
       /já foi convertido/
