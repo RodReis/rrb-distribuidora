@@ -1,7 +1,7 @@
 # SPEC LAC-05 — Exportação de mercado, preço pago e alertas
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** decisões funcionais delegadas pelo PI em 05/11/2026; implementação em andamento · **Dependências:** M1, LAC-01; análises avançadas LAC-06
+**Status:** decisões funcionais delegadas pelo PI em 05/11/2026; implementação em PR #16, aceite final pendente · **Dependências:** M1, LAC-01; análises avançadas LAC-06
 
 ## Objetivo
 
