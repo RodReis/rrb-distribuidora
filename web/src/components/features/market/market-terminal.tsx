@@ -376,27 +376,29 @@ export function MarketTerminal({
               <RefreshCw className={cn("mr-1 h-3.5 w-3.5", refreshing && "animate-spin")} />
               Atualizar
             </Button>
-            <span className="text-label-code text-titanium-muted" role="status">
-              {importCount == null
-                ? "Consultando importações…"
-                : `${importCount} pontos próprios no período`}
-            </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={!importCount || importCount > 10_000}
-              onClick={() => exportHistory("csv")}
-            >
-              Minhas importações · CSV
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={!importCount || importCount > 10_000}
-              onClick={() => exportHistory("xlsx")}
-            >
-              Minhas importações · XLSX
-            </Button>
+            <div className="flex w-full flex-wrap items-center gap-2 border-t border-carbon-800 pt-2 sm:justify-end">
+              <span className="mr-1 text-label-code text-titanium-muted" role="status">
+                {importCount == null
+                  ? "Consultando importações…"
+                  : `Minhas importações · ${importCount} ${importCount === 1 ? "ponto" : "pontos"} no período`}
+              </span>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={!importCount || importCount > 10_000}
+                onClick={() => exportHistory("csv")}
+              >
+                Exportar CSV
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={!importCount || importCount > 10_000}
+                onClick={() => exportHistory("xlsx")}
+              >
+                Exportar XLSX
+              </Button>
+            </div>
           </div>
         </div>
 
