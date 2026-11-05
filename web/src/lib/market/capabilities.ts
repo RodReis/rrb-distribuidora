@@ -1,7 +1,8 @@
-export type MarketCapability = "market.alert.configure";
+export type MarketCapability =
+  "market.alert.configure" | "market.backtest.execute" | "market.signal.publish";
 
 const byRole: Record<string, readonly MarketCapability[]> = {
-  admin: ["market.alert.configure"],
+  admin: ["market.alert.configure", "market.backtest.execute"],
   comprador: ["market.alert.configure"],
 };
 

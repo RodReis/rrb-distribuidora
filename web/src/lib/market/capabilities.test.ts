@@ -9,3 +9,11 @@ describe("permissão de alertas", () => {
     expect(hasMarketCapability("desconhecido", "market.alert.configure")).toBe(false);
   });
 });
+
+describe("permissões de sinais", () => {
+  it("restringe backtest a admin e mantém publicação desligada", () => {
+    expect(hasMarketCapability("admin", "market.backtest.execute")).toBe(true);
+    expect(hasMarketCapability("comprador", "market.backtest.execute")).toBe(false);
+    expect(hasMarketCapability("admin", "market.signal.publish")).toBe(false);
+  });
+});

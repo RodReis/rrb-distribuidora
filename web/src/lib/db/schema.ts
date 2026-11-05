@@ -493,6 +493,89 @@ export const analysisRuns = pgTable(
   (t) => ({ tenantTimeIdx: index("idx_analysis_runs_tenant_time").on(t.tenantId, t.createdAt) })
 );
 
+export const signalModels = pgTable(
+  "signal_models",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    version: varchar("version", { length: 40 }).notNull(),
+    componentConfig: jsonb("component_config").$type<Record<string, unknown>>().notNull(),
+    weights: jsonb("weights").$type<Record<string, number>>().notNull(),
+    thresholds: jsonb("thresholds").$type<Record<string, number>>().notNull(),
+    horizonDays: integer("horizon_days").notNull(),
+    minimumCoverage: numeric("minimum_coverage", { precision: 5, scale: 4 }).notNull(),
+    methodology: jsonb("methodology").$type<Record<string, unknown>>().notNull(),
+    approvedBy: uuid("approved_by").references(() => users.id),
+    activeFrom: timestamp("active_from", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantVersionUq: uniqueIndex("uq_signal_models_tenant_version").on(t.tenantId, t.version),
+    idTenantUq: uniqueIndex("uq_signal_models_id_tenant").on(t.id, t.tenantId),
+  })
+);
+
+export const signalObservations = pgTable(
+  "signal_observations",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    modelId: uuid("model_id").notNull(),
+    entity: varchar("entity", { length: 100 }).notNull(),
+    score: numeric("score", { precision: 6, scale: 3 }),
+    signal: varchar("signal", { length: 40 }).notNull(),
+    confidence: numeric("confidence", { precision: 5, scale: 4 }),
+    components: jsonb("components").$type<Record<string, unknown>>().notNull(),
+    inputsHash: varchar("inputs_hash", { length: 64 }).notNull(),
+    asOf: timestamp("as_of", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantAsOfIdx: index("idx_signal_observations_tenant_asof").on(t.tenantId, t.asOf),
+    modelTenantFk: foreignKey({
+      name: "signal_observations_model_tenant_fk",
+      columns: [t.modelId, t.tenantId],
+      foreignColumns: [signalModels.id, signalModels.tenantId],
+    }),
+  })
+);
+
+export const backtestRuns = pgTable(
+  "backtest_runs",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    modelId: uuid("model_id").notNull(),
+    datasetHash: varchar("dataset_hash", { length: 64 }).notNull(),
+    period: jsonb("period").$type<Record<string, unknown>>().notNull(),
+    methodology: jsonb("methodology").$type<Record<string, unknown>>().notNull(),
+    costs: jsonb("costs").$type<Record<string, unknown>>().notNull(),
+    benchmark: jsonb("benchmark").$type<Record<string, unknown>>().notNull(),
+    metrics: jsonb("metrics").$type<Record<string, unknown>>().notNull(),
+    runAt: timestamp("run_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantRunIdx: index("idx_backtest_runs_tenant_time").on(t.tenantId, t.runAt),
+    modelTenantFk: foreignKey({
+      name: "backtest_runs_model_tenant_fk",
+      columns: [t.modelId, t.tenantId],
+      foreignColumns: [signalModels.id, signalModels.tenantId],
+    }),
+  })
+);
+
 export const marketManualPrices = pgTable(
   "market_manual_prices",
   {

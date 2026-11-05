@@ -1,7 +1,9 @@
 # SPEC LAC-07 — Sinal composto e backtesting
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** M1, M2, LAC-05, LAC-06
+**Status:** estrutura implementada, cálculo e publicação desligados por decisão do PI em 05/11/2026 · **Dependências:** M1, M2, LAC-05, LAC-06
+
+**Entrega parcial autorizada:** tabelas versionadas e imutáveis, validação estrutural, filtro temporal anti-lookahead, API de consulta e interface de indisponibilidade. `POST /api/market/backtests` responde 409 após autorização de acesso; nenhuma rota cria, ativa ou publica modelo. Migração 0022 ainda precisa ser aplicada ao banco de destino.
 
 ## Objetivo
 
