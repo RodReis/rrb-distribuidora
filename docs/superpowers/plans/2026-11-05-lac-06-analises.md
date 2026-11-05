@@ -14,5 +14,6 @@
 - [x] Criar API com leitura tenant, limite de 10.000 pontos, bloqueio e auditoria de fonte sem licença.
 - [x] Criar aba com filtros, cobertura, dispersão, amostra, intervalo de confiança, hash e exportação via LAC-05.
 - [x] Fixar calendário de defasagem: segunda a sexta, sem excluir feriados.
-- [ ] Executar validação PostgreSQL e smoke autenticado após migração autorizada no banco compartilhado.
-- [ ] Revisar diff final, executar CI e entregar PR.
+- [x] Aplicar migração 0021 no PostgreSQL local e validar endpoints autenticados com fixture temporária: sazonalidade, correlação, fonte negada e spread indisponível. Fixture removida; auditoria preservada.
+- [x] Revisar diff final, executar CI e entregar PR #17 em rascunho. CI passou.
+- [ ] Concluir interação visual da aba após aceite dos Termos de Uso da IA pelo PI; modal impede clique no botão de análise.
