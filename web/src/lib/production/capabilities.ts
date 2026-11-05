@@ -20,12 +20,7 @@ const CAPABILITIES_BY_ROLE: Record<UserRole, readonly ProductionCapability[]> = 
     "production.close",
     "production.approve_loss",
   ],
-  diretor: [
-    "production.read",
-    "production.release",
-    "production.close",
-    "production.approve_loss",
-  ],
+  diretor: ["production.read", "production.release", "production.close", "production.approve_loss"],
   estoque: ["production.read", "production.report", "production.consume"],
   vendedor: ["production.read"],
   comprador: [],
@@ -41,10 +36,7 @@ export function hasProductionCapability(role: string, capability: ProductionCapa
   return getProductionCapabilities(role).includes(capability);
 }
 
-export function requireProductionCapability(
-  role: string,
-  capability: ProductionCapability
-): void {
+export function requireProductionCapability(role: string, capability: ProductionCapability): void {
   if (!hasProductionCapability(role, capability)) {
     throw new ProductionError(`Seu papel não tem a permissão "${capability}".`, 403);
   }

@@ -3,10 +3,7 @@ import { getProductionOrderDetails } from "@/lib/production/service";
 import { guardProduction, productionErrorResponse } from "@/lib/production/api-auth";
 import { ProductionError } from "@/lib/production/errors";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const guard = await guardProduction("production.read");
   if (guard.error) return guard.error;
   try {

@@ -1221,7 +1221,15 @@ export async function convertQuoteToOrder(
 
   const order = await db.transaction(async (tx) => {
     const [lockedQuote] = await tx
-      .select({ id: quotes.id, status: quotes.status, customerId: quotes.customerId, totalAmount: quotes.totalAmount, deliveryDeadline: quotes.deliveryDeadline, paymentTerms: quotes.paymentTerms, quoteNumber: quotes.quoteNumber })
+      .select({
+        id: quotes.id,
+        status: quotes.status,
+        customerId: quotes.customerId,
+        totalAmount: quotes.totalAmount,
+        deliveryDeadline: quotes.deliveryDeadline,
+        paymentTerms: quotes.paymentTerms,
+        quoteNumber: quotes.quoteNumber,
+      })
       .from(quotes)
       .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId)))
       .for("update");

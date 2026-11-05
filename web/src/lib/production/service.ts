@@ -103,10 +103,7 @@ export async function createProductionOrderForSalesOrder(
     .select()
     .from(productionOrders)
     .where(
-      and(
-        eq(productionOrders.tenantId, input.tenantId),
-        eq(productionOrders.salesOrderId, sale.id)
-      )
+      and(eq(productionOrders.tenantId, input.tenantId), eq(productionOrders.salesOrderId, sale.id))
     )
     .limit(1);
   if (existing) return existing;
@@ -115,7 +112,11 @@ export async function createProductionOrderForSalesOrder(
   }
 
   const items = await tx
-    .select({ quoteItem: quoteItems, sku: products.sku, productName: products.commercialDescription })
+    .select({
+      quoteItem: quoteItems,
+      sku: products.sku,
+      productName: products.commercialDescription,
+    })
     .from(quoteItems)
     .innerJoin(products, eq(products.id, quoteItems.productId))
     .where(eq(quoteItems.quoteId, sale.quoteId))
@@ -213,52 +214,66 @@ export async function getProductionOrders(tenantId: string, orderId?: string) {
     .innerJoin(salesOrders, eq(salesOrders.id, productionOrders.salesOrderId))
     .innerJoin(quotes, eq(quotes.id, salesOrders.quoteId))
     .innerJoin(customers, eq(customers.id, salesOrders.customerId))
-    .where(and(eq(productionOrders.tenantId, tenantId), orderId ? eq(productionOrders.id, orderId) : undefined))
-    .orderBy(desc(productionOrders.priority), asc(productionOrders.dueAt), desc(productionOrders.createdAt))
+    .where(
+      and(
+        eq(productionOrders.tenantId, tenantId),
+        orderId ? eq(productionOrders.id, orderId) : undefined
+      )
+    )
+    .orderBy(
+      desc(productionOrders.priority),
+      asc(productionOrders.dueAt),
+      desc(productionOrders.createdAt)
+    )
     .limit(150);
   const orderIds = orders.map((order) => order.id);
-  const [items, reports, operations] = orderIds.length ? await Promise.all([
-    db
-      .select({
-        id: productionOrderItems.id,
-        orderId: productionOrderItems.orderId,
-        quoteItemId: productionOrderItems.quoteItemId,
-        productId: productionOrderItems.productId,
-        sku: products.sku,
-        productName: products.commercialDescription,
-        unit: products.unit,
-        plannedQty: productionOrderItems.plannedQty,
-        completedQty: productionOrderItems.completedQty,
-        cancelledQty: productionOrderItems.cancelledQty,
-        cancellationReason: productionOrderItems.cancellationReason,
-        specSnapshot: productionOrderItems.specSnapshot,
-      })
-      .from(productionOrderItems)
-      .innerJoin(products, eq(products.id, productionOrderItems.productId))
-      .where(inArray(productionOrderItems.orderId, orderIds))
-      .orderBy(asc(productionOrderItems.createdAt), asc(productionOrderItems.id)),
-    db
-      .select({
-        orderId: productionReports.orderId,
-        status: productionReports.reconciliationStatus,
-        count: count(),
-      })
-      .from(productionReports)
-      .where(inArray(productionReports.orderId, orderIds))
-      .groupBy(productionReports.orderId, productionReports.reconciliationStatus),
-    db
-      .select({
-        orderId: productionOrderItems.orderId,
-        itemId: productionOperations.orderItemId,
-        operationId: productionOperations.id,
-        operationStatus: productionOperations.status,
-        operatorId: productionOperations.operatorId,
-        machineId: productionOperations.machineId,
-      })
-      .from(productionOperations)
-      .innerJoin(productionOrderItems, eq(productionOrderItems.id, productionOperations.orderItemId))
-      .where(inArray(productionOrderItems.orderId, orderIds)),
-  ]) : [[], [], []];
+  const [items, reports, operations] = orderIds.length
+    ? await Promise.all([
+        db
+          .select({
+            id: productionOrderItems.id,
+            orderId: productionOrderItems.orderId,
+            quoteItemId: productionOrderItems.quoteItemId,
+            productId: productionOrderItems.productId,
+            sku: products.sku,
+            productName: products.commercialDescription,
+            unit: products.unit,
+            plannedQty: productionOrderItems.plannedQty,
+            completedQty: productionOrderItems.completedQty,
+            cancelledQty: productionOrderItems.cancelledQty,
+            cancellationReason: productionOrderItems.cancellationReason,
+            specSnapshot: productionOrderItems.specSnapshot,
+          })
+          .from(productionOrderItems)
+          .innerJoin(products, eq(products.id, productionOrderItems.productId))
+          .where(inArray(productionOrderItems.orderId, orderIds))
+          .orderBy(asc(productionOrderItems.createdAt), asc(productionOrderItems.id)),
+        db
+          .select({
+            orderId: productionReports.orderId,
+            status: productionReports.reconciliationStatus,
+            count: count(),
+          })
+          .from(productionReports)
+          .where(inArray(productionReports.orderId, orderIds))
+          .groupBy(productionReports.orderId, productionReports.reconciliationStatus),
+        db
+          .select({
+            orderId: productionOrderItems.orderId,
+            itemId: productionOperations.orderItemId,
+            operationId: productionOperations.id,
+            operationStatus: productionOperations.status,
+            operatorId: productionOperations.operatorId,
+            machineId: productionOperations.machineId,
+          })
+          .from(productionOperations)
+          .innerJoin(
+            productionOrderItems,
+            eq(productionOrderItems.id, productionOperations.orderItemId)
+          )
+          .where(inArray(productionOrderItems.orderId, orderIds)),
+      ])
+    : [[], [], []];
 
   const itemsByOrder = new Map<string, typeof items>();
   for (const item of items) {
@@ -295,8 +310,21 @@ export async function getProductionOrders(tenantId: string, orderId?: string) {
     .from(salesOrders)
     .innerJoin(quotes, eq(quotes.id, salesOrders.quoteId))
     .innerJoin(customers, eq(customers.id, salesOrders.customerId))
-    .leftJoin(productionOrders, and(eq(productionOrders.salesOrderId, salesOrders.id), eq(productionOrders.tenantId, tenantId)))
-    .where(and(eq(salesOrders.tenantId, tenantId), eq(quotes.status, "aprovado"), eq(salesOrders.orderStatus, "aguardando_producao"), sql`${productionOrders.id} is null`))
+    .leftJoin(
+      productionOrders,
+      and(
+        eq(productionOrders.salesOrderId, salesOrders.id),
+        eq(productionOrders.tenantId, tenantId)
+      )
+    )
+    .where(
+      and(
+        eq(salesOrders.tenantId, tenantId),
+        eq(quotes.status, "aprovado"),
+        eq(salesOrders.orderStatus, "aguardando_producao"),
+        sql`${productionOrders.id} is null`
+      )
+    )
     .orderBy(asc(salesOrders.deliveryDeadline), desc(salesOrders.createdAt))
     .limit(150);
   const pendingIds = pendingSales.map((sale) => sale.id);
@@ -314,7 +342,9 @@ export async function getProductionOrders(tenantId: string, orderId?: string) {
           completedQty: sql<string>`'0'`,
           cancelledQty: sql<string>`'0'`,
           cancellationReason: sql<string | null>`null`,
-          specSnapshot: sql<Record<string, unknown>>`jsonb_build_object('geometryType', ${quoteItems.geometryType}, 'thicknessMm', ${quoteItems.thicknessMm}, 'widthMm', ${quoteItems.widthMm}, 'lengthMm', ${quoteItems.lengthMm}, 'diameterMm', ${quoteItems.diameterMm}, 'processType', ${quoteItems.processType}, 'remnantId', ${quoteItems.remnantId}, 'machineId', ${quoteItems.machineId})`,
+          specSnapshot: sql<
+            Record<string, unknown>
+          >`jsonb_build_object('geometryType', ${quoteItems.geometryType}, 'thicknessMm', ${quoteItems.thicknessMm}, 'widthMm', ${quoteItems.widthMm}, 'lengthMm', ${quoteItems.lengthMm}, 'diameterMm', ${quoteItems.diameterMm}, 'processType', ${quoteItems.processType}, 'remnantId', ${quoteItems.remnantId}, 'machineId', ${quoteItems.machineId})`,
         })
         .from(quoteItems)
         .innerJoin(salesOrders, eq(salesOrders.quoteId, quoteItems.quoteId))
@@ -344,7 +374,13 @@ export async function getProductionOrders(tenantId: string, orderId?: string) {
       version: 0,
       createdAt: sale.createdAt,
       updatedAt: sale.createdAt,
-      items: (pendingByOrder.get(sale.id) ?? []).map((item) => ({ ...item, operationId: "", operationStatus: "planejada", operatorId: null, machineId: null })),
+      items: (pendingByOrder.get(sale.id) ?? []).map((item) => ({
+        ...item,
+        operationId: "",
+        operationStatus: "planejada",
+        operatorId: null,
+        machineId: null,
+      })),
       reports: {},
       pendingProduction: true,
     })),
@@ -454,10 +490,15 @@ async function assertReservationsForRelease(
           const [parent] = await tx
             .select({ status: stockLots.status })
             .from(stockLots)
-            .where(and(eq(stockLots.id, remnant.parentLotId), eq(stockLots.tenantId, order.tenantId)))
+            .where(
+              and(eq(stockLots.id, remnant.parentLotId), eq(stockLots.tenantId, order.tenantId))
+            )
             .for("update");
           if (parent?.status === "bloqueado") {
-            throw new ProductionError("Retalho está vinculado a lote bloqueado por qualidade.", 409);
+            throw new ProductionError(
+              "Retalho está vinculado a lote bloqueado por qualidade.",
+              409
+            );
           }
         }
         continue;
@@ -528,15 +569,15 @@ export async function transitionProductionOrder(input: {
       .select()
       .from(productionOrders)
       .where(
-        and(
-          eq(productionOrders.id, input.orderId),
-          eq(productionOrders.tenantId, input.tenantId)
-        )
+        and(eq(productionOrders.id, input.orderId), eq(productionOrders.tenantId, input.tenantId))
       )
       .for("update");
     if (!order) throw new ProductionError("Ordem de produção não encontrada neste tenant.", 404);
     if (order.version !== command.expectedVersion) {
-      throw new ProductionError("A ordem mudou desde a última leitura; atualize antes de tentar novamente.", 409);
+      throw new ProductionError(
+        "A ordem mudou desde a última leitura; atualize antes de tentar novamente.",
+        409
+      );
     }
 
     const now = new Date();
@@ -571,25 +612,36 @@ export async function transitionProductionOrder(input: {
         const [sale] = await tx
           .select({ quoteId: salesOrders.quoteId })
           .from(salesOrders)
-          .where(and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId)));
+          .where(
+            and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId))
+          );
         if (!sale) throw new ProductionError("Pedido de venda da ordem não encontrado.", 404);
         await assertReservationsForRelease(tx, order, sale.quoteId);
       }
     } else if (command.target === "em_corte") {
       if (order.status !== "liberada" && order.status !== "pausada") {
-        throw new ProductionError("Somente ordem liberada ou pausada pode iniciar/retomar corte.", 409);
+        throw new ProductionError(
+          "Somente ordem liberada ou pausada pode iniciar/retomar corte.",
+          409
+        );
       }
       if (pendingReports.length) {
-        throw new ProductionError("Resolva apontamentos pendentes antes de iniciar a operação.", 409);
+        throw new ProductionError(
+          "Resolva apontamentos pendentes antes de iniciar a operação.",
+          409
+        );
       }
     } else if (command.target === "pausada") {
-      if (order.status !== "em_corte") throw new ProductionError("Somente ordem em corte pode ser pausada.", 409);
-      if (reason.length < 5) throw new ProductionError("Motivo da pausa deve ter ao menos 5 caracteres.");
+      if (order.status !== "em_corte")
+        throw new ProductionError("Somente ordem em corte pode ser pausada.", 409);
+      if (reason.length < 5)
+        throw new ProductionError("Motivo da pausa deve ter ao menos 5 caracteres.");
     } else if (command.target === "bloqueada_qualidade") {
       if (!["liberada", "em_corte", "pausada"].includes(order.status)) {
         throw new ProductionError("Estado atual não permite bloqueio de qualidade.", 409);
       }
-      if (reason.length < 5) throw new ProductionError("Motivo do bloqueio deve ter ao menos 5 caracteres.");
+      if (reason.length < 5)
+        throw new ProductionError("Motivo do bloqueio deve ter ao menos 5 caracteres.");
       const orderItemRows = await tx
         .select({ id: productionOrderItems.id })
         .from(productionOrderItems)
@@ -598,7 +650,12 @@ export async function transitionProductionOrder(input: {
         await tx
           .update(productionOperations)
           .set({ status: "bloqueada_qualidade" })
-          .where(inArray(productionOperations.orderItemId, orderItemRows.map((row) => row.id)));
+          .where(
+            inArray(
+              productionOperations.orderItemId,
+              orderItemRows.map((row) => row.id)
+            )
+          );
       }
     } else if (command.target === "concluida") {
       if (order.status !== "em_corte" && order.status !== "pausada") {
@@ -617,7 +674,10 @@ export async function transitionProductionOrder(input: {
           toNumber(item.plannedQty) - toNumber(item.completedQty) - toNumber(item.cancelledQty)
         );
         const cancellation = command.cancelledItems?.find((entry) => entry.itemId === item.id);
-        if (remaining > 0 && (!cancellation || Math.abs(cancellation.quantity - remaining) > 0.00005)) {
+        if (
+          remaining > 0 &&
+          (!cancellation || Math.abs(cancellation.quantity - remaining) > 0.00005)
+        ) {
           throw new ProductionError(
             `Item ${item.id} ainda tem ${remaining} pendente. Cancele exatamente o saldo com justificativa.`,
             409
@@ -633,11 +693,16 @@ export async function transitionProductionOrder(input: {
         }
       }
       const inputTotals = await tx
-        .select({ itemId: productionConsumptions.itemId, quantity: sql<string>`coalesce(sum(${productionConsumptions.quantity}), 0)` })
+        .select({
+          itemId: productionConsumptions.itemId,
+          quantity: sql<string>`coalesce(sum(${productionConsumptions.quantity}), 0)`,
+        })
         .from(productionConsumptions)
         .where(eq(productionConsumptions.orderId, order.id))
         .groupBy(productionConsumptions.itemId);
-      const consumedByItem = new Map(inputTotals.map((row) => [row.itemId, toNumber(row.quantity)]));
+      const consumedByItem = new Map(
+        inputTotals.map((row) => [row.itemId, toNumber(row.quantity)])
+      );
       for (const item of items) {
         const consumed = consumedByItem.get(item.id) ?? 0;
         const produced = toNumber(item.completedQty);
@@ -645,13 +710,18 @@ export async function transitionProductionOrder(input: {
           throw new ProductionError("Quantidade produzida excede material consumido.", 409);
         }
         if (consumed > produced + 0.00005 && reason.length < 5) {
-          throw new ProductionError("Fechamento com perda exige justificativa de ao menos 5 caracteres.");
+          throw new ProductionError(
+            "Fechamento com perda exige justificativa de ao menos 5 caracteres."
+          );
         }
         const cancellation = command.cancelledItems?.find((entry) => entry.itemId === item.id);
         if (cancellation) {
           await tx
             .update(productionOrderItems)
-            .set({ cancelledQty: String(cancellation.quantity), cancellationReason: cancellation.reason })
+            .set({
+              cancelledQty: String(cancellation.quantity),
+              cancellationReason: cancellation.reason,
+            })
             .where(eq(productionOrderItems.id, item.id));
         }
       }
@@ -659,7 +729,8 @@ export async function transitionProductionOrder(input: {
       if (["concluida", "cancelada"].includes(order.status)) {
         throw new ProductionError("Ordem encerrada não pode ser cancelada novamente.", 409);
       }
-      if (reason.length < 5) throw new ProductionError("Motivo do cancelamento deve ter ao menos 5 caracteres.");
+      if (reason.length < 5)
+        throw new ProductionError("Motivo do cancelamento deve ter ao menos 5 caracteres.");
       if (pendingReports.length) {
         throw new ProductionError("Resolva apontamentos pendentes antes de cancelar a ordem.", 409);
       }
@@ -671,7 +742,9 @@ export async function transitionProductionOrder(input: {
         .from(productionConsumptions)
         .where(eq(productionConsumptions.orderId, order.id));
       if (toNumber(totals[0]?.quantity) > 0 && reason.length < 10) {
-        throw new ProductionError("Cancelamento após consumo exige justificativa de ao menos 10 caracteres.");
+        throw new ProductionError(
+          "Cancelamento após consumo exige justificativa de ao menos 10 caracteres."
+        );
       }
     }
 
@@ -679,7 +752,9 @@ export async function transitionProductionOrder(input: {
       const [sale] = await tx
         .select({ quoteId: salesOrders.quoteId })
         .from(salesOrders)
-        .where(and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId)));
+        .where(
+          and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId))
+        );
       if (sale) {
         await releaseReservedResources(tx, {
           tenantId: input.tenantId,
@@ -692,21 +767,29 @@ export async function transitionProductionOrder(input: {
       await tx
         .update(salesOrders)
         .set({ orderStatus: "cancelado" })
-        .where(and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId)));
+        .where(
+          and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId))
+        );
     } else if (command.target === "em_corte") {
       await tx
         .update(salesOrders)
         .set({ orderStatus: "em_corte" })
-        .where(and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId)));
+        .where(
+          and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId))
+        );
     } else if (command.target === "concluida") {
       await tx
         .update(salesOrders)
         .set({ orderStatus: "pronto_faturamento" })
-        .where(and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId)));
+        .where(
+          and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId))
+        );
       const [sale] = await tx
         .select({ quoteId: salesOrders.quoteId })
         .from(salesOrders)
-        .where(and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId)));
+        .where(
+          and(eq(salesOrders.id, order.salesOrderId), eq(salesOrders.tenantId, input.tenantId))
+        );
       if (sale) {
         await releaseReservedResources(tx, {
           tenantId: input.tenantId,
@@ -731,16 +814,30 @@ export async function transitionProductionOrder(input: {
       command.target === "cancelada"
     ) {
       const operations = await tx
-        .select({ id: productionOperations.id, startedAt: productionOperations.startedAt, status: productionOperations.status, operatorId: productionOperations.operatorId })
+        .select({
+          id: productionOperations.id,
+          startedAt: productionOperations.startedAt,
+          status: productionOperations.status,
+          operatorId: productionOperations.operatorId,
+        })
         .from(productionOperations)
-        .innerJoin(productionOrderItems, eq(productionOrderItems.id, productionOperations.orderItemId))
+        .innerJoin(
+          productionOrderItems,
+          eq(productionOrderItems.id, productionOperations.orderItemId)
+        )
         .where(eq(productionOrderItems.orderId, order.id));
       for (const operation of operations) {
         if (command.target === "em_corte") {
           if (operation.status === "planejada") {
-            await tx.update(productionOperations).set({ status: "em_execucao", startedAt: now, operatorId: input.user.id }).where(eq(productionOperations.id, operation.id));
+            await tx
+              .update(productionOperations)
+              .set({ status: "em_execucao", startedAt: now, operatorId: input.user.id })
+              .where(eq(productionOperations.id, operation.id));
           } else if (operation.status === "pausada" && operation.operatorId === input.user.id) {
-            await tx.update(productionOperations).set({ status: "em_execucao", operatorId: input.user.id }).where(eq(productionOperations.id, operation.id));
+            await tx
+              .update(productionOperations)
+              .set({ status: "em_execucao", operatorId: input.user.id })
+              .where(eq(productionOperations.id, operation.id));
           }
         } else if (command.target === "pausada") {
           await tx
@@ -774,7 +871,10 @@ export async function transitionProductionOrder(input: {
             entity: "production_order_items",
             entityId: item.id,
             action: "update",
-            before: { cancelledQty: item.cancelledQty, cancellationReason: item.cancellationReason },
+            before: {
+              cancelledQty: item.cancelledQty,
+              cancellationReason: item.cancellationReason,
+            },
             after: { cancelledQty: cancellation.quantity, cancellationReason: cancellation.reason },
           });
         }
@@ -836,7 +936,9 @@ async function recordReportConflict(
     const [order] = await tx
       .select()
       .from(productionOrders)
-      .where(and(eq(productionOrders.id, report.orderId), eq(productionOrders.tenantId, report.tenantId)))
+      .where(
+        and(eq(productionOrders.id, report.orderId), eq(productionOrders.tenantId, report.tenantId))
+      )
       .for("update");
     if (order && order.status !== "concluida" && order.status !== "cancelada") {
       const [blocked] = await tx
@@ -947,14 +1049,17 @@ async function prepareConsumptions(
         .for("update");
       const owned = reservations.filter(
         (reservation) =>
-          reservation.sourceType === "pedido_venda" && reservation.sourceId === input.order.salesOrderId
+          reservation.sourceType === "pedido_venda" &&
+          reservation.sourceId === input.order.salesOrderId
       );
       const ownedRemaining = owned.reduce(
-        (sum, reservation) => sum + toNumber(reservation.quantity) - toNumber(reservation.consumedQuantity),
+        (sum, reservation) =>
+          sum + toNumber(reservation.quantity) - toNumber(reservation.consumedQuantity),
         0
       );
       const totalReserved = reservations.reduce(
-        (sum, reservation) => sum + toNumber(reservation.quantity) - toNumber(reservation.consumedQuantity),
+        (sum, reservation) =>
+          sum + toNumber(reservation.quantity) - toNumber(reservation.consumedQuantity),
         0
       );
       if (ownedRemaining + 0.00005 < line.quantity) {
@@ -964,13 +1069,21 @@ async function prepareConsumptions(
         return { conflict: `Saldo físico insuficiente no lote ${lot.lotNumber}.` };
       }
       if (toNumber(lot.quantityCurrent) - line.quantity + 0.00005 < totalReserved - line.quantity) {
-        return { conflict: `Consumo comprometeria reserva de outro pedido no lote ${lot.lotNumber}.` };
+        return {
+          conflict: `Consumo comprometeria reserva de outro pedido no lote ${lot.lotNumber}.`,
+        };
       }
 
       let remaining = line.quantity;
-      const allocations: { reservation: typeof stockReservations.$inferSelect; quantity: number }[] = [];
+      const allocations: {
+        reservation: typeof stockReservations.$inferSelect;
+        quantity: number;
+      }[] = [];
       for (const reservation of owned) {
-        const available = Math.max(0, toNumber(reservation.quantity) - toNumber(reservation.consumedQuantity));
+        const available = Math.max(
+          0,
+          toNumber(reservation.quantity) - toNumber(reservation.consumedQuantity)
+        );
         if (!available) continue;
         const portion = Math.min(remaining, available);
         allocations.push({ reservation, quantity: roundQty(portion) });
@@ -1007,11 +1120,14 @@ async function prepareConsumptions(
       const [quoteItem] = await tx
         .select({ remnantId: quoteItems.remnantId })
         .from(quoteItems)
-        .where(and(eq(quoteItems.id, input.item.quoteItemId), eq(quoteItems.quoteId, input.quoteId)));
+        .where(
+          and(eq(quoteItems.id, input.item.quoteItemId), eq(quoteItems.quoteId, input.quoteId))
+        );
       if (!quoteItem || quoteItem.remnantId !== remnant.id) {
         return { conflict: "Retalho não pertence ao item aprovado deste pedido." };
       }
-      if (!remnant.parentLotId) return { conflict: "Retalho sem lote de origem não pode ser consumido na produção." };
+      if (!remnant.parentLotId)
+        return { conflict: "Retalho sem lote de origem não pode ser consumido na produção." };
       const [parentLot] = await tx
         .select()
         .from(stockLots)
@@ -1025,7 +1141,10 @@ async function prepareConsumptions(
         .for("update");
       if (!parentLot) return { conflict: "Lote de origem do retalho não encontrado." };
       if (parentLot.status === "bloqueado") {
-        return { conflict: "Retalho vinculado a lote bloqueado por qualidade.", qualityBlocked: true };
+        return {
+          conflict: "Retalho vinculado a lote bloqueado por qualidade.",
+          qualityBlocked: true,
+        };
       }
       const [warehouse] = await tx
         .select()
@@ -1043,10 +1162,12 @@ async function prepareConsumptions(
         .from(products)
         .where(and(eq(products.id, input.item.productId), eq(products.tenantId, input.tenantId)));
       if (!product || !["kg", "t"].includes(product.unit)) {
-        return { conflict: "Consumo de retalho só é suportado para produtos em kg ou t; conversão não definida." };
+        return {
+          conflict:
+            "Consumo de retalho só é suportado para produtos em kg ou t; conversão não definida.",
+        };
       }
-      const remnantQuantity =
-        toNumber(remnant.weightKg) / (product.unit === "t" ? 1000 : 1);
+      const remnantQuantity = toNumber(remnant.weightKg) / (product.unit === "t" ? 1000 : 1);
       if (Math.abs(remnantQuantity - line.quantity) > 0.0005) {
         return {
           conflict: `Retalho é indivisível; quantidade deve corresponder ao peso medido (${roundQty(remnantQuantity)} ${product.unit}).`,
@@ -1107,7 +1228,8 @@ async function createResidualInTransaction(
       Number(existing.lengthMm ?? 0) === (input.lengthMm ?? 0) &&
       Number(existing.diameterMm ?? 0) === (input.diameterMm ?? 0) &&
       Number(existing.measuredWeightKg) === input.measuredWeightKg;
-    if (!matches) throw new ProductionError("UUID de retalho já foi usado por medição diferente.", 409);
+    if (!matches)
+      throw new ProductionError("UUID de retalho já foi usado por medição diferente.", 409);
     return existing;
   }
 
@@ -1115,10 +1237,18 @@ async function createResidualInTransaction(
     .select({ productId: productionOrderItems.productId, unit: products.unit })
     .from(productionOrderItems)
     .innerJoin(products, eq(products.id, productionOrderItems.productId))
-    .where(and(eq(productionOrderItems.id, input.itemId), eq(productionOrderItems.orderId, input.orderId)));
+    .where(
+      and(
+        eq(productionOrderItems.id, input.itemId),
+        eq(productionOrderItems.orderId, input.orderId)
+      )
+    );
   if (!item) throw new ProductionError("Item de produção não encontrado.", 404);
   if (item.unit !== "kg" && item.unit !== "t") {
-    throw new ProductionError("Retalho residual só pode ser registrado para produto em kg ou t; conversão não definida.", 409);
+    throw new ProductionError(
+      "Retalho residual só pode ser registrado para produto em kg ou t; conversão não definida.",
+      409
+    );
   }
   const consumedWeightKg = toNumber(input.consumption.quantity) * (item.unit === "t" ? 1000 : 1);
   if (input.measuredWeightKg > consumedWeightKg + 0.001) {
@@ -1131,7 +1261,12 @@ async function createResidualInTransaction(
     const [sourceRemnant] = await tx
       .select({ parentLotId: stockRemnants.parentLotId, warehouseId: stockRemnants.warehouseId })
       .from(stockRemnants)
-      .where(and(eq(stockRemnants.id, input.consumption.remnantId), eq(stockRemnants.tenantId, input.tenantId)));
+      .where(
+        and(
+          eq(stockRemnants.id, input.consumption.remnantId),
+          eq(stockRemnants.tenantId, input.tenantId)
+        )
+      );
     parentLotId = sourceRemnant?.parentLotId ?? null;
     warehouseId = sourceRemnant?.warehouseId ?? null;
   } else if (parentLotId) {
@@ -1267,11 +1402,21 @@ async function applyProductionReport(
   const [item] = await tx
     .select()
     .from(productionOrderItems)
-    .where(and(eq(productionOrderItems.id, payload.orderItemId), eq(productionOrderItems.orderId, order.id)))
+    .where(
+      and(
+        eq(productionOrderItems.id, payload.orderItemId),
+        eq(productionOrderItems.orderId, order.id)
+      )
+    )
     .for("update");
   if (!item) {
     return {
-      report: await recordReportConflict(tx, report, user.id, "Item não pertence à ordem de produção."),
+      report: await recordReportConflict(
+        tx,
+        report,
+        user.id,
+        "Item não pertence à ordem de produção."
+      ),
       changedStock: false,
     };
   }
@@ -1391,13 +1536,16 @@ async function applyProductionReport(
     return { report: waiting, changedStock: false };
   }
 
-  const consumptionByIndex: typeof productionConsumptions.$inferSelect[] = [];
+  const consumptionByIndex: (typeof productionConsumptions.$inferSelect)[] = [];
   for (const [index, line] of preparedResult.lines.entries()) {
     if (line.sourceType === "lot") {
       const remainingLotQty = roundQty(toNumber(line.lot.quantityCurrent) - line.quantity);
       const [updatedLot] = await tx
         .update(stockLots)
-        .set({ quantityCurrent: String(remainingLotQty), status: remainingLotQty === 0 ? "esgotado" : "ativo" })
+        .set({
+          quantityCurrent: String(remainingLotQty),
+          status: remainingLotQty === 0 ? "esgotado" : "ativo",
+        })
         .where(eq(stockLots.id, line.lot.id))
         .returning();
       let firstConsumption: typeof productionConsumptions.$inferSelect | undefined;
@@ -1465,7 +1613,11 @@ async function applyProductionReport(
         entityId: line.lot.id,
         action: "update",
         before: { quantityCurrent: line.lot.quantityCurrent, status: line.lot.status },
-        after: { quantityCurrent: updatedLot.quantityCurrent, status: updatedLot.status, reportId: report.id },
+        after: {
+          quantityCurrent: updatedLot.quantityCurrent,
+          status: updatedLot.status,
+          reportId: report.id,
+        },
       });
     } else {
       const [updatedRemnant] = await tx
@@ -1638,7 +1790,10 @@ export async function submitProductionReport(input: {
   if (!envelopeResult.success) throw new ProductionError("Envelope do apontamento inválido.");
   const envelope = envelopeResult.data;
   if (envelope.operatorId !== input.user.id) {
-    throw new ProductionError("Apontamento offline só pode ser sincronizado pelo mesmo usuário que o registrou.", 403);
+    throw new ProductionError(
+      "Apontamento offline só pode ser sincronizado pelo mesmo usuário que o registrou.",
+      403
+    );
   }
 
   const result = await db.transaction(async (tx) => {
@@ -1662,10 +1817,7 @@ export async function submitProductionReport(input: {
       .select()
       .from(productionOrders)
       .where(
-        and(
-          eq(productionOrders.id, input.orderId),
-          eq(productionOrders.tenantId, input.tenantId)
-        )
+        and(eq(productionOrders.id, input.orderId), eq(productionOrders.tenantId, input.tenantId))
       )
       .for("update");
     if (!order) throw new ProductionError("Ordem de produção não encontrada neste tenant.", 404);
@@ -1825,23 +1977,28 @@ export async function applyApprovedProductionReport(input: {
       throw new ProductionError("Apontamento ainda não foi aprovado para baixa.", 409);
     }
     if (report.reporterId !== input.user.id) {
-      throw new ProductionError("Somente operador que enviou apontamento pode confirmar a baixa.", 403);
+      throw new ProductionError(
+        "Somente operador que enviou apontamento pode confirmar a baixa.",
+        403
+      );
     }
     const [order] = await tx
       .select()
       .from(productionOrders)
       .where(
-        and(
-          eq(productionOrders.id, report.orderId),
-          eq(productionOrders.tenantId, input.tenantId)
-        )
+        and(eq(productionOrders.id, report.orderId), eq(productionOrders.tenantId, input.tenantId))
       )
       .for("update");
     if (!order) throw new ProductionError("Ordem de produção não encontrada neste tenant.", 404);
     const parsed = productionReportPayloadSchema.safeParse(report.payload as unknown);
     if (!parsed.success) {
       return {
-        report: await recordReportConflict(tx, report, input.user.id, "Payload inválido após aprovação."),
+        report: await recordReportConflict(
+          tx,
+          report,
+          input.user.id,
+          "Payload inválido após aprovação."
+        ),
         changedStock: false,
       };
     }
@@ -1917,7 +2074,8 @@ export async function getProductionReports(tenantId: string, orderId: string) {
     .select({ id: productionOrders.id })
     .from(productionOrders)
     .where(and(eq(productionOrders.id, orderId), eq(productionOrders.tenantId, tenantId)));
-  if (!order.length) throw new ProductionError("Ordem de produção não encontrada neste tenant.", 404);
+  if (!order.length)
+    throw new ProductionError("Ordem de produção não encontrada neste tenant.", 404);
   const rows = await db
     .select({
       id: productionReports.id,
@@ -1997,10 +2155,7 @@ export async function getProductionOrderDetails(tenantId: string, orderId: strin
       .from(productionResiduals)
       .innerJoin(stockRemnants, eq(stockRemnants.id, productionResiduals.stockRemnantId))
       .where(
-        and(
-          eq(productionResiduals.tenantId, tenantId),
-          eq(productionResiduals.orderId, orderId)
-        )
+        and(eq(productionResiduals.tenantId, tenantId), eq(productionResiduals.orderId, orderId))
       )
       .orderBy(desc(productionResiduals.createdAt)),
     db
@@ -2067,7 +2222,9 @@ export async function getProductionOrderDetails(tenantId: string, orderId: strin
     ...order,
     items: order.items.map((item) => ({
       ...item,
-      availableSources: availableSources.filter((source) => source.itemProductId === item.productId),
+      availableSources: availableSources.filter(
+        (source) => source.itemProductId === item.productId
+      ),
     })),
     reports,
     consumptions,
@@ -2106,26 +2263,28 @@ export async function createProductionResidual(input: {
         Number(existing.lengthMm ?? 0) === (command.lengthMm ?? 0) &&
         Number(existing.diameterMm ?? 0) === (command.diameterMm ?? 0) &&
         Number(existing.measuredWeightKg) === command.measuredWeightKg;
-      if (!matches) throw new ProductionError("UUID de operação já usado por medição diferente.", 409);
+      if (!matches)
+        throw new ProductionError("UUID de operação já usado por medição diferente.", 409);
       return existing;
     }
     const [order] = await tx
       .select()
       .from(productionOrders)
       .where(
-        and(
-          eq(productionOrders.id, input.orderId),
-          eq(productionOrders.tenantId, input.tenantId)
-        )
+        and(eq(productionOrders.id, input.orderId), eq(productionOrders.tenantId, input.tenantId))
       )
       .for("update");
     if (!order) throw new ProductionError("Ordem de produção não encontrada neste tenant.", 404);
-    if (order.status !== "em_corte") throw new ProductionError("Retalho só pode ser registrado durante o corte.", 409);
+    if (order.status !== "em_corte")
+      throw new ProductionError("Retalho só pode ser registrado durante o corte.", 409);
     if (order.version !== command.expectedOrderVersion) {
       throw new ProductionError("Ordem mudou; atualize antes de registrar o retalho.", 409);
     }
     const [report] = await tx
-      .select({ id: productionReports.id, reconciliationStatus: productionReports.reconciliationStatus })
+      .select({
+        id: productionReports.id,
+        reconciliationStatus: productionReports.reconciliationStatus,
+      })
       .from(productionReports)
       .where(
         and(
@@ -2135,7 +2294,8 @@ export async function createProductionResidual(input: {
           eq(productionReports.reconciliationStatus, "aplicado")
         )
       );
-    if (!report) throw new ProductionError("Retalho precisa referenciar apontamento aplicado.", 409);
+    if (!report)
+      throw new ProductionError("Retalho precisa referenciar apontamento aplicado.", 409);
     const [consumption] = await tx
       .select()
       .from(productionConsumptions)
@@ -2148,7 +2308,8 @@ export async function createProductionResidual(input: {
           eq(productionConsumptions.tenantId, input.tenantId)
         )
       );
-    if (!consumption) throw new ProductionError("Consumo de origem não pertence ao apontamento informado.", 404);
+    if (!consumption)
+      throw new ProductionError("Consumo de origem não pertence ao apontamento informado.", 404);
     const residual = await createResidualInTransaction(tx, {
       tenantId: input.tenantId,
       orderId: order.id,

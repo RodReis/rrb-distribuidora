@@ -108,7 +108,12 @@ export async function cancelSalesOrder(input: {
         await tx
           .update(productionOperations)
           .set({ status: "cancelada", endedAt: new Date() })
-          .where(inArray(productionOperations.orderItemId, itemRows.map((row) => row.id)));
+          .where(
+            inArray(
+              productionOperations.orderItemId,
+              itemRows.map((row) => row.id)
+            )
+          );
       }
     }
     const [updated] = await tx

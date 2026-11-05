@@ -110,9 +110,22 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
           .where(inArray(salesOrders.quoteId, quoteIds))
       : [];
     const production = orders.length
-      ? await db.select({ id: productionOrders.id }).from(productionOrders).where(inArray(productionOrders.salesOrderId, orders.map((order) => order.id)))
+      ? await db
+          .select({ id: productionOrders.id })
+          .from(productionOrders)
+          .where(
+            inArray(
+              productionOrders.salesOrderId,
+              orders.map((order) => order.id)
+            )
+          )
       : [];
-    const entityIds = [...quoteIds, ...remnantIds, ...orders.map((o) => o.id), ...production.map((o) => o.id)];
+    const entityIds = [
+      ...quoteIds,
+      ...remnantIds,
+      ...orders.map((o) => o.id),
+      ...production.map((o) => o.id),
+    ];
     if (entityIds.length) await db.delete(auditLog).where(inArray(auditLog.entityId, entityIds));
     const orderIds = orders.map((o) => o.id);
     if (orderIds.length) {
@@ -126,7 +139,12 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
         );
     }
     if (orders.length)
-      await db.delete(productionOrders).where(inArray(productionOrders.id, production.map((o) => o.id)));
+      await db.delete(productionOrders).where(
+        inArray(
+          productionOrders.id,
+          production.map((o) => o.id)
+        )
+      );
     if (orders.length)
       await db.delete(salesOrders).where(
         inArray(
@@ -153,7 +171,10 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     expect(order.quoteId).toBe(quote.id);
     expect(order.orderStatus).toBe("aguardando_producao");
     expect((await remnantStatus(remnant.id)).status).toBe("reservado");
-    const production = await db.select().from(productionOrders).where(eq(productionOrders.salesOrderId, order.id));
+    const production = await db
+      .select()
+      .from(productionOrders)
+      .where(eq(productionOrders.salesOrderId, order.id));
     expect(production).toHaveLength(1);
     expect(production[0].status).toBe("planejada");
 

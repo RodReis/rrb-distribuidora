@@ -553,7 +553,9 @@ export const stockReservations = pgTable(
       .notNull()
       .references(() => warehouses.id),
     quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
-    consumedQuantity: numeric("consumed_quantity", { precision: 12, scale: 4 }).default("0").notNull(),
+    consumedQuantity: numeric("consumed_quantity", { precision: 12, scale: 4 })
+      .default("0")
+      .notNull(),
     status: varchar("status", { length: 20 }).notNull().default("ativa"),
     reservedBy: uuid("reserved_by")
       .notNull()
@@ -985,7 +987,9 @@ export const salesOrders = pgTable(
 export const productionOrders = pgTable(
   "production_orders",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -1027,7 +1031,9 @@ export const productionOrders = pgTable(
 export const productionOrderItems = pgTable(
   "production_order_items",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     orderId: uuid("order_id")
       .notNull()
       .references(() => productionOrders.id, { onDelete: "cascade" }),
@@ -1060,7 +1066,9 @@ export const productionOrderItems = pgTable(
 export const productionOperations = pgTable(
   "production_operations",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     orderItemId: uuid("order_item_id")
       .notNull()
       .references(() => productionOrderItems.id, { onDelete: "cascade" }),
@@ -1086,7 +1094,9 @@ export const productionOperations = pgTable(
 export const productionReports = pgTable(
   "production_reports",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -1143,7 +1153,9 @@ export const productionReports = pgTable(
 export const productionConsumptions = pgTable(
   "production_consumptions",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
@@ -1182,7 +1194,9 @@ export const productionConsumptions = pgTable(
 export const productionResiduals = pgTable(
   "production_residuals",
   {
-    id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
     tenantId: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),

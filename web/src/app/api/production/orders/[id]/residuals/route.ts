@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import { guardProduction, productionErrorResponse } from "@/lib/production/api-auth";
 import { createProductionResidual } from "@/lib/production/service";
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const guard = await guardProduction("production.consume", { requireStockWrite: true });
   if (guard.error) return guard.error;
   try {

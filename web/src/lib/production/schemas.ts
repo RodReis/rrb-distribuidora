@@ -31,24 +31,27 @@ export const productionReportPayloadSchema = z.object({
     .min(1)
     .max(30)
     .refine(
-      (rows) => new Set(rows.map((row) => `${row.sourceType}:${row.sourceId}`)).size === rows.length,
+      (rows) =>
+        new Set(rows.map((row) => `${row.sourceType}:${row.sourceId}`)).size === rows.length,
       { message: "Não repita a mesma origem no mesmo apontamento." }
     ),
   residuals: z
     .array(
-      z.object({
-        clientOperationId: uuid,
-        consumptionIndex: z.number().int().min(0),
-        thicknessMm: positive,
-        widthMm: positive.optional(),
-        lengthMm: positive.optional(),
-        diameterMm: positive.optional(),
-        measuredWeightKg: positive,
-        locationAddress: z.string().trim().min(1).max(50),
-        notes: z.string().trim().max(500).optional(),
-      }).refine((row) => Boolean(row.widthMm || row.lengthMm || row.diameterMm), {
-        message: "Informe ao menos uma dimensão além da espessura.",
-      })
+      z
+        .object({
+          clientOperationId: uuid,
+          consumptionIndex: z.number().int().min(0),
+          thicknessMm: positive,
+          widthMm: positive.optional(),
+          lengthMm: positive.optional(),
+          diameterMm: positive.optional(),
+          measuredWeightKg: positive,
+          locationAddress: z.string().trim().min(1).max(50),
+          notes: z.string().trim().max(500).optional(),
+        })
+        .refine((row) => Boolean(row.widthMm || row.lengthMm || row.diameterMm), {
+          message: "Informe ao menos uma dimensão além da espessura.",
+        })
     )
     .max(30)
     .default([]),
@@ -79,19 +82,21 @@ export const transitionSchema = z.object({
     .optional(),
 });
 
-export const residualSchema = z.object({
-  clientOperationId: uuid,
-  expectedOrderVersion: z.number().int().positive(),
-  reportId: uuid,
-  consumptionId: uuid,
-  orderItemId: uuid,
-  thicknessMm: positive,
-  widthMm: positive.optional(),
-  lengthMm: positive.optional(),
-  diameterMm: positive.optional(),
-  measuredWeightKg: positive,
-  locationAddress: z.string().trim().min(1).max(50),
-  notes: z.string().trim().max(500).optional(),
-}).refine((row) => Boolean(row.widthMm || row.lengthMm || row.diameterMm), {
-  message: "Informe ao menos uma dimensão além da espessura.",
-});
+export const residualSchema = z
+  .object({
+    clientOperationId: uuid,
+    expectedOrderVersion: z.number().int().positive(),
+    reportId: uuid,
+    consumptionId: uuid,
+    orderItemId: uuid,
+    thicknessMm: positive,
+    widthMm: positive.optional(),
+    lengthMm: positive.optional(),
+    diameterMm: positive.optional(),
+    measuredWeightKg: positive,
+    locationAddress: z.string().trim().min(1).max(50),
+    notes: z.string().trim().max(500).optional(),
+  })
+  .refine((row) => Boolean(row.widthMm || row.lengthMm || row.diameterMm), {
+    message: "Informe ao menos uma dimensão além da espessura.",
+  });

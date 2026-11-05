@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import { guardProduction, productionErrorResponse } from "@/lib/production/api-auth";
 import { getProductionReports, submitProductionReport } from "@/lib/production/service";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const guard = await guardProduction("production.read");
   if (guard.error) return guard.error;
   try {
@@ -17,10 +14,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const guard = await guardProduction("production.report", { requireStockWrite: true });
   if (guard.error) return guard.error;
   try {
@@ -31,7 +25,11 @@ export async function POST(
       user: guard.user,
       payload: await request.json(),
     });
-    return NextResponse.json({ success: true, data: result.report, replayed: result.replayed ?? false });
+    return NextResponse.json({
+      success: true,
+      data: result.report,
+      replayed: result.replayed ?? false,
+    });
   } catch (error) {
     return productionErrorResponse(error);
   }
