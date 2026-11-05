@@ -414,6 +414,93 @@ export const marketPriceSeries = pgTable(
   })
 );
 
+/** Importações do usuário não entram na série global compartilhada entre tenants. */
+export const tenantMarketPriceSeries = pgTable(
+  "tenant_market_price_series",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    assetId: uuid("asset_id")
+      .notNull()
+      .references(() => marketAssets.id, { onDelete: "cascade" }),
+    assetName: varchar("asset_name", { length: 100 }).notNull(),
+    currency: varchar("currency", { length: 10 }).notNull(),
+    unit: varchar("unit", { length: 20 }).notNull(),
+    timestamp: timestamp("timestamp", { withTimezone: true }).notNull(),
+    open: numeric("open", { precision: 12, scale: 4 }),
+    high: numeric("high", { precision: 12, scale: 4 }),
+    low: numeric("low", { precision: 12, scale: 4 }),
+    close: numeric("close", { precision: 12, scale: 4 }).notNull(),
+    volume: numeric("volume", { precision: 14, scale: 2 }),
+    source: varchar("source", { length: 50 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantAssetTimeUq: uniqueIndex("uq_tenant_market_price_asset_time").on(
+      t.tenantId,
+      t.assetId,
+      t.timestamp
+    ),
+    tenantAssetTimeIdx: index("idx_tenant_market_price_asset_time").on(
+      t.tenantId,
+      t.assetId,
+      t.timestamp
+    ),
+  })
+);
+
+export const marketExports = pgTable(
+  "market_exports",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    filters: jsonb("filters").$type<{ symbol: string; from: string; to: string }>().notNull(),
+    format: varchar("format", { length: 4 }).notNull(),
+    rowCount: integer("row_count").notNull(),
+    status: varchar("status", { length: 20 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({ tenantTimeIdx: index("idx_market_exports_tenant_time").on(t.tenantId, t.createdAt) })
+);
+
+export const marketManualPrices = pgTable(
+  "market_manual_prices",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    assetId: uuid("asset_id")
+      .notNull()
+      .references(() => marketAssets.id),
+    value: numeric("value", { precision: 14, scale: 4 }).notNull(),
+    currency: varchar("currency", { length: 10 }).notNull(),
+    unit: varchar("unit", { length: 20 }).notNull(),
+    observedAt: timestamp("observed_at", { withTimezone: true }).defaultNow().notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+  },
+  (t) => ({
+    tenantAssetTimeIdx: index("idx_market_manual_prices_tenant_asset_time").on(
+      t.tenantId,
+      t.assetId,
+      t.observedAt
+    ),
+  })
+);
+
 export const importParityConfigs = pgTable("import_parity_configs", {
   id: uuid("id")
     .default(sql`gen_random_uuid()`)

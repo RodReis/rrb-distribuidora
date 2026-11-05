@@ -9,6 +9,9 @@ export const STOCK_PREDICTIVE_CRON = "0 4 * * *";
 /** Expiração de propostas vencidas (M3), de hora em hora. */
 export const QUOTE_EXPIRY_CRON = "0 * * * *";
 
+/** Remove metadados de exportação após 365 dias, diariamente às 04h10. */
+export const MARKET_EXPORT_PRUNE_CRON = "10 4 * * *";
+
 /** Briefing matinal (M4), todos os dias às 06h55 para estar pronto às 07h. */
 export const BRIEFING_CRON = "55 6 * * *";
 

@@ -132,7 +132,7 @@ export function MarketChart({
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
-        title: "Preço médio pago",
+        title: "Referência manual",
       });
     }
 

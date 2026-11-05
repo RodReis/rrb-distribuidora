@@ -1,16 +1,18 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { importParityConfigs, marketAlertRules, marketAssets } from "@/lib/db/schema";
+import { importParityConfigs, marketAlertRules, marketAssets, products } from "@/lib/db/schema";
 import { checkPermission, getCurrentUser } from "@/lib/auth/rbac";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Forbidden } from "@/components/shared/forbidden";
 import { PageHeader } from "@/components/shared/page-header";
 import { Tabs } from "@/components/ui/tabs";
 import { MarketTerminal } from "@/components/features/market/market-terminal";
+import { PaidPricePanel } from "@/components/features/market/paid-price-panel";
 import { ParitySimulator } from "@/components/features/market/parity-simulator";
 import { AlertsPanel } from "@/components/features/market/alerts-panel";
 import { ASSET_SYMBOLS } from "@/lib/market/assets";
 import { getQuotes } from "@/lib/market/queries";
+import { hasMarketCapability } from "@/lib/market/capabilities";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,7 @@ const TABS = [
   { key: "terminal", label: "Terminal de Mercado" },
   { key: "paridade", label: "Paridade de Importação" },
   { key: "alertas", label: "Alertas" },
+  { key: "preco-pago", label: "Preço pago" },
 ] as const;
 
 export default async function MercadoPage({
@@ -34,8 +37,8 @@ export default async function MercadoPage({
   const { tab } = await searchParams;
   const active = TABS.find((t) => t.key === tab)?.key ?? "terminal";
 
-  const [quotes, configs, rules, assets] = await Promise.all([
-    getQuotes(),
+  const [quotes, configs, rules, assets, paidProducts] = await Promise.all([
+    getQuotes(user.tenantId),
     db
       .select()
       .from(importParityConfigs)
@@ -58,6 +61,15 @@ export default async function MercadoPage({
       .where(eq(marketAlertRules.tenantId, user.tenantId))
       .orderBy(desc(marketAlertRules.createdAt)),
     db.select().from(marketAssets).where(eq(marketAssets.active, true)),
+    db
+      .select({
+        id: products.id,
+        sku: products.sku,
+        name: products.commercialDescription,
+        unit: products.unit,
+      })
+      .from(products)
+      .where(eq(products.tenantId, user.tenantId)),
   ]);
 
   const last = (symbol: string) => quotes.find((q) => q.symbol === symbol)?.last ?? null;
@@ -86,7 +98,8 @@ export default async function MercadoPage({
         }))}
       />
 
-      {active === "terminal" && <MarketTerminal initialQuotes={quotes} />}
+      {active === "terminal" && <MarketTerminal initialQuotes={quotes} canWrite={canWrite} />}
+      {active === "preco-pago" && <PaidPricePanel products={paidProducts} />}
       {active === "paridade" && (
         <ParitySimulator
           defaultPtax={last(ASSET_SYMBOLS.PTAX)}
@@ -97,7 +110,7 @@ export default async function MercadoPage({
       )}
       {active === "alertas" && (
         <AlertsPanel
-          canWrite={canWrite}
+          canWrite={canWrite && hasMarketCapability(user.role, "market.alert.configure")}
           assets={assets.map((a) => ({ id: a.id, name: a.name }))}
           initialRules={rules.map((r) => ({
             ...r,

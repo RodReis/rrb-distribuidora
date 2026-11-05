@@ -1,6 +1,6 @@
-import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { marketAssets, marketPriceSeries } from "@/lib/db/schema";
+import { marketAssets, marketPriceSeries, tenantMarketPriceSeries } from "@/lib/db/schema";
 import { pctChange } from "./indicators";
 
 export interface Quote {
@@ -9,6 +9,7 @@ export interface Quote {
   market: string;
   unit: string;
   baseCurrency: string;
+  quoteSource: string;
   last: number | null;
   asOf: string | null;
   change24h: number | null;
@@ -27,7 +28,7 @@ export interface SeriesBar {
 
 const DAY_MS = 86_400_000;
 
-export async function getQuotes(): Promise<Quote[]> {
+export async function getQuotes(tenantId?: string): Promise<Quote[]> {
   const assets = await db
     .select()
     .from(marketAssets)
@@ -36,16 +37,35 @@ export async function getQuotes(): Promise<Quote[]> {
 
   return Promise.all(
     assets.map(async (asset) => {
-      const rows = await db
+      const globalRows = await db
         .select({ timestamp: marketPriceSeries.timestamp, close: marketPriceSeries.close })
         .from(marketPriceSeries)
         .where(
           and(
             eq(marketPriceSeries.assetId, asset.id),
+            ne(marketPriceSeries.source, "MANUAL_IMPORT"),
             gte(marketPriceSeries.timestamp, new Date(Date.now() - 45 * DAY_MS))
           )
         )
         .orderBy(desc(marketPriceSeries.timestamp));
+
+      const tenantRows = tenantId
+        ? await db
+            .select({
+              timestamp: tenantMarketPriceSeries.timestamp,
+              close: tenantMarketPriceSeries.close,
+            })
+            .from(tenantMarketPriceSeries)
+            .where(
+              and(
+                eq(tenantMarketPriceSeries.tenantId, tenantId),
+                eq(tenantMarketPriceSeries.assetId, asset.id),
+                gte(tenantMarketPriceSeries.timestamp, new Date(Date.now() - 45 * DAY_MS))
+              )
+            )
+            .orderBy(desc(tenantMarketPriceSeries.timestamp))
+        : [];
+      const rows = tenantRows.length > 0 ? tenantRows : globalRows;
 
       const last = rows[0];
       const closeAtOrBefore = (days: number) => {
@@ -65,6 +85,7 @@ export async function getQuotes(): Promise<Quote[]> {
         market: asset.market,
         unit: asset.unit,
         baseCurrency: asset.baseCurrency,
+        quoteSource: tenantRows.length > 0 ? "Minhas importações" : asset.provider,
         last: last ? Number(last.close) : null,
         asOf: last ? last.timestamp.toISOString() : null,
         change24h: change(1),
@@ -75,23 +96,49 @@ export async function getQuotes(): Promise<Quote[]> {
   );
 }
 
-export async function getSeries(symbol: string, from: Date, to: Date): Promise<SeriesBar[] | null> {
+export async function getSeries(
+  symbol: string,
+  from: Date,
+  to: Date,
+  tenantId: string,
+  source: "provider" | "manual" = "provider"
+): Promise<SeriesBar[] | null> {
   const [asset] = await db.select().from(marketAssets).where(eq(marketAssets.symbol, symbol));
   if (!asset) return null;
 
-  const rows = await db
-    .select()
-    .from(marketPriceSeries)
-    .where(
-      and(
-        eq(marketPriceSeries.assetId, asset.id),
-        gte(marketPriceSeries.timestamp, from),
-        lte(marketPriceSeries.timestamp, to)
-      )
-    )
-    .orderBy(asc(marketPriceSeries.timestamp));
+  const rows =
+    source === "provider"
+      ? await db
+          .select()
+          .from(marketPriceSeries)
+          .where(
+            and(
+              eq(marketPriceSeries.assetId, asset.id),
+              gte(marketPriceSeries.timestamp, from),
+              lte(marketPriceSeries.timestamp, to),
+              ne(marketPriceSeries.source, "MANUAL_IMPORT")
+            )
+          )
+          .orderBy(asc(marketPriceSeries.timestamp))
+      : [];
 
-  return rows.map((r) => {
+  const tenantRows =
+    source === "manual"
+      ? await db
+          .select()
+          .from(tenantMarketPriceSeries)
+          .where(
+            and(
+              eq(tenantMarketPriceSeries.tenantId, tenantId),
+              eq(tenantMarketPriceSeries.assetId, asset.id),
+              gte(tenantMarketPriceSeries.timestamp, from),
+              lte(tenantMarketPriceSeries.timestamp, to)
+            )
+          )
+          .orderBy(asc(tenantMarketPriceSeries.timestamp))
+      : [];
+
+  return [...rows, ...tenantRows].map((r) => {
     const close = Number(r.close);
     return {
       time: Math.floor(r.timestamp.getTime() / 1000),
@@ -138,7 +185,9 @@ export async function getLastClose(symbol: string): Promise<number | null> {
   const [row] = await db
     .select({ close: marketPriceSeries.close })
     .from(marketPriceSeries)
-    .where(eq(marketPriceSeries.assetId, asset.id))
+    .where(
+      and(eq(marketPriceSeries.assetId, asset.id), ne(marketPriceSeries.source, "MANUAL_IMPORT"))
+    )
     .orderBy(desc(marketPriceSeries.timestamp))
     .limit(1);
   return row ? Number(row.close) : null;

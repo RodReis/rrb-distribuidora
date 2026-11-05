@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull, lt, or } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, lt, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   importParityConfigs,
@@ -14,6 +14,7 @@ import { smaCross } from "./indicators";
 import type { ConditionType } from "./conditions";
 import { calculateParity } from "./parity-calculator";
 import { getLastClose, getQuotes } from "./queries";
+import { eligibleSmaCloses } from "./sma-eligibility";
 
 const SUPPRESS_HOURS = 24;
 
@@ -25,14 +26,31 @@ interface Trigger {
 const pt = (n: number, d = 2) =>
   n.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 
-async function closesFor(assetId: string, limit = 80): Promise<number[]> {
+async function closesFor(
+  assetId: string,
+  limit = 80
+): Promise<{ closes: number[]; source: string; from: string; to: string }> {
   const rows = await db
-    .select({ close: marketPriceSeries.close })
+    .select({
+      close: marketPriceSeries.close,
+      timestamp: marketPriceSeries.timestamp,
+      source: marketPriceSeries.source,
+    })
     .from(marketPriceSeries)
-    .where(eq(marketPriceSeries.assetId, assetId))
+    .where(
+      and(eq(marketPriceSeries.assetId, assetId), ne(marketPriceSeries.source, "MANUAL_IMPORT"))
+    )
     .orderBy(desc(marketPriceSeries.timestamp))
     .limit(limit);
-  return rows.reverse().map((r) => Number(r.close));
+  const closes = eligibleSmaCloses(
+    rows.map((r) => ({ timestamp: r.timestamp, close: Number(r.close), source: r.source }))
+  );
+  return {
+    closes,
+    source: rows[0]?.source ?? "desconhecida",
+    from: rows[50]?.timestamp.toISOString() ?? "",
+    to: rows[0]?.timestamp.toISOString() ?? "",
+  };
 }
 
 export async function currentSpreadPct(tenantId: string): Promise<number | null> {
@@ -126,11 +144,12 @@ export async function evaluateAlerts(now: Date = new Date()): Promise<EvalResult
         break;
       }
       case "SMA_CROSS": {
-        const cross = smaCross(await closesFor(asset.id), 20, 50);
+        const window = await closesFor(asset.id);
+        const cross = smaCross(window.closes, 20, 50);
         if (cross) {
           trigger = {
             title: `${asset.name}: cruzamento ${cross === "golden" ? "de alta" : "de baixa"} de médias`,
-            message: `A SMA 20 cruzou ${cross === "golden" ? "acima" : "abaixo"} da SMA 50 em ${asset.name} — possível reversão de tendência.`,
+            message: `A SMA 20 cruzou ${cross === "golden" ? "acima" : "abaixo"} da SMA 50 em ${asset.name}. Fonte: ${window.source}. Regra: market-sma-cross-v1; janela: ${window.from} a ${window.to}; fechamentos usados: ${window.closes.slice(-51).join(", ")}.`,
           };
         }
         break;
