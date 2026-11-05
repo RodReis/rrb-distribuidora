@@ -286,6 +286,7 @@ export const customers = pgTable(
   },
   (t) => ({
     tenantCustomerIdx: index("customers_tenant_idx").on(t.tenantId),
+    tenantIdUq: unique("customers_id_tenant_lac09_uq").on(t.id, t.tenantId),
   })
 );
 
@@ -2194,5 +2195,140 @@ export const regulatoryItems = pgTable(
     ),
     versionCk: check("regulatory_items_version_ck", sql`version > 0`),
     publishedIdx: index("regulatory_items_tenant_published_idx").on(t.tenantId, t.publishedAt),
+  })
+);
+
+export const financialTitles = pgTable(
+  "financial_titles",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    sourceSystem: text("source_system").notNull(),
+    externalId: text("external_id").notNull(),
+    customerId: uuid("customer_id"),
+    supplierId: uuid("supplier_id"),
+    direction: text("direction").notNull(),
+    amount: numeric("amount", { precision: 16, scale: 2 }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    dueAt: date("due_at").notNull(),
+    sourceHash: varchar("source_hash", { length: 64 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    idTenantUq: unique("financial_titles_id_tenant_uq").on(t.id, t.tenantId),
+    externalUq: unique("financial_titles_external_uq").on(t.tenantId, t.sourceSystem, t.externalId),
+    customerFk: foreignKey({
+      name: "financial_titles_customer_tenant_fk",
+      columns: [t.customerId, t.tenantId],
+      foreignColumns: [customers.id, customers.tenantId],
+    }),
+    supplierFk: foreignKey({
+      name: "financial_titles_supplier_tenant_fk",
+      columns: [t.supplierId, t.tenantId],
+      foreignColumns: [suppliers.id, suppliers.tenantId],
+    }),
+    partyCk: check(
+      "financial_titles_party_ck",
+      sql`(direction = 'receivable' AND customer_id IS NOT NULL AND supplier_id IS NULL) OR (direction = 'payable' AND supplier_id IS NOT NULL AND customer_id IS NULL)`
+    ),
+    amountCk: check("financial_titles_amount_ck", sql`amount > 0`),
+    hashCk: check("financial_titles_hash_ck", sql`source_hash ~ '^[0-9a-f]{64}$'`),
+  })
+);
+
+export const titleEvents = pgTable(
+  "title_events",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    titleId: uuid("title_id").notNull(),
+    eventType: text("event_type").notNull(),
+    amount: numeric("amount", { precision: 16, scale: 2 }).notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    sourceRef: text("source_ref").notNull(),
+    actorId: uuid("actor_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    titleFk: foreignKey({
+      name: "title_events_title_tenant_fk",
+      columns: [t.titleId, t.tenantId],
+      foreignColumns: [financialTitles.id, financialTitles.tenantId],
+    }),
+    actorFk: foreignKey({
+      name: "title_events_actor_tenant_fk",
+      columns: [t.actorId, t.tenantId],
+      foreignColumns: [users.id, users.tenantId],
+    }),
+    sourceUq: unique("title_events_source_uq").on(t.tenantId, t.titleId, t.sourceRef),
+    typeCk: check("title_events_type_ck", sql`event_type IN ('settlement', 'reversal')`),
+    amountCk: check("title_events_amount_ck", sql`amount > 0`),
+  })
+);
+
+export const creditLimits = pgTable(
+  "credit_limits",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    customerId: uuid("customer_id").notNull(),
+    limitAmount: numeric("limit_amount", { precision: 16, scale: 2 }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    validFrom: date("valid_from").notNull(),
+    validUntil: date("valid_until"),
+    source: text("source").notNull(),
+    approvedBy: uuid("approved_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    customerFk: foreignKey({
+      name: "credit_limits_customer_tenant_fk",
+      columns: [t.customerId, t.tenantId],
+      foreignColumns: [customers.id, customers.tenantId],
+    }),
+    approverFk: foreignKey({
+      name: "credit_limits_approver_tenant_fk",
+      columns: [t.approvedBy, t.tenantId],
+      foreignColumns: [users.id, users.tenantId],
+    }),
+    amountCk: check("credit_limits_amount_ck", sql`limit_amount >= 0`),
+    periodCk: check(
+      "credit_limits_period_ck",
+      sql`valid_until IS NULL OR valid_until >= valid_from`
+    ),
+  })
+);
+
+export const financeImportRuns = pgTable(
+  "finance_import_runs",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    source: text("source").notNull(),
+    fileHash: varchar("file_hash", { length: 64 }).notNull(),
+    counts: jsonb("counts").notNull(),
+    errors: jsonb("errors").notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (t) => ({
+    sourceHashUq: unique("finance_import_runs_source_hash_uq").on(t.tenantId, t.source, t.fileHash),
+    hashCk: check("finance_import_runs_hash_ck", sql`file_hash ~ '^[0-9a-f]{64}$'`),
   })
 );

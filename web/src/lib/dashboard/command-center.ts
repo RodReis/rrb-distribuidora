@@ -342,7 +342,7 @@ export async function getCommandCenterData(tenantId: string): Promise<CommandCen
             : "OK",
     },
     { department: "Chão de Fábrica", level: "nodata", label: "Sem módulo" },
-    { department: "Financeiro", level: "nodata", label: "Sem módulo" },
+    { department: "Financeiro", level: "nodata", label: "Indisponível · fonte não definida" },
   ];
 
   const globalLevel = worstLevel(risks.map((r) => r.level));
