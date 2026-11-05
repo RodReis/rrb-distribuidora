@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { marketAssets, tenantMarketPriceSeries, tenants } from "@/lib/db/schema";
+import { marketAssets, marketPriceSeries, tenantMarketPriceSeries, tenants } from "@/lib/db/schema";
 import { upsertTenantDailyBars } from "./series-store";
 import { getSeries } from "./queries";
 
@@ -49,15 +49,24 @@ describe.skipIf(!enabled)("LAC-05 (Postgres real)", () => {
     await upsertTenantDailyBars(tenantB, [
       { assetId, day: "2026-11-01", close: 20, source: "MANUAL_IMPORT" },
     ]);
+    await db.insert(marketPriceSeries).values({
+      assetId,
+      timestamp: new Date("2026-11-01T00:00:00Z"),
+      close: "30.0000",
+      source: "FEED",
+    });
 
     const from = new Date("2026-11-01T00:00:00Z");
     const to = new Date("2026-11-01T23:59:59Z");
     expect((await getSeries(asset.symbol, from, to, tenantA))?.map((row) => row.close)).toEqual([
-      10,
+      30,
     ]);
-    expect((await getSeries(asset.symbol, from, to, tenantB))?.map((row) => row.close)).toEqual([
-      20,
-    ]);
+    expect(
+      (await getSeries(asset.symbol, from, to, tenantA, "manual"))?.map((row) => row.close)
+    ).toEqual([10]);
+    expect(
+      (await getSeries(asset.symbol, from, to, tenantB, "manual"))?.map((row) => row.close)
+    ).toEqual([20]);
 
     await db
       .update(marketAssets)

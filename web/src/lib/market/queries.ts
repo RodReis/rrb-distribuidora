@@ -9,6 +9,7 @@ export interface Quote {
   market: string;
   unit: string;
   baseCurrency: string;
+  quoteSource: string;
   last: number | null;
   asOf: string | null;
   change24h: number | null;
@@ -84,6 +85,7 @@ export async function getQuotes(tenantId?: string): Promise<Quote[]> {
         market: asset.market,
         unit: asset.unit,
         baseCurrency: asset.baseCurrency,
+        quoteSource: tenantRows.length > 0 ? "Minhas importações" : asset.provider,
         last: last ? Number(last.close) : null,
         asOf: last ? last.timestamp.toISOString() : null,
         change24h: change(1),
@@ -98,44 +100,45 @@ export async function getSeries(
   symbol: string,
   from: Date,
   to: Date,
-  tenantId: string
+  tenantId: string,
+  source: "provider" | "manual" = "provider"
 ): Promise<SeriesBar[] | null> {
   const [asset] = await db.select().from(marketAssets).where(eq(marketAssets.symbol, symbol));
   if (!asset) return null;
 
-  const rows = await db
-    .select()
-    .from(marketPriceSeries)
-    .where(
-      and(
-        eq(marketPriceSeries.assetId, asset.id),
-        gte(marketPriceSeries.timestamp, from),
-        lte(marketPriceSeries.timestamp, to),
-        ne(marketPriceSeries.source, "MANUAL_IMPORT")
-      )
-    )
-    .orderBy(asc(marketPriceSeries.timestamp));
+  const rows =
+    source === "provider"
+      ? await db
+          .select()
+          .from(marketPriceSeries)
+          .where(
+            and(
+              eq(marketPriceSeries.assetId, asset.id),
+              gte(marketPriceSeries.timestamp, from),
+              lte(marketPriceSeries.timestamp, to),
+              ne(marketPriceSeries.source, "MANUAL_IMPORT")
+            )
+          )
+          .orderBy(asc(marketPriceSeries.timestamp))
+      : [];
 
-  const tenantRows = await db
-    .select()
-    .from(tenantMarketPriceSeries)
-    .where(
-      and(
-        eq(tenantMarketPriceSeries.tenantId, tenantId),
-        eq(tenantMarketPriceSeries.assetId, asset.id),
-        gte(tenantMarketPriceSeries.timestamp, from),
-        lte(tenantMarketPriceSeries.timestamp, to)
-      )
-    )
-    .orderBy(asc(tenantMarketPriceSeries.timestamp));
+  const tenantRows =
+    source === "manual"
+      ? await db
+          .select()
+          .from(tenantMarketPriceSeries)
+          .where(
+            and(
+              eq(tenantMarketPriceSeries.tenantId, tenantId),
+              eq(tenantMarketPriceSeries.assetId, asset.id),
+              gte(tenantMarketPriceSeries.timestamp, from),
+              lte(tenantMarketPriceSeries.timestamp, to)
+            )
+          )
+          .orderBy(asc(tenantMarketPriceSeries.timestamp))
+      : [];
 
-  const byTimestamp = new Map<number, (typeof rows)[number]>();
-  for (const row of rows) byTimestamp.set(row.timestamp.getTime(), row);
-  for (const row of tenantRows) byTimestamp.set(row.timestamp.getTime(), row);
-  const combined = [...byTimestamp.values()].sort(
-    (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
-  );
-  return combined.map((r) => {
+  return [...rows, ...tenantRows].map((r) => {
     const close = Number(r.close);
     return {
       time: Math.floor(r.timestamp.getTime() / 1000),

@@ -4,6 +4,11 @@ export interface SmaObservation {
   source: string;
 }
 
+function consecutiveSession(previous: Date, current: Date): boolean {
+  const elapsed = current.getTime() - previous.getTime();
+  return elapsed === 86_400_000 || (previous.getUTCDay() === 5 && elapsed === 3 * 86_400_000);
+}
+
 /** Última sequência de sessões observadas; troca de fonte/lacuna invalida janela anterior. */
 export function eligibleSmaCloses(rows: SmaObservation[]): number[] {
   const ordered = [...rows].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -16,9 +21,7 @@ export function eligibleSmaCloses(rows: SmaObservation[]): number[] {
     }
     if (
       previous &&
-      (row.source !== previous.source ||
-        row.timestamp.getTime() - previous.timestamp.getTime() > 4 * 86_400_000 ||
-        row.timestamp.getTime() <= previous.timestamp.getTime())
+      (row.source !== previous.source || !consecutiveSession(previous.timestamp, row.timestamp))
     )
       current.length = 0;
     current.push(row);

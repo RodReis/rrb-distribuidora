@@ -17,9 +17,19 @@ describe("elegibilidade de média de mercado", () => {
     expect(eligibleSmaCloses(mixed)).toEqual([]);
   });
 
-  it("lacuna acima de quatro dias interrompe janela", () => {
+  it("qualquer dia ausente interrompe janela", () => {
     const rows = sequence(51);
-    rows[30].timestamp = new Date(Date.UTC(2026, 2, 1));
+    rows.splice(30, 1);
+    rows.push({ timestamp: new Date(Date.UTC(2026, 1, 21)), close: 52, source: "FEED" });
     expect(eligibleSmaCloses(rows)).toEqual([]);
+  });
+
+  it("sexta para segunda mantém sessões úteis consecutivas", () => {
+    const rows = Array.from({ length: 51 }, (_, index) => ({
+      timestamp: new Date(Date.UTC(2026, 0, 2 + index + 2 * Math.floor((index + 4) / 5))),
+      close: index + 1,
+      source: "FEED",
+    }));
+    expect(eligibleSmaCloses(rows)).toHaveLength(51);
   });
 });

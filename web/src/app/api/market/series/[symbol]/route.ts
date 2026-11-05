@@ -13,6 +13,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
     ? new Date(url.searchParams.get("from")!)
     : new Date(to.getTime() - 365 * 86_400_000);
   const resolution = url.searchParams.get("resolution") ?? "1d";
+  const source = url.searchParams.get("source") ?? "provider";
 
   if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || from > to) {
     return NextResponse.json({ error: "Intervalo de datas inválido." }, { status: 400 });
@@ -20,12 +21,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
   if (!["1d", "1w", "1m"].includes(resolution)) {
     return NextResponse.json({ error: "Resolução inválida (use 1d, 1w ou 1m)." }, { status: 400 });
   }
+  if (source !== "provider" && source !== "manual") {
+    return NextResponse.json(
+      { error: "Fonte inválida (use provider ou manual)." },
+      { status: 400 }
+    );
+  }
 
-  const bars = await getSeries(symbol, from, to, guard.user.tenantId);
+  const bars = await getSeries(symbol, from, to, guard.user.tenantId, source);
   if (!bars) return NextResponse.json({ error: "Ativo não encontrado." }, { status: 404 });
 
   return NextResponse.json({
     symbol,
+    source,
     resolution,
     bars: resolution === "1d" ? bars : aggregateBars(bars, resolution as "1w" | "1m"),
   });

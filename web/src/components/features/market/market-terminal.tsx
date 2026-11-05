@@ -80,6 +80,7 @@ export function MarketTerminal({
   );
   const [range, setRange] = React.useState<(typeof RANGES)[number]["key"]>("1A");
   const [mode, setMode] = React.useState<"candles" | "line">("candles");
+  const [seriesSource, setSeriesSource] = React.useState<"provider" | "manual">("provider");
   const [sma20, setSma20] = React.useState(true);
   const [sma50, setSma50] = React.useState(true);
   const [avgPaidInput, setAvgPaidInput] = React.useState("");
@@ -89,6 +90,7 @@ export function MarketTerminal({
   const [importCount, setImportCount] = React.useState<number | null>(null);
 
   const cache = React.useRef(new Map<string, ChartBar[]>());
+  const seriesRequest = React.useRef(0);
   const symbolRef = React.useRef(symbol);
   symbolRef.current = symbol;
   const [bars, setBars] = React.useState<ChartBar[] | null>(null);
@@ -126,29 +128,38 @@ export function MarketTerminal({
     };
   }, [symbol]);
 
-  const loadSeries = React.useCallback(async (sym: string, force = false) => {
-    if (!force && cache.current.has(sym)) {
-      setBars(cache.current.get(sym)!);
+  const loadSeries = React.useCallback(
+    async (sym: string, source: "provider" | "manual", force = false) => {
+      const requestId = ++seriesRequest.current;
+      const key = `${sym}:${source}`;
+      if (!force && cache.current.has(key)) {
+        setBars(cache.current.get(key)!);
+        setError(false);
+        return;
+      }
+      setBars(null);
       setError(false);
-      return;
-    }
-    setBars(null);
-    setError(false);
-    try {
-      const res = await fetch(`/api/market/series/${encodeURIComponent(sym)}?from=${FULL_FROM}`);
-      if (!res.ok) throw new Error();
-      const data = (await res.json()) as { bars: ChartBar[] };
-      cache.current.set(sym, data.bars);
-      setBars(data.bars);
-    } catch {
-      setError(true);
-      toast.error("Não foi possível carregar a série de preços. Tente novamente.");
-    }
-  }, []);
+      try {
+        const res = await fetch(
+          `/api/market/series/${encodeURIComponent(sym)}?from=${FULL_FROM}&source=${source}`
+        );
+        if (!res.ok) throw new Error();
+        const data = (await res.json()) as { bars: ChartBar[] };
+        cache.current.set(key, data.bars);
+        if (requestId === seriesRequest.current) setBars(data.bars);
+      } catch {
+        if (requestId === seriesRequest.current) {
+          setError(true);
+          toast.error("Não foi possível carregar a série de preços. Tente novamente.");
+        }
+      }
+    },
+    []
+  );
 
   React.useEffect(() => {
-    if (symbol) void loadSeries(symbol);
-  }, [symbol, loadSeries]);
+    if (symbol) void loadSeries(symbol, seriesSource);
+  }, [symbol, seriesSource, loadSeries]);
 
   async function refreshAll() {
     setRefreshing(true);
@@ -157,7 +168,7 @@ export function MarketTerminal({
       if (!res.ok) throw new Error();
       setQuotes(((await res.json()) as { quotes: Quote[] }).quotes);
       cache.current.clear();
-      await loadSeries(symbol, true);
+      await loadSeries(symbol, seriesSource, true);
       toast.success("Cotações atualizadas.");
     } catch {
       toast.error("Não foi possível atualizar as cotações.");
@@ -319,6 +330,10 @@ export function MarketTerminal({
                 {fmtPct(current?.change24h)}
               </span>
             </div>
+            <div className="font-mono text-label-code text-titanium-muted">
+              Cotação: {current?.quoteSource} · Gráfico:{" "}
+              {seriesSource === "manual" ? "minhas importações" : "fornecedor"}
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -341,6 +356,28 @@ export function MarketTerminal({
                   )}
                 >
                   {r.key}
+                </button>
+              ))}
+            </div>
+            <div
+              role="group"
+              aria-label="Fonte da série"
+              className="flex overflow-hidden rounded border border-carbon-700"
+            >
+              {(["provider", "manual"] as const).map((source) => (
+                <button
+                  key={source}
+                  type="button"
+                  aria-pressed={seriesSource === source}
+                  onClick={() => setSeriesSource(source)}
+                  className={cn(
+                    "h-7 px-2.5 font-mono text-label-code transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-carmine-core cursor-pointer",
+                    seriesSource === source
+                      ? "bg-carmine-core text-ice-white"
+                      : "bg-carbon-950 text-titanium-muted hover:text-ice-white"
+                  )}
+                >
+                  {source === "provider" ? "FORNECEDOR" : "MINHAS IMPORTAÇÕES"}
                 </button>
               ))}
             </div>
@@ -439,7 +476,11 @@ export function MarketTerminal({
           {error ? (
             <div className="flex h-[360px] flex-col items-center justify-center gap-3 text-titanium-muted">
               <p className="text-body-md">Falha ao carregar a série.</p>
-              <Button variant="secondary" size="sm" onClick={() => loadSeries(symbol, true)}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => loadSeries(symbol, seriesSource, true)}
+              >
                 Tentar novamente
               </Button>
             </div>
@@ -447,7 +488,8 @@ export function MarketTerminal({
             <Skeleton className="h-[360px] w-full" />
           ) : bars.length === 0 ? (
             <div className="flex h-[360px] items-center justify-center text-body-md text-titanium-muted">
-              Sem dados para este ativo.
+              Sem dados {seriesSource === "manual" ? "nas suas importações" : "do fornecedor"} para
+              este ativo.
             </div>
           ) : (
             <MarketChart
