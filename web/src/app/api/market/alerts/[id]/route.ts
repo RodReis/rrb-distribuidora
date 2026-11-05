@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { auditLog, marketAlertRules } from "@/lib/db/schema";
-import { guardMarket } from "@/lib/market/api-auth";
+import { guardMarketAlertConfigure } from "@/lib/market/api-auth";
 
 const patchSchema = z.object({ active: z.boolean() });
 
@@ -16,7 +16,7 @@ async function loadRule(id: string, tenantId: string) {
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const guard = await guardMarket("write");
+  const guard = await guardMarketAlertConfigure();
   if (guard.error) return guard.error;
   const { id } = await params;
   const parsed = patchSchema.safeParse(await request.json().catch(() => null));
@@ -43,7 +43,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const guard = await guardMarket("write");
+  const guard = await guardMarketAlertConfigure();
   if (guard.error) return guard.error;
   const { id } = await params;
 

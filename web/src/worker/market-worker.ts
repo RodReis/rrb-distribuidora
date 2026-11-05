@@ -4,6 +4,7 @@ import {
   BRIEFING_CRON,
   DEFAULT_METALS_CRON,
   MARKET_TIMEZONE,
+  MARKET_EXPORT_PRUNE_CRON,
   PTAX_CRONS,
   QUOTE_EXPIRY_CRON,
   STOCK_PREDICTIVE_CRON,
@@ -33,6 +34,7 @@ async function trigger(
     | "calculate-predictive-stock"
     | "generate-daily-briefing"
     | "expire-quotes"
+    | "prune-market-exports"
 ) {
   const startedAt = new Date().toISOString();
   try {
@@ -64,6 +66,9 @@ cron.schedule(BRIEFING_CRON, () => void trigger("generate-daily-briefing"), {
   timezone: MARKET_TIMEZONE,
 });
 cron.schedule(QUOTE_EXPIRY_CRON, () => void trigger("expire-quotes"), {
+  timezone: MARKET_TIMEZONE,
+});
+cron.schedule(MARKET_EXPORT_PRUNE_CRON, () => void trigger("prune-market-exports"), {
   timezone: MARKET_TIMEZONE,
 });
 

@@ -3,7 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { auditLog, marketAlertRules, marketAssets } from "@/lib/db/schema";
-import { guardMarket } from "@/lib/market/api-auth";
+import { guardMarket, guardMarketAlertConfigure } from "@/lib/market/api-auth";
 import { CONDITION_TYPES } from "@/lib/market/conditions";
 
 const createSchema = z.object({
@@ -37,7 +37,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const guard = await guardMarket("write");
+  const guard = await guardMarketAlertConfigure();
   if (guard.error) return guard.error;
   const { user } = guard;
 

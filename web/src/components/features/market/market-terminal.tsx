@@ -57,7 +57,21 @@ function MetricTile({
   );
 }
 
-export function MarketTerminal({ initialQuotes }: { initialQuotes: Quote[] }) {
+interface ManualPrice {
+  value: number;
+  currency: string;
+  unit: string;
+  observedAt: string;
+  author: string;
+}
+
+export function MarketTerminal({
+  initialQuotes,
+  canWrite,
+}: {
+  initialQuotes: Quote[];
+  canWrite: boolean;
+}) {
   const [quotes, setQuotes] = React.useState(initialQuotes);
   const [symbol, setSymbol] = React.useState<string>(
     initialQuotes.find((q) => q.symbol === ASSET_SYMBOLS.HRC_US)?.symbol ??
@@ -69,14 +83,47 @@ export function MarketTerminal({ initialQuotes }: { initialQuotes: Quote[] }) {
   const [sma20, setSma20] = React.useState(true);
   const [sma50, setSma50] = React.useState(true);
   const [avgPaidInput, setAvgPaidInput] = React.useState("");
+  const [manualPrice, setManualPrice] = React.useState<ManualPrice | null>(null);
+  const [legacyManual, setLegacyManual] = React.useState(false);
+  const [savingManual, setSavingManual] = React.useState(false);
+  const [importCount, setImportCount] = React.useState<number | null>(null);
 
   const cache = React.useRef(new Map<string, ChartBar[]>());
+  const symbolRef = React.useRef(symbol);
+  symbolRef.current = symbol;
   const [bars, setBars] = React.useState<ChartBar[] | null>(null);
   const [error, setError] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
 
   React.useEffect(() => {
-    setAvgPaidInput(localStorage.getItem(`market:avgPaid:${symbol}`) ?? "");
+    let active = true;
+    setManualPrice(null);
+    setAvgPaidInput("");
+    setLegacyManual(false);
+    if (!symbol) return;
+    void fetch(`/api/market/paid-price/manual?symbol=${encodeURIComponent(symbol)}`)
+      .then(async (response) => {
+        if (!response.ok) throw new Error();
+        return response.json() as Promise<{ manual: ManualPrice | null }>;
+      })
+      .then(({ manual }) => {
+        if (!active) return;
+        setManualPrice(manual);
+        if (manual) setAvgPaidInput(String(manual.value));
+        else {
+          const legacy = localStorage.getItem(`market:avgPaid:${symbol}`);
+          if (legacy) {
+            setAvgPaidInput(legacy);
+            setLegacyManual(true);
+          }
+        }
+      })
+      .catch(() => {
+        if (active) toast.error("Não foi possível consultar referência manual.");
+      });
+    return () => {
+      active = false;
+    };
   }, [symbol]);
 
   const loadSeries = React.useCallback(async (sym: string, force = false) => {
@@ -134,14 +181,93 @@ export function MarketTerminal({ initialQuotes }: { initialQuotes: Quote[] }) {
   const current = bySymbol.get(symbol);
   const decimals = current?.unit === "ptax" ? 4 : 2;
   const rangeDays = RANGES.find((r) => r.key === range)?.days ?? null;
-  const avgPaid = Number(avgPaidInput.replace(",", ".")) || null;
+  const [exportTo, setExportTo] = React.useState(() => new Date());
+  React.useEffect(() => setExportTo(new Date()), [symbol, range]);
+  const exportFrom = React.useMemo(
+    () => (rangeDays == null ? new Date(0) : new Date(exportTo.getTime() - rangeDays * 86_400_000)),
+    [exportTo, rangeDays]
+  );
+  React.useEffect(() => {
+    if (!symbol) return;
+    const controller = new AbortController();
+    setImportCount(null);
+    const params = new URLSearchParams({
+      symbol,
+      from: exportFrom.toISOString(),
+      to: exportTo.toISOString(),
+    });
+    void fetch(`/api/market/history?${params}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error();
+        return response.json() as Promise<{ count: number }>;
+      })
+      .then((result) => setImportCount(result.count))
+      .catch(() => {
+        if (!controller.signal.aborted) setImportCount(null);
+      });
+    return () => controller.abort();
+  }, [symbol, exportFrom, exportTo]);
+  const avgPaid =
+    manualPrice &&
+    manualPrice.currency === current?.baseCurrency &&
+    manualPrice.unit === current?.unit
+      ? manualPrice.value
+      : null;
 
-  function saveAvgPaid(v: string) {
-    setAvgPaidInput(v);
-    localStorage.setItem(`market:avgPaid:${symbol}`, v);
+  async function saveAvgPaid() {
+    const savedSymbol = symbol;
+    const value = Number(avgPaidInput.replace(",", "."));
+    if (!Number.isFinite(value) || value <= 0) {
+      toast.error("Informe valor positivo.");
+      return;
+    }
+    setSavingManual(true);
+    try {
+      const response = await fetch("/api/market/paid-price/manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol: savedSymbol, value }),
+      });
+      if (!response.ok) throw new Error();
+      const data = (await response.json()) as { manual: ManualPrice };
+      if (symbolRef.current === savedSymbol) {
+        setManualPrice(data.manual);
+        setLegacyManual(false);
+      }
+      localStorage.removeItem(`market:avgPaid:${savedSymbol}`);
+      toast.success("Referência manual registrada.");
+    } catch {
+      toast.error("Não foi possível registrar referência manual.");
+    } finally {
+      setSavingManual(false);
+    }
   }
 
-  if (quotes.length === 0 || quotes.every((q) => q.last == null)) {
+  async function exportHistory(format: "csv" | "xlsx") {
+    const params = new URLSearchParams({
+      symbol,
+      format,
+      from: exportFrom.toISOString(),
+      to: exportTo.toISOString(),
+    });
+    try {
+      const response = await fetch(`/api/market/history/export?${params}`);
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error ?? "Falha ao exportar.");
+      }
+      const file = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = file;
+      link.download = `mercado-${symbol}-${exportTo.toISOString().slice(0, 10)}.${format}`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(file), 60_000);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível exportar.");
+    }
+  }
+
+  if (quotes.length === 0) {
     return (
       <EmptyState
         title="Nenhuma cotação disponível"
@@ -250,22 +376,61 @@ export function MarketTerminal({ initialQuotes }: { initialQuotes: Quote[] }) {
               <RefreshCw className={cn("mr-1 h-3.5 w-3.5", refreshing && "animate-spin")} />
               Atualizar
             </Button>
+            <span className="text-label-code text-titanium-muted" role="status">
+              {importCount == null
+                ? "Consultando importações…"
+                : `${importCount} pontos próprios no período`}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={!importCount || importCount > 10_000}
+              onClick={() => exportHistory("csv")}
+            >
+              Minhas importações · CSV
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={!importCount || importCount > 10_000}
+              onClick={() => exportHistory("xlsx")}
+            >
+              Minhas importações · XLSX
+            </Button>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-carbon-800 px-3 py-2">
           <Checkbox checked={sma20} onChange={setSma20} label="SMA 20" />
           <Checkbox checked={sma50} onChange={setSma50} label="SMA 50" />
-          <label className="ml-auto flex items-center gap-2 font-mono text-label-code uppercase tracking-wider text-titanium-muted">
-            Preço médio pago [{current?.baseCurrency}]
+          <label className="ml-auto flex flex-wrap items-center gap-2 font-mono text-label-code uppercase tracking-wider text-titanium-muted">
+            Referência manual [{current?.baseCurrency}/{current?.unit}]
             <Input
               inputMode="decimal"
               value={avgPaidInput}
-              onChange={(e) => saveAvgPaid(e.target.value)}
+              onChange={(e) => setAvgPaidInput(e.target.value)}
               placeholder="opcional"
-              className="h-7 w-28 font-mono text-body-sm"
+              disabled={!canWrite}
+              className="h-7 w-28 min-w-0 font-mono text-body-sm"
             />
+            {canWrite && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={saveAvgPaid}
+                disabled={savingManual || !symbol}
+              >
+                Salvar
+              </Button>
+            )}
           </label>
+          <span className="w-full text-right text-label-code text-titanium-muted">
+            {manualPrice
+              ? `Manual · ${manualPrice.author} · ${new Date(manualPrice.observedAt).toLocaleString("pt-BR")}`
+              : legacyManual
+                ? "Valor local antigo sem autoria ou data. Salve para registrar."
+                : "Sem referência manual registrada."}
+          </span>
         </div>
 
         <div className="p-2">

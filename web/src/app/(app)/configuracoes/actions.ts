@@ -211,7 +211,7 @@ export async function importAssetCsv(
     const [asset] = await db.select().from(marketAssets).where(eq(marketAssets.id, assetId));
     if (!asset) return { ok: false, error: "Mercado não encontrado." };
 
-    const res = await importSeriesCsv(csv, asset.symbol);
+    const res = await importSeriesCsv(csv, user.tenantId, asset.symbol);
     if (res.imported === 0) {
       return {
         ok: false,

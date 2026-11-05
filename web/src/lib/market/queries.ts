@@ -1,6 +1,6 @@
-import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { marketAssets, marketPriceSeries } from "@/lib/db/schema";
+import { marketAssets, marketPriceSeries, tenantMarketPriceSeries } from "@/lib/db/schema";
 import { pctChange } from "./indicators";
 
 export interface Quote {
@@ -27,7 +27,7 @@ export interface SeriesBar {
 
 const DAY_MS = 86_400_000;
 
-export async function getQuotes(): Promise<Quote[]> {
+export async function getQuotes(tenantId?: string): Promise<Quote[]> {
   const assets = await db
     .select()
     .from(marketAssets)
@@ -36,16 +36,35 @@ export async function getQuotes(): Promise<Quote[]> {
 
   return Promise.all(
     assets.map(async (asset) => {
-      const rows = await db
+      const globalRows = await db
         .select({ timestamp: marketPriceSeries.timestamp, close: marketPriceSeries.close })
         .from(marketPriceSeries)
         .where(
           and(
             eq(marketPriceSeries.assetId, asset.id),
+            ne(marketPriceSeries.source, "MANUAL_IMPORT"),
             gte(marketPriceSeries.timestamp, new Date(Date.now() - 45 * DAY_MS))
           )
         )
         .orderBy(desc(marketPriceSeries.timestamp));
+
+      const tenantRows = tenantId
+        ? await db
+            .select({
+              timestamp: tenantMarketPriceSeries.timestamp,
+              close: tenantMarketPriceSeries.close,
+            })
+            .from(tenantMarketPriceSeries)
+            .where(
+              and(
+                eq(tenantMarketPriceSeries.tenantId, tenantId),
+                eq(tenantMarketPriceSeries.assetId, asset.id),
+                gte(tenantMarketPriceSeries.timestamp, new Date(Date.now() - 45 * DAY_MS))
+              )
+            )
+            .orderBy(desc(tenantMarketPriceSeries.timestamp))
+        : [];
+      const rows = tenantRows.length > 0 ? tenantRows : globalRows;
 
       const last = rows[0];
       const closeAtOrBefore = (days: number) => {
@@ -75,7 +94,12 @@ export async function getQuotes(): Promise<Quote[]> {
   );
 }
 
-export async function getSeries(symbol: string, from: Date, to: Date): Promise<SeriesBar[] | null> {
+export async function getSeries(
+  symbol: string,
+  from: Date,
+  to: Date,
+  tenantId: string
+): Promise<SeriesBar[] | null> {
   const [asset] = await db.select().from(marketAssets).where(eq(marketAssets.symbol, symbol));
   if (!asset) return null;
 
@@ -86,12 +110,32 @@ export async function getSeries(symbol: string, from: Date, to: Date): Promise<S
       and(
         eq(marketPriceSeries.assetId, asset.id),
         gte(marketPriceSeries.timestamp, from),
-        lte(marketPriceSeries.timestamp, to)
+        lte(marketPriceSeries.timestamp, to),
+        ne(marketPriceSeries.source, "MANUAL_IMPORT")
       )
     )
     .orderBy(asc(marketPriceSeries.timestamp));
 
-  return rows.map((r) => {
+  const tenantRows = await db
+    .select()
+    .from(tenantMarketPriceSeries)
+    .where(
+      and(
+        eq(tenantMarketPriceSeries.tenantId, tenantId),
+        eq(tenantMarketPriceSeries.assetId, asset.id),
+        gte(tenantMarketPriceSeries.timestamp, from),
+        lte(tenantMarketPriceSeries.timestamp, to)
+      )
+    )
+    .orderBy(asc(tenantMarketPriceSeries.timestamp));
+
+  const byTimestamp = new Map<number, (typeof rows)[number]>();
+  for (const row of rows) byTimestamp.set(row.timestamp.getTime(), row);
+  for (const row of tenantRows) byTimestamp.set(row.timestamp.getTime(), row);
+  const combined = [...byTimestamp.values()].sort(
+    (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+  );
+  return combined.map((r) => {
     const close = Number(r.close);
     return {
       time: Math.floor(r.timestamp.getTime() / 1000),
@@ -138,7 +182,9 @@ export async function getLastClose(symbol: string): Promise<number | null> {
   const [row] = await db
     .select({ close: marketPriceSeries.close })
     .from(marketPriceSeries)
-    .where(eq(marketPriceSeries.assetId, asset.id))
+    .where(
+      and(eq(marketPriceSeries.assetId, asset.id), ne(marketPriceSeries.source, "MANUAL_IMPORT"))
+    )
     .orderBy(desc(marketPriceSeries.timestamp))
     .limit(1);
   return row ? Number(row.close) : null;

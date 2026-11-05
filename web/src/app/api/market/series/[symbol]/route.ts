@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
     return NextResponse.json({ error: "Resolução inválida (use 1d, 1w ou 1m)." }, { status: 400 });
   }
 
-  const bars = await getSeries(symbol, from, to);
+  const bars = await getSeries(symbol, from, to, guard.user.tenantId);
   if (!bars) return NextResponse.json({ error: "Ativo não encontrado." }, { status: 404 });
 
   return NextResponse.json({

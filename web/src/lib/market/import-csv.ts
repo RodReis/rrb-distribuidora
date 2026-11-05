@@ -1,10 +1,11 @@
 import Papa from "papaparse";
 import { ensureAssets } from "./assets";
-import { upsertDailyBars, type DailyBar } from "./series-store";
+import { upsertDailyBars, upsertTenantDailyBars, type DailyBar } from "./series-store";
 
 /** CSV esperado: symbol,date,open,high,low,close,volume (date em YYYY-MM-DD). */
 export async function importSeriesCsv(
   csv: string,
+  tenantId?: string,
   forceSymbol?: string
 ): Promise<{ imported: number; skipped: number }> {
   const assets = await ensureAssets();
@@ -35,9 +36,10 @@ export async function importSeriesCsv(
       low: num(row.low),
       close,
       volume: num(row.volume),
-      source: "MANUAL_IMPORT",
+      source: tenantId ? "MANUAL_IMPORT" : "SEED_IMPORT",
     });
   }
-  await upsertDailyBars(bars);
+  if (tenantId) await upsertTenantDailyBars(tenantId, bars);
+  else await upsertDailyBars(bars);
   return { imported: bars.length, skipped };
 }

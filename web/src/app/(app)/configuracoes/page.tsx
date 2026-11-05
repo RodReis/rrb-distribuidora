@@ -1,6 +1,6 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { marketAssets, marketPriceSeries } from "@/lib/db/schema";
+import { marketAssets, marketPriceSeries, tenantMarketPriceSeries } from "@/lib/db/schema";
 import { checkPermission, getCurrentUser } from "@/lib/auth/rbac";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Forbidden } from "@/components/shared/forbidden";
@@ -34,7 +34,7 @@ export default async function ConfiguracoesPage({
   const requested = Array.isArray(params.tab) ? params.tab[0] : params.tab;
   const active = requested === "ia" ? "ia" : requested === "compras" ? "compras" : "mercado";
 
-  const rows = await db
+  const globalRows = await db
     .select({
       id: marketAssets.id,
       symbol: marketAssets.symbol,
@@ -49,9 +49,33 @@ export default async function ConfiguracoesPage({
       lastAt: sql<Date | null>`max(${marketPriceSeries.timestamp})`,
     })
     .from(marketAssets)
-    .leftJoin(marketPriceSeries, eq(marketPriceSeries.assetId, marketAssets.id))
+    .leftJoin(
+      marketPriceSeries,
+      and(
+        eq(marketPriceSeries.assetId, marketAssets.id),
+        ne(marketPriceSeries.source, "MANUAL_IMPORT")
+      )
+    )
     .groupBy(marketAssets.id)
     .orderBy(asc(marketAssets.createdAt));
+  const tenantRows = await db
+    .select({
+      assetId: tenantMarketPriceSeries.assetId,
+      points: sql<number>`count(${tenantMarketPriceSeries.id})::int`,
+      lastAt: sql<Date | null>`max(${tenantMarketPriceSeries.timestamp})`,
+    })
+    .from(tenantMarketPriceSeries)
+    .where(eq(tenantMarketPriceSeries.tenantId, user.tenantId))
+    .groupBy(tenantMarketPriceSeries.assetId);
+  const byAsset = new Map(tenantRows.map((row) => [row.assetId, row]));
+  const rows = globalRows.map((row) => {
+    const own = byAsset.get(row.id);
+    return {
+      ...row,
+      points: row.points + (own?.points ?? 0),
+      lastAt: own?.lastAt && (!row.lastAt || own.lastAt > row.lastAt) ? own.lastAt : row.lastAt,
+    };
+  });
 
   // Estado da IA do tenant. A chave nunca sai do servidor; a UI vê só os 4 últimos caracteres.
   let aiState: {
