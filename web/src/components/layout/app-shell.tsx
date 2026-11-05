@@ -77,8 +77,7 @@ const NAVIGATION: NavGroup[] = [
         label: "Produção & Nesting",
         href: "/producao",
         icon: Factory,
-        disabled: true,
-        badge: "M3",
+        badge: "LAC-04",
       },
       {
         label: "Qualidade & Certificados",

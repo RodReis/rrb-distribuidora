@@ -6,7 +6,7 @@ import {
   stockPredictiveMetrics,
   stockReservations,
 } from "@/lib/db/schema";
-import { and, eq, gte, inArray } from "drizzle-orm";
+import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { valueAtCostPerKg } from "./units";
 import { buildLeadTimeResolver, loadLeadTimeSnapshotSources } from "@/lib/suppliers/lead-time";
 import type { LeadTimeSource, ResolvedLeadTime } from "@/lib/suppliers/types";
@@ -330,7 +330,10 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
       (lotValueByProduct[lot.productId] || 0) + qty * (Number(lot.unitCost) || 0);
   });
   const activeReservations = await db
-    .select({ productId: stockReservations.productId, quantity: stockReservations.quantity })
+    .select({
+      productId: stockReservations.productId,
+      quantity: sql<string>`${stockReservations.quantity} - ${stockReservations.consumedQuantity}`,
+    })
     .from(stockReservations)
     .where(and(eq(stockReservations.tenantId, tenantId), eq(stockReservations.status, "ativa")));
   activeReservations.forEach((reservation) => {

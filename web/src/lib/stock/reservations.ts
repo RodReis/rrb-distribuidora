@@ -1,10 +1,16 @@
 import { db } from "@/lib/db";
 import {
   auditLog,
+  productionConsumptions,
+  productionReports,
+  productionOperations,
+  productionOrderItems,
+  productionOrders,
   quoteItems,
   quotes,
   salesOrders,
   stockLots,
+  stockRemnants,
   stockReservations,
   warehouses,
 } from "@/lib/db/schema";
@@ -35,6 +41,75 @@ export async function cancelSalesOrder(input: {
       throw new StockReservationError(
         "Somente pedido aguardando produção ou em corte pode ser cancelado."
       );
+    }
+    const [productionOrder] = await tx
+      .select()
+      .from(productionOrders)
+      .where(
+        and(
+          eq(productionOrders.tenantId, input.tenantId),
+          eq(productionOrders.salesOrderId, order.id)
+        )
+      )
+      .for("update");
+    if (productionOrder && ["concluida", "cancelada"].includes(productionOrder.status)) {
+      throw new StockReservationError("Ordem de produção já está encerrada.");
+    }
+    if (productionOrder) {
+      const pending = await tx
+        .select({ id: productionReports.id })
+        .from(productionReports)
+        .where(
+          and(
+            eq(productionReports.orderId, productionOrder.id),
+            inArray(productionReports.reconciliationStatus, [
+              "pendente",
+              "aguardando_aprovacao",
+              "aprovado",
+              "conflito",
+            ])
+          )
+        );
+      if (pending.length) {
+        throw new StockReservationError(
+          "Resolva apontamentos pendentes pela ordem de produção antes do cancelamento."
+        );
+      }
+    }
+    if (productionOrder) {
+      const [consumed] = await tx
+        .select({ quantity: sql<string>`coalesce(sum(${productionConsumptions.quantity}), 0)` })
+        .from(productionConsumptions)
+        .where(eq(productionConsumptions.orderId, productionOrder.id));
+      if (Number(consumed?.quantity ?? 0) > 0 && input.reason.trim().length < 10) {
+        throw new StockReservationError(
+          "Cancelamento após consumo exige justificativa de ao menos 10 caracteres."
+        );
+      }
+      const [cancelledProduction] = await tx
+        .update(productionOrders)
+        .set({ status: "cancelada", version: productionOrder.version + 1, updatedAt: new Date() })
+        .where(eq(productionOrders.id, productionOrder.id))
+        .returning();
+      await tx.insert(auditLog).values({
+        tenantId: input.tenantId,
+        userId: input.userId,
+        entity: "production_orders",
+        entityId: productionOrder.id,
+        action: "update",
+        before: productionOrder,
+        after: { ...cancelledProduction, cancellationReason: input.reason.trim() },
+      });
+      const itemRows = await tx
+        .select({ id: productionOrderItems.id })
+        .from(productionOrderItems)
+        .where(eq(productionOrderItems.orderId, productionOrder.id));
+      if (itemRows.length) {
+        await tx
+          .update(productionOperations)
+          .set({ status: "cancelada", endedAt: new Date() })
+          .where(inArray(productionOperations.orderItemId, itemRows.map((row) => row.id)));
+      }
     }
     const [updated] = await tx
       .update(salesOrders)
@@ -69,6 +144,33 @@ export async function cancelSalesOrder(input: {
         after: { ...reservation, releaseReason: "pedido_cancelado", orderId: order.id },
       });
     }
+    const reservedRemnants = await tx
+      .select()
+      .from(stockRemnants)
+      .where(
+        and(
+          eq(stockRemnants.tenantId, input.tenantId),
+          eq(stockRemnants.reservedForQuoteId, order.quoteId),
+          eq(stockRemnants.status, "reservado")
+        )
+      )
+      .for("update");
+    for (const remnant of reservedRemnants) {
+      const [released] = await tx
+        .update(stockRemnants)
+        .set({ status: "disponivel", reservedForQuoteId: null, updatedAt: new Date() })
+        .where(eq(stockRemnants.id, remnant.id))
+        .returning();
+      await tx.insert(auditLog).values({
+        tenantId: input.tenantId,
+        userId: input.userId,
+        entity: "stock_remnants",
+        entityId: remnant.id,
+        action: "update",
+        before: remnant,
+        after: { ...released, releaseReason: "pedido_producao_cancelado", orderId: order.id },
+      });
+    }
     await tx.insert(auditLog).values({
       tenantId: input.tenantId,
       userId: input.userId,
@@ -80,9 +182,14 @@ export async function cancelSalesOrder(input: {
         ...updated,
         cancellationReason: input.reason.trim(),
         releasedReservations: active.length,
+        releasedRemnants: reservedRemnants.length,
       },
     });
-    return { order: updated, releasedReservations: active.length };
+    return {
+      order: updated,
+      releasedReservations: active.length,
+      releasedRemnants: reservedRemnants.length,
+    };
   });
 }
 
@@ -167,7 +274,9 @@ export async function reserveStock(input: {
     if (!warehouse) throw new StockReservationError("Depósito inativo ou fora deste tenant.");
 
     const [reserved] = await tx
-      .select({ quantity: sql<string>`coalesce(sum(${stockReservations.quantity}), 0)` })
+      .select({
+        quantity: sql<string>`coalesce(sum(${stockReservations.quantity} - ${stockReservations.consumedQuantity}), 0)`,
+      })
       .from(stockReservations)
       .where(
         and(

@@ -53,6 +53,7 @@ import {
 } from "./pricing";
 import { AUTO_EXPIRE_STATUSES } from "./expiry";
 import { aggregateVolatility, getReplacementCosts } from "./replacement-cost";
+import { createProductionOrderForSalesOrder } from "@/lib/production/service";
 import type { QuoteInputPayload, QuoteItemPayload } from "./schemas";
 
 /** Payload de precificação: tudo do orçamento, exceto o cliente. */
@@ -1219,18 +1220,33 @@ export async function convertQuoteToOrder(
   }
 
   const order = await db.transaction(async (tx) => {
+    const [lockedQuote] = await tx
+      .select({ id: quotes.id, status: quotes.status, customerId: quotes.customerId, totalAmount: quotes.totalAmount, deliveryDeadline: quotes.deliveryDeadline, paymentTerms: quotes.paymentTerms, quoteNumber: quotes.quoteNumber })
+      .from(quotes)
+      .where(and(eq(quotes.id, id), eq(quotes.tenantId, tenantId)))
+      .for("update");
+    if (!lockedQuote || lockedQuote.status !== "aprovado") {
+      throw new Error("Apenas orçamentos aprovados podem ser convertidos em pedido.");
+    }
+    const [existingOrder] = await tx
+      .select({ id: salesOrders.id })
+      .from(salesOrders)
+      .where(and(eq(salesOrders.quoteId, id), eq(salesOrders.tenantId, tenantId)))
+      .limit(1);
+    if (existingOrder) throw new Error("Orçamento já convertido em pedido.");
+
     const [created] = await tx
       .insert(salesOrders)
       .values({
         tenantId,
         quoteId: id,
-        customerId: current.quote.customerId,
-        totalAmount: current.quote.totalAmount,
+        customerId: lockedQuote.customerId,
+        totalAmount: lockedQuote.totalAmount,
         orderStatus: "aguardando_producao",
         deliveryDeadline: options.deliveryDeadline
           ? new Date(options.deliveryDeadline)
-          : current.quote.deliveryDeadline,
-        paymentTerms: options.paymentTerms ?? current.quote.paymentTerms,
+          : lockedQuote.deliveryDeadline,
+        paymentTerms: options.paymentTerms ?? lockedQuote.paymentTerms,
         createdBy: userId,
       })
       .returning();
@@ -1240,11 +1256,9 @@ export async function convertQuoteToOrder(
       .filter((value): value is string => !!value);
 
     if (remnantIds.length) {
-      // Só consome o que ainda está reservado para este orçamento; se a reserva
-      // sumiu (liberação/consumo concorrente), aborta a conversão inteira.
-      const consumed = await tx
-        .update(stockRemnants)
-        .set({ status: "consumido", updatedAt: new Date() })
+      const reserved = await tx
+        .select({ id: stockRemnants.id })
+        .from(stockRemnants)
         .where(
           and(
             eq(stockRemnants.tenantId, tenantId),
@@ -1253,14 +1267,20 @@ export async function convertQuoteToOrder(
             eq(stockRemnants.reservedForQuoteId, id)
           )
         )
-        .returning({ id: stockRemnants.id });
+        .for("update");
 
-      if (consumed.length !== new Set(remnantIds).size) {
+      if (reserved.length !== new Set(remnantIds).size) {
         throw new Error(
           "Um ou mais retalhos reservados não estão mais disponíveis. Reabra o orçamento e refaça o matching."
         );
       }
     }
+
+    await createProductionOrderForSalesOrder(tx, {
+      tenantId,
+      salesOrderId: created.id,
+      createdBy: userId,
+    });
 
     await tx.insert(auditLog).values({
       tenantId,
@@ -1270,9 +1290,9 @@ export async function convertQuoteToOrder(
       action: "insert",
       after: {
         quoteId: id,
-        quoteNumber: current.quote.quoteNumber,
-        totalAmount: toNum(current.quote.totalAmount),
-        consumedRemnants: remnantIds.length,
+        quoteNumber: lockedQuote.quoteNumber,
+        totalAmount: toNum(lockedQuote.totalAmount),
+        reservedRemnantsForProduction: remnantIds.length,
       },
     });
 

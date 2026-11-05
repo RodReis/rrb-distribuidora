@@ -1,0 +1,3 @@
+export default function ProductionOfflinePage() {
+  return <main className="min-h-screen bg-carbon-950 px-4 py-12 text-ice-white"><div className="mx-auto max-w-xl rounded-lg border border-carbon-800 bg-carbon-900 p-6"><p className="font-mono text-xs uppercase tracking-[0.24em] text-carmine-signal">MetalAgents / Produção</p><h1 className="mt-3 text-2xl font-semibold">Modo offline</h1><p className="mt-3 text-sm leading-6 text-titanium-light">Sem conexão com o servidor. Se a tela de produção já estava aberta neste dispositivo, apontamentos salvos ficam na fila local e sincronizam quando a conexão voltar.</p><p className="mt-3 text-xs text-titanium-muted">Fila pertence à conta que registrou. Não limpe os dados do navegador antes de sincronizar.</p></div></main>;
+}
