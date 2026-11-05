@@ -31,6 +31,7 @@ const TABS = [
   { key: "preco-pago", label: "Preço pago" },
   { key: "analises", label: "Análises" },
   { key: "sinais", label: "Sinais" },
+  { key: "noticias", label: "Notícias" },
 ] as const;
 
 export default async function MercadoPage({
@@ -119,6 +120,14 @@ export default async function MercadoPage({
       {active === "preco-pago" && <PaidPricePanel products={paidProducts} />}
       {active === "analises" && <MarketAnalyses assets={analysisAssets} />}
       {active === "sinais" && <MarketSignals />}
+      {active === "noticias" && (
+        <div className="rounded-lg border border-carbon-700 bg-carbon-900 p-6 text-sm text-carbon-300">
+          Notícias e regulação aguardam fontes e revisão.{" "}
+          <a className="text-amber-400 underline" href="/mercado/noticias">
+            Ver status
+          </a>
+        </div>
+      )}
       {active === "paridade" && (
         <ParitySimulator
           defaultPtax={last(ASSET_SYMBOLS.PTAX)}

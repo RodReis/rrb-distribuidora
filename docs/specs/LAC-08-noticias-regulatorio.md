@@ -1,7 +1,7 @@
 # SPEC LAC-08 — Notícias, sentimento e feed regulatório
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** M1, LAC-06, LAC-13, LAC-15
+**Status:** estrutura inativa implementada; feed, ingestão, revisão e cadastro bloqueados até decisões do PI · **Dependências:** M1, LAC-06, LAC-13, LAC-15
 
 ## Objetivo e limites
 
@@ -28,3 +28,7 @@ Exibir notícias de mercado classificadas como contexto e publicações regulat�
 - Toda alteração humana/regulatória tem autor e timestamp e permissões de tenant.
 
 Fora: parecer jurídico, cálculo fiscal, coleta de portais sem autorização e operação de compra automática. PI/assessoria decide fontes, licenças, jurisdições, revisores, limiar de confiança e política de correção/retirada. Sem isso, feed fica desligado.
+
+## Entrega parcial em 05/11/2026
+
+Estrutura de dados versionada e imutável, isolamento por tenant, bloqueios de licença, capabilities sem concessão, rotas protegidas e página de status. Nenhuma fonte cadastrada; nenhum coletor, classificador, alerta ou regra automática ativado. LAC-13 e LAC-15 ainda dependem de implementação própria. Ativação depende das decisões acima e de testes de integração e aceite.

@@ -17,3 +17,13 @@ describe("permissões de sinais", () => {
     expect(hasMarketCapability("admin", "market.signal.publish")).toBe(false);
   });
 });
+
+describe("permissões LAC-08", () => {
+  it("nega revisão e gestão regulatória até decisão do PI", () => {
+    for (const role of ["admin", "diretor", "comprador", "vendedor", "estoque", "financeiro"]) {
+      expect(hasMarketCapability(role, "market.news.review")).toBe(false);
+      expect(hasMarketCapability(role, "market.regulatory.read")).toBe(false);
+      expect(hasMarketCapability(role, "market.regulatory.manage")).toBe(false);
+    }
+  });
+});
