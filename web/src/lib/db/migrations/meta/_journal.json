@@ -176,6 +176,20 @@
       "when": 1793905200000,
       "tag": "0024_finance_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793908800000,
+      "tag": "0025_logistics_manual",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793912400000,
+      "tag": "0026_logistics_hardening",
+      "breakpoints": true
     }
   ]
 }

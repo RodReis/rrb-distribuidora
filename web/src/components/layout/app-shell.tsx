@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { hasLogisticsCapability } from "@/lib/logistics/capabilities";
 import { openCopilot } from "@/lib/ai/copilot-events";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LiveTicker } from "@/components/features/market/live-ticker";
@@ -80,6 +81,12 @@ const NAVIGATION: NavGroup[] = [
         href: "/producao",
         icon: Factory,
         badge: "LAC-04",
+      },
+      {
+        label: "Expedição & Rastreio",
+        href: "/logistica/expedicoes",
+        icon: Truck,
+        badge: "Manual",
       },
       {
         label: "Qualidade & Certificados",
@@ -187,6 +194,12 @@ export function AppShell({ children, user }: AppShellProps) {
                 </span>
                 <div className="space-y-0.5">
                   {section.items.map((item) => {
+                    if (
+                      item.href === "/logistica/expedicoes" &&
+                      !hasLogisticsCapability(user.role, "logistics.read") &&
+                      !hasLogisticsCapability(user.role, "logistics.track")
+                    )
+                      return null;
                     const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                     const Icon = item.icon;
 

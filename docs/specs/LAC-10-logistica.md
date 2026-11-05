@@ -1,7 +1,7 @@
 # SPEC LAC-10 — Expedição, romaneio e rastreio logístico
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** LAC-02, LAC-03, LAC-09; pedido de venda M3
+**Status:** implementação manual em andamento · **Dependências:** LAC-02, LAC-03; pedido de venda M3. LAC-09 não fornece dados financeiros ativos.
 
 ## Objetivo
 
@@ -33,3 +33,13 @@ Controlar preparação e expedição de pedidos, romaneio, volumes/carga, evento
 ## Fora/decisões
 
 Fora: roteirização otimizada, cotação de frete, integração transportadora, portal do cliente, rastreamento de navio automático e faturamento fiscal. Decidir unidades/pesos legais, transportadoras, comprovante de entrega, segregação de endereço, fonte de eventos e custo do frete.
+
+## Defaults autorizados pelo PI em 05/11/2026
+
+- Operação manual, sem integração ou cálculo de frete. Fonte de todo evento e ETA criado pela tela: `manual`; ETA sem fonte não é aceita.
+- Quantidade comercial permanece em unidades dos itens do orçamento; peso bruto em kg é fotografia informativa. Item só pode ser alocado após produção concluída, com `completedQty` suficiente. LAC-04 já baixa matéria-prima e consome reserva no apontamento: despacho não cria segunda movimentação de estoque. Não há conversão genérica entre unidades.
+- Origem e destino são textos informados pelo operador e congelados no romaneio; endereço de cliente não é alterado. Transportadora opcional como texto. Um romaneio cobre pedido inteiro; fracionamento fica pendente de modelo de estoque acabado.
+- Quantidade de volumes é inteiro positivo informado na preparação e entra no hash do romaneio. Peso bruto é soma dos itens do orçamento, sem balança integrada.
+- Comprovante de entrega é referência textual opcional, sem upload ou afirmação de autenticidade. Entrega exige evento manual com ator e instante.
+- Apenas pedido `pronto_faturamento` pode ser preparado. `admin` e `diretor` leem, preparam e despacham; `estoque` lê, prepara e registra eventos; demais papéis sem acesso. Despacho não grava segunda saída de matéria-prima.
+- Importação: marcos manuais com referência de pedido de compra e fonte explícita. ETA vencida é rotulada `atraso estimado`; não altera lead time nem confirma atraso.

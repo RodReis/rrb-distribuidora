@@ -1167,11 +1167,84 @@ export const salesOrders = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
+    tenantIdUqLac10: unique("sales_orders_id_tenant_lac10_uq").on(t.id, t.tenantId),
     salesOrderTenantIdx: index("idx_sales_orders_tenant").on(t.tenantId, t.orderStatus),
     salesOrderQuoteIdx: index("idx_sales_orders_quote").on(t.quoteId),
     salesOrderCustomerIdx: index("idx_sales_orders_customer").on(t.customerId),
   })
 );
+
+// LAC-10: expedição manual. Item aponta para produção concluída; matéria-prima já saiu em LAC-04.
+export const shipments = pgTable(
+  "shipments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id),
+    number: bigserial("number", { mode: "number" }).notNull(),
+    salesOrderId: uuid("sales_order_id")
+      .notNull()
+      .references(() => salesOrders.id),
+    status: varchar("status", { length: 20 }).notNull().default("preparada"),
+    volumeCount: integer("volume_count").notNull().default(1),
+    origin: text("origin").notNull(),
+    destination: text("destination").notNull(),
+    carrier: text("carrier"),
+    plannedAt: timestamp("planned_at", { withTimezone: true }),
+    dispatchedAt: timestamp("dispatched_at", { withTimezone: true }),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+    dispatchKey: uuid("dispatch_key"),
+    manifestHash: varchar("manifest_hash", { length: 64 }),
+    manifestBy: uuid("manifest_by").references(() => users.id),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantOrderIdx: index("shipments_tenant_order_idx").on(t.tenantId, t.salesOrderId),
+    volumeCountCheck: check("shipments_volume_count_ck", sql`${t.volumeCount} > 0`),
+    salesOrderTenantFk: foreignKey({
+      name: "shipments_sales_order_tenant_fk",
+      columns: [t.salesOrderId, t.tenantId],
+      foreignColumns: [salesOrders.id, salesOrders.tenantId],
+    }),
+  })
+);
+
+export const shipmentItems = pgTable("shipment_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").notNull(),
+  shipmentId: uuid("shipment_id")
+    .notNull()
+    .references(() => shipments.id),
+  salesOrderItemId: uuid("sales_order_item_id")
+    .notNull()
+    .references(() => quoteItems.id),
+  productionOrderItemId: uuid("production_order_item_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  weightKg: numeric("weight_kg", { precision: 12, scale: 4 }).notNull(),
+  unit: varchar("unit", { length: 20 }).notNull().default("un"),
+});
+
+export const shipmentEvents = pgTable("shipment_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").notNull(),
+  shipmentId: uuid("shipment_id")
+    .notNull()
+    .references(() => shipments.id),
+  type: varchar("type", { length: 40 }).notNull(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+  source: varchar("source", { length: 20 }).notNull().default("manual"),
+  location: text("location"),
+  evidenceRef: text("evidence_ref"),
+  eta: timestamp("eta", { withTimezone: true }),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
 // ==========================================
 // 13. PRODUÇÃO (LAC-04)
@@ -2330,5 +2403,34 @@ export const financeImportRuns = pgTable(
   (t) => ({
     sourceHashUq: unique("finance_import_runs_source_hash_uq").on(t.tenantId, t.source, t.fileHash),
     hashCk: check("finance_import_runs_hash_ck", sql`file_hash ~ '^[0-9a-f]{64}$'`),
+  })
+);
+
+export const importTracking = pgTable(
+  "import_tracking",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id),
+    purchaseOrderId: uuid("purchase_order_id")
+      .notNull()
+      .references(() => purchaseOrders.id),
+    reference: text("reference").notNull(),
+    milestone: varchar("milestone", { length: 80 }).notNull(),
+    eta: timestamp("eta", { withTimezone: true }),
+    source: varchar("source", { length: 20 }).notNull().default("manual"),
+    observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    purchaseTenantFk: foreignKey({
+      name: "import_tracking_purchase_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }),
   })
 );
