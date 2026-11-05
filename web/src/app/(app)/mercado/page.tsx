@@ -17,6 +17,7 @@ import { PaidPricePanel } from "@/components/features/market/paid-price-panel";
 import { ParitySimulator } from "@/components/features/market/parity-simulator";
 import { AlertsPanel } from "@/components/features/market/alerts-panel";
 import { MarketAnalyses } from "@/components/features/market/market-analyses";
+import { MarketSignals } from "@/components/features/market/market-signals";
 import { ASSET_SYMBOLS } from "@/lib/market/assets";
 import { getQuotes } from "@/lib/market/queries";
 import { hasMarketCapability } from "@/lib/market/capabilities";
@@ -29,6 +30,7 @@ const TABS = [
   { key: "alertas", label: "Alertas" },
   { key: "preco-pago", label: "Preço pago" },
   { key: "analises", label: "Análises" },
+  { key: "sinais", label: "Sinais" },
 ] as const;
 
 export default async function MercadoPage({
@@ -116,6 +118,7 @@ export default async function MercadoPage({
       {active === "terminal" && <MarketTerminal initialQuotes={quotes} canWrite={canWrite} />}
       {active === "preco-pago" && <PaidPricePanel products={paidProducts} />}
       {active === "analises" && <MarketAnalyses assets={analysisAssets} />}
+      {active === "sinais" && <MarketSignals />}
       {active === "paridade" && (
         <ParitySimulator
           defaultPtax={last(ASSET_SYMBOLS.PTAX)}
