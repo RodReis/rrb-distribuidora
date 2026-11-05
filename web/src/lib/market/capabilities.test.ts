@@ -17,3 +17,17 @@ describe("permissões de sinais", () => {
     expect(hasMarketCapability("admin", "market.signal.publish")).toBe(false);
   });
 });
+
+describe("permissões LAC-08", () => {
+  it("reserva cadastro e revisão ao admin", () => {
+    expect(hasMarketCapability("admin", "market.news.manage")).toBe(true);
+    expect(hasMarketCapability("admin", "market.news.review")).toBe(true);
+    expect(hasMarketCapability("admin", "market.regulatory.manage")).toBe(true);
+    expect(hasMarketCapability("diretor", "market.regulatory.read")).toBe(true);
+    for (const role of ["diretor", "comprador", "vendedor", "estoque", "financeiro"]) {
+      expect(hasMarketCapability(role, "market.news.manage")).toBe(false);
+      expect(hasMarketCapability(role, "market.news.review")).toBe(false);
+      expect(hasMarketCapability(role, "market.regulatory.manage")).toBe(false);
+    }
+  });
+});

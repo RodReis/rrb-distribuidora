@@ -132,6 +132,7 @@ export const users = pgTable(
   },
   (t) => ({
     tenantRoleIdx: index("users_tenant_role_idx").on(t.tenantId, t.role),
+    idTenantLac08Uq: unique("users_id_tenant_lac08_uq").on(t.id, t.tenantId),
   })
 );
 
@@ -2004,5 +2005,194 @@ export const supplierDeliveryEvents = pgTable(
       columns: [t.itemId, t.tenantId],
       foreignColumns: [purchaseOrderItems.id, purchaseOrderItems.tenantId],
     }),
+  })
+);
+
+// LAC-08: estruturas inativas até definição de fontes e revisão pelo PI.
+export const newsSources = pgTable(
+  "news_sources",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    sourceUrl: text("source_url").notNull(),
+    licenseReference: text("license_reference"),
+    displayRights: varchar("display_rights", { length: 16 }).default("none").notNull(),
+    retentionPolicy: text("retention_policy"),
+    approvedBy: uuid("approved_by"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    idTenantUq: unique("news_sources_id_tenant_uq").on(t.id, t.tenantId),
+    tenantUrlUq: unique("news_sources_tenant_url_uq").on(t.tenantId, t.sourceUrl),
+    approverFk: foreignKey({
+      name: "news_sources_approver_tenant_fk",
+      columns: [t.approvedBy, t.tenantId],
+      foreignColumns: [users.id, users.tenantId],
+    }),
+    licenseCk: check(
+      "news_sources_license_ck",
+      sql`display_rights = 'none' OR (license_reference IS NOT NULL AND retention_policy IS NOT NULL AND approved_by IS NOT NULL)`
+    ),
+    rightsCk: check("news_sources_rights_ck", sql`display_rights IN ('none', 'metadata', 'full')`),
+  })
+);
+
+export const newsItems = pgTable(
+  "news_items",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    sourceId: uuid("source_id").notNull(),
+    externalId: text("external_id").notNull(),
+    title: text("title").notNull(),
+    version: integer("version").notNull(),
+    canonicalUrl: text("canonical_url").notNull(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).defaultNow().notNull(),
+    contentHash: varchar("content_hash", { length: 64 }).notNull(),
+    rightsPolicy: text("rights_policy"),
+    withdrawn: boolean("withdrawn").default(false).notNull(),
+    body: text("body"),
+    correctionOf: uuid("correction_of"),
+    capturedBy: uuid("captured_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    idTenantUq: unique("news_items_id_tenant_uq").on(t.id, t.tenantId),
+    sourceFk: foreignKey({
+      name: "news_items_source_tenant_fk",
+      columns: [t.sourceId, t.tenantId],
+      foreignColumns: [newsSources.id, newsSources.tenantId],
+    }),
+    correctionFk: foreignKey({
+      name: "news_items_correction_tenant_fk",
+      columns: [t.correctionOf, t.tenantId],
+      foreignColumns: [t.id, t.tenantId],
+    }),
+    actorFk: foreignKey({
+      name: "news_items_actor_tenant_fk",
+      columns: [t.capturedBy, t.tenantId],
+      foreignColumns: [users.id, users.tenantId],
+    }),
+    versionUq: unique("news_items_source_external_version_uq").on(
+      t.sourceId,
+      t.externalId,
+      t.version
+    ),
+    hashUq: unique("news_items_source_external_hash_uq").on(
+      t.sourceId,
+      t.externalId,
+      t.contentHash
+    ),
+    versionCk: check("news_items_version_ck", sql`version > 0`),
+    hashCk: check("news_items_hash_ck", sql`content_hash ~ '^[0-9a-f]{64}$'`),
+    capturedIdx: index("news_items_tenant_captured_idx").on(t.tenantId, t.capturedAt),
+  })
+);
+
+export const newsClassifications = pgTable(
+  "news_classifications",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id").notNull(),
+    modelVersion: varchar("model_version", { length: 120 }).notNull(),
+    promptVersion: varchar("prompt_version", { length: 120 }).notNull(),
+    labels: jsonb("labels").notNull(),
+    sentiment: varchar("sentiment", { length: 40 }),
+    confidence: numeric("confidence", { precision: 5, scale: 4 }),
+    evidence: text("evidence"),
+    reviewStatus: varchar("review_status", { length: 24 }).default("pending").notNull(),
+    reviewedBy: uuid("reviewed_by"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    itemFk: foreignKey({
+      name: "news_classifications_item_tenant_fk",
+      columns: [t.itemId, t.tenantId],
+      foreignColumns: [newsItems.id, newsItems.tenantId],
+    }),
+    reviewerFk: foreignKey({
+      name: "news_classifications_reviewer_tenant_fk",
+      columns: [t.reviewedBy, t.tenantId],
+      foreignColumns: [users.id, users.tenantId],
+    }),
+    reviewCk: check(
+      "news_classifications_review_ck",
+      sql`(review_status = 'pending' AND reviewed_by IS NULL AND reviewed_at IS NULL) OR (review_status <> 'pending' AND reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL)`
+    ),
+    reviewStatusCk: check(
+      "news_classifications_status_ck",
+      sql`review_status IN ('pending', 'approved', 'rejected')`
+    ),
+    confidenceCk: check(
+      "news_classifications_confidence_ck",
+      sql`confidence IS NULL OR (confidence >= 0 AND confidence <= 1)`
+    ),
+  })
+);
+
+export const regulatoryItems = pgTable(
+  "regulatory_items",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    authority: varchar("authority", { length: 160 }).notNull(),
+    actId: varchar("act_id", { length: 160 }).notNull(),
+    version: integer("version").notNull(),
+    jurisdiction: varchar("jurisdiction", { length: 160 }).notNull(),
+    subject: text("subject").notNull(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    effectiveFrom: timestamp("effective_from", { withTimezone: true }),
+    effectiveUntil: timestamp("effective_until", { withTimezone: true }),
+    status: varchar("status", { length: 32 }).notNull(),
+    primarySourceUrl: text("primary_source_url").notNull(),
+    supersedesId: uuid("supersedes_id"),
+    reviewedBy: uuid("reviewed_by").notNull(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    idTenantUq: unique("regulatory_items_id_tenant_uq").on(t.id, t.tenantId),
+    actVersionUq: unique("regulatory_items_act_version_uq").on(
+      t.tenantId,
+      t.authority,
+      t.actId,
+      t.version
+    ),
+    supersedesFk: foreignKey({
+      name: "regulatory_items_supersedes_tenant_fk",
+      columns: [t.supersedesId, t.tenantId],
+      foreignColumns: [t.id, t.tenantId],
+    }),
+    reviewerFk: foreignKey({
+      name: "regulatory_items_reviewer_tenant_fk",
+      columns: [t.reviewedBy, t.tenantId],
+      foreignColumns: [users.id, users.tenantId],
+    }),
+    datesCk: check(
+      "regulatory_items_dates_ck",
+      sql`effective_until IS NULL OR effective_from IS NULL OR effective_until >= effective_from`
+    ),
+    versionCk: check("regulatory_items_version_ck", sql`version > 0`),
+    publishedIdx: index("regulatory_items_tenant_published_idx").on(t.tenantId, t.publishedAt),
   })
 );

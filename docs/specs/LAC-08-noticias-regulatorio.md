@@ -1,7 +1,7 @@
 # SPEC LAC-08 — Notícias, sentimento e feed regulatório
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** M1, LAC-06, LAC-13, LAC-15
+**Status:** curadoria manual implementada; sem coleta, LLM ou alertas automáticos · **Dependências:** M1, LAC-06; LAC-13 e LAC-15 ainda pendentes
 
 ## Objetivo e limites
 
@@ -28,3 +28,17 @@ Exibir notícias de mercado classificadas como contexto e publicações regulat�
 - Toda alteração humana/regulatória tem autor e timestamp e permissões de tenant.
 
 Fora: parecer jurídico, cálculo fiscal, coleta de portais sem autorização e operação de compra automática. PI/assessoria decide fontes, licenças, jurisdições, revisores, limiar de confiança e política de correção/retirada. Sem isso, feed fica desligado.
+
+## Decisões delegadas pelo PI em 05/11/2026
+
+- **Fontes e licenças:** nenhum fornecedor ou portal pré-cadastrado. Administrador registra URL, referência da autorização e política de retenção antes do primeiro item. Exibição limitada a título, data, origem e link; corpo integral não é coletado nem publicado. Sem fonte autorizada, feed permanece vazio.
+- **Hash da captura:** como a ingestão é só de metadados, `content_hash` representa título, URL canônica, data informada e marca de retirada. Não é hash do texto original do portal.
+- **Jurisdição:** texto explícito informado pelo administrador para cada ato, sem inferência por IA. Não há lista presumida de jurisdições.
+- **Revisores:** somente administrador cadastra e revisa. Diretor pode consultar atos regulatórios; leitores do módulo de mercado podem consultar notícias. LAC-13 poderá substituir essa matriz fixa.
+- **Confiança:** classificação manual não tem score ou limiar; `confidence` permanece nulo. Nenhuma classificação automática roda. Revisão humana aprovada é obrigatória para exibir rótulo ou sentimento.
+- **Correção e retirada:** notícia e ato recebem nova versão vinculada à anterior. Retirada de notícia registra versão marcada como retirada; ato revogado recebe nova versão com status informado pelo administrador. Histórico não é sobrescrito.
+- **Automação:** nenhuma coleta de portais, classificação LLM, alerta, alteração de preço ou cálculo fiscal. Cada ato aponta para documento primário e traz aviso de possível relevância.
+
+## Limites operacionais
+
+Administrador responde por verificar autorização e política de retenção declaradas da fonte. Sistema não interpreta licença nem executa expurgo automático. Auditoria append-only local não substitui cadeia íntegra da LAC-15. Migração 0023 aplicada somente ao PostgreSQL local em 05/11/2026; integração e smoke autenticado desktop/móvel passaram. Produção requer migração própria e revisão de licenças reais antes de cadastrar fontes.
