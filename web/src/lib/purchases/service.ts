@@ -9,6 +9,7 @@ import {
   purchaseOrderVersions,
   purchaseOrders,
   purchaseReceipts,
+  supplierDeliveryEvents,
   stockLots,
   suppliers,
   tenants,
@@ -1297,6 +1298,14 @@ export async function issuePurchaseOrder(input: {
       idempotencyKey: input.idempotencyKey,
       payload: { number, contentHash: hash, version: locked.currentVersion },
     });
+    await tx.insert(supplierDeliveryEvents).values({
+      tenantId: input.tenantId,
+      purchaseOrderId: input.id,
+      eventType: "issued",
+      eventAt: new Date(),
+      actorId: input.userId,
+      source: "purchase_issue",
+    });
     await logAudit(tx, {
       tenantId: input.tenantId,
       userId: input.userId,
@@ -1342,9 +1351,50 @@ export async function addPurchaseFollowUp(input: {
   }
 
   const expectedDeliveryAt = parseOptionalDate(input.expectedDeliveryAt, "expectedDeliveryAt");
+  const promiseToRecord =
+    expectedDeliveryAt && input.type === "confirmacao" ? expectedDeliveryAt : null;
 
   await db.transaction(async (tx) => {
-    if (expectedDeliveryAt) {
+    const [lockedOrder] = await tx
+      .select()
+      .from(purchaseOrders)
+      .where(and(eq(purchaseOrders.id, input.id), eq(purchaseOrders.tenantId, input.tenantId)))
+      .for("update");
+    if (!lockedOrder || !allowed.includes(lockedOrder.status)) {
+      throw purchaseConflict("O pedido mudou de estado. Recarregue antes de registrar contato.");
+    }
+    let lastPromise: { promisedAt: Date | null } | undefined;
+    if (promiseToRecord) {
+      [lastPromise] = await tx
+        .select({ promisedAt: supplierDeliveryEvents.promisedAt })
+        .from(supplierDeliveryEvents)
+        .where(
+          and(
+            eq(supplierDeliveryEvents.tenantId, input.tenantId),
+            eq(supplierDeliveryEvents.purchaseOrderId, input.id),
+            inArray(supplierDeliveryEvents.eventType, ["promise_confirmed", "promise_revised"])
+          )
+        )
+        .orderBy(desc(supplierDeliveryEvents.eventAt))
+        .limit(1);
+      if (lastPromise?.promisedAt?.getTime() === promiseToRecord.getTime()) {
+        throw purchaseConflict(
+          "A data prometida não mudou em relação à última promessa registrada."
+        );
+      }
+      if (!lastPromise && lockedOrder.expectedDeliveryAt) {
+        if (lockedOrder.expectedDeliveryAt.getTime() === promiseToRecord.getTime()) {
+          throw purchaseConflict("A data prometida não mudou em relação à previsão já registrada.");
+        }
+        if (input.note.trim().length < 10) {
+          throw purchaseValidation(
+            "Justificativa da reprogramação deve ter ao menos 10 caracteres."
+          );
+        }
+      }
+      if (lastPromise && input.note.trim().length < 10) {
+        throw purchaseValidation("Justificativa da reprogramação deve ter ao menos 10 caracteres.");
+      }
       await tx
         .update(purchaseOrders)
         .set({ expectedDeliveryAt, updatedAt: new Date() })
@@ -1363,6 +1413,19 @@ export async function addPurchaseFollowUp(input: {
         expectedDeliveryAt: expectedDeliveryAt?.toISOString() ?? null,
       },
     });
+    if (promiseToRecord) {
+      await tx.insert(supplierDeliveryEvents).values({
+        tenantId: input.tenantId,
+        purchaseOrderId: input.id,
+        eventType:
+          lastPromise || lockedOrder.expectedDeliveryAt ? "promise_revised" : "promise_confirmed",
+        promisedAt: promiseToRecord,
+        eventAt: new Date(),
+        actorId: input.userId,
+        source: "follow_up_manual",
+        note: input.note.trim(),
+      });
+    }
   });
 
   const detail = await getPurchaseOrder(input);
@@ -1447,6 +1510,15 @@ export async function cancelPurchaseOrder(input: {
       actorUserId: input.userId,
       idempotencyKey: input.idempotencyKey ?? null,
       payload: { reason: input.reason.trim(), previousStatus: locked.status },
+    });
+    await tx.insert(supplierDeliveryEvents).values({
+      tenantId: input.tenantId,
+      purchaseOrderId: input.id,
+      eventType: "cancelled",
+      eventAt: new Date(),
+      actorId: input.userId,
+      source: "purchase_cancel",
+      note: input.reason.trim(),
     });
     await logAudit(tx, {
       tenantId: input.tenantId,

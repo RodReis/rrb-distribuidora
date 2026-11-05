@@ -6,6 +6,7 @@ import {
   calculateCoverageDays,
   determinePredictiveStatus,
   calculateSuggestedPurchase,
+  calculatePredictiveDecision,
   classifyCurveXyz,
   Z_FACTOR_95,
 } from "./predictive-engine";
@@ -142,6 +143,77 @@ describe("Predictive Engine - Mathematical and Statistical Model", () => {
       const { quantity, date } = calculateSuggestedPurchase("HEALTHY", 100, 50, 2, 50, 15);
       expect(quantity).toBe(0);
       expect(date).toBeNull();
+    });
+  });
+
+  describe("Lead time ausente (LAC-02)", () => {
+    // Sem lead time resolvido o produto não pode virar default nem alerta de ruptura:
+    // as fórmulas de SS/ROP/sugestão dependem de L e por isso ficam zeradas.
+    it("marca SEM_LEAD_TIME sem inventar ruptura, SS/ROP, sugestão ou data", () => {
+      const decision = calculatePredictiveDecision({
+        resolvedLeadTime: { days: null, source: "unavailable" },
+        currentStock: 0,
+        avgDailyConsumption: 2.2,
+        stdDevDaily: 1.1,
+        coverageDays: 0,
+        referenceDate: new Date("2026-11-03T12:00:00Z"),
+      });
+
+      expect(decision.predictiveStatus).toBe("SEM_LEAD_TIME");
+      expect(decision.leadTimeDays).toBeNull();
+      expect(decision.leadTimeSource).toBeNull();
+      expect(decision.safetyStockQty).toBe(0);
+      expect(decision.reorderPointQty).toBe(0);
+      expect(decision.suggestedPurchaseQty).toBe(0);
+      expect(decision.suggestedPurchaseDate).toBeNull();
+    });
+
+    it("não trata estoque positivo como cobertura segura quando o lead time é desconhecido", () => {
+      const decision = calculatePredictiveDecision({
+        resolvedLeadTime: { days: null, source: "unavailable" },
+        currentStock: 500,
+        avgDailyConsumption: 1,
+        stdDevDaily: 0.5,
+        coverageDays: 500,
+      });
+
+      expect(decision.predictiveStatus).toBe("SEM_LEAD_TIME");
+      expect(decision.predictiveStatus).not.toBe("HEALTHY");
+      expect(decision.predictiveStatus).not.toBe("CRITICAL_RUPTURE");
+    });
+
+    it("persiste a origem quando o lead time é resolvido", () => {
+      const decision = calculatePredictiveDecision({
+        resolvedLeadTime: { days: 14, source: "product_supplier_term" },
+        currentStock: 18.5,
+        avgDailyConsumption: 2.2,
+        stdDevDaily: 1.3,
+        coverageDays: 8,
+        referenceDate: new Date("2026-11-03T12:00:00Z"),
+      });
+
+      expect(decision.leadTimeDays).toBe(14);
+      expect(decision.leadTimeSource).toBe("product_supplier_term");
+      expect(decision.predictiveStatus).toBe("CRITICAL_RUPTURE");
+      expect(decision.safetyStockQty).toBe(calculateSafetyStock(1.3, 14, 2.2));
+      expect(decision.reorderPointQty).toBe(
+        calculateReorderPoint(2.2, 14, decision.safetyStockQty)
+      );
+      expect(decision.suggestedPurchaseQty).toBeGreaterThan(0);
+      expect(decision.suggestedPurchaseDate).not.toBeNull();
+    });
+
+    it("rotula a estimativa legada como origem quando ela resolve o lead time", () => {
+      const decision = calculatePredictiveDecision({
+        resolvedLeadTime: { days: 30, source: "legacy_first_lot" },
+        currentStock: 40,
+        avgDailyConsumption: 2,
+        stdDevDaily: 1,
+        coverageDays: 20,
+      });
+
+      expect(decision.leadTimeSource).toBe("legacy_first_lot");
+      expect(decision.predictiveStatus).toBe("CRITICAL_RUPTURE");
     });
   });
 

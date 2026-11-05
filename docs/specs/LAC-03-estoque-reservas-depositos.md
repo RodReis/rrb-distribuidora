@@ -1,7 +1,15 @@
 # SPEC LAC-03 — Estoque reservado, depósitos, QR e sazonalidade
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** M2, M3, LAC-01, LAC-02
+**Status:** implementação local validada em PostgreSQL e aprovação visual do PI · **Dependências:** M2, M3, LAC-01, LAC-02
+
+## Estado da implementação (04/11/2026)
+
+- Base existente: cadastro de depósitos, lotes/movimentos por depósito e previsão de ruptura do MVP-02.
+- Implementado nesta etapa: reserva por lote ligada a pedido aprovado, com tenant/status/produto validados; liberação idempotente e trilha auditável; lock concorrente por lote. Saída, ajuste e transferência não consomem saldo reservado. API `/api/stock/reservations`; tela lista, libera e cria reserva. Matriz distingue físico/reservado/disponível e cobertura local; risco/cobertura usam disponível. Transferência atômica via `/api/stock/transfers`, movimentos e lotes pareados, chave idempotente; sem estado em trânsito. Etiquetas de lote/retalho usam token aleatório, persistem somente SHA-256, revogam token anterior e resolvem em `/q/:token` com autenticação/tenant. QR SVG local, sem serviço terceiro. Fixture sintética `lac03-rupture-v1` inclui hash SHA-256 e runner para acurácia, falsos positivos/negativos e empate de cobertura. Perfil sazonal informativo `monthly-average-v1`: média mensal por mês do ano sobre 2 ciclos completos, janela de 24 meses; salva cobertura e execução. Não altera consumo, estoque de segurança nem compra. Migrations `0015_stock_reservations.sql` a `0018_seasonality_runs.sql` e snapshots gerados.
+- Reserva comercial não expira automaticamente; cancelamento do pedido libera reservas ativas na mesma transação, com justificativa e auditoria. API `POST /api/stock/orders/:id/cancel`; apenas pedidos em `aguardando_producao` ou `em_corte` podem ser cancelados.
+- A tabela de estoque disponível é derivada das reservas ativas e lotes físicos. Retalhos seguem entidade separada; ainda não participam da exclusão mútua de reservas gerais.
+- Verificação local: `tsc --noEmit`, Prettier, ESLint focal, `drizzle-kit generate` (sem diferenças de schema), `git diff --check` e build de produção passaram. Migrations locais pendentes foram aplicadas ao `metalagents` e reexecutadas com sucesso. Integração PostgreSQL: 6/6 passaram, cobrindo conversão, idempotência, concorrência, cancelamento com liberação/auditoria, transferência idempotente, rotação/resolução de etiqueta e sazonalidade com 24 meses. Fixture `lac03-rupture-v1`: 5/5 casos elegíveis corretos, 0 falsos positivos/negativos; resultado vale somente para corpus sintético. `predictive-engine.test.ts`: 19/19 passaram. QR validado na geração/resolução de token; leitura por câmera e impressão física não verificadas. Em 04/11/2026, PI aprovou visualmente modal de reserva tokenizado e QR visível na etiqueta.
 
 ## Objetivo e escopo
 
@@ -14,7 +22,7 @@ Complementar M2 com reserva de material para pedidos de venda, matriz multi-dep�
 - Transferência é movimento pareado origem/destino, com trânsito opcional se houver expedição/recebimento em momentos distintos. Ambos os lados são atômicos ou têm estado em trânsito reconciliável; não criar estoque líquido.
 - Matriz mostra estoque e cobertura por depósito e consolidado, distinguindo cobertura local da consolidada. Não prometer venda a partir de estoque em outro depósito sem prazo de transferência.
 - QR codifica identificador aleatório/URL opaca, nunca dados de cliente, custo ou credencial. Resolver QR exige autenticação e permissão; etiqueta anulada não volta a ser válida. QR de lote e retalho aponta para a ficha corrente e histórico autorizado.
-- Sazonalidade só é calculada com série suficiente para o número de ciclos definido pelo PI; ausente/incompleta = “dados insuficientes”. Não muda consumo, segurança ou sugestão sem opção/versionamento explícito.
+- **Decisão PI (04/11/2026):** mínimo de 2 ciclos anuais completos. Método v1 calcula média de cada mês do calendário com 2 observações anuais e índice sazonal relativo à média global mensal. Janela móvel usa os 24 meses completos anteriores; cada mês precisa ter ao menos um movimento registrado para comprovar observação. Cobertura incompleta ou consumo total zero = “dados insuficientes”. Resultado não muda consumo, segurança ou sugestão.
 
 ## Dados e rotas
 
@@ -34,4 +42,4 @@ APIs: `/api/stock/reservations` POST/DELETE (`stock.reserve/release`); `/api/sto
 
 ## UI, fora de escopo, decisões
 
-Painel por depósito, modal de reserva, fluxo de transferência e ficha imprimível com QR. Fora: otimização automática de alocação, roteirização, inventário via câmera offline e estoque em trânsito de importação (LAC-10). Decidir regra de alocação, validade de reserva, ciclos mínimos de sazonalidade, tolerância, sequência de etiquetas e política de transferência antes de ativar. Dependência de eventos de venda e granularidade de movimento deve ser compatibilizada com schema M2.
+Painel por depósito, modal de reserva, fluxo de transferência e ficha imprimível com QR. Fora: otimização automática de alocação, roteirização, inventário via câmera offline e estoque em trânsito de importação (LAC-10). Regras acordadas: alocação manual; reserva sem expiração automática e liberada ao cancelar pedido; perfil sazonal exige dois ciclos anuais completos. Dependência de eventos de venda e granularidade de movimento deve ser compatibilizada com schema M2.

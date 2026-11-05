@@ -16,12 +16,15 @@ import {
   quoteItems,
   quotes,
   salesOrders,
+  stockLots,
   stockRemnants,
+  stockReservations,
   tenants,
   users,
   warehouses,
 } from "@/lib/db/schema";
 import { createRemnant, releaseRemnant, reserveRemnant } from "@/lib/stock/movements";
+import { cancelSalesOrder, reserveStock } from "@/lib/stock/reservations";
 import { changeQuoteStatus, convertQuoteToOrder } from "./service";
 
 const enabled = !!process.env.RUN_DB_TESTS;
@@ -29,6 +32,7 @@ const TAG = `flow-${Date.now()}`;
 
 describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres real)", () => {
   const remnantIds: string[] = [];
+  const lotIds: string[] = [];
   const quoteIds: string[] = [];
   let tenantId = "";
   let userId = "";
@@ -74,12 +78,6 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     tenantId = tenant.id;
     const [user] = await db.select().from(users).where(eq(users.tenantId, tenantId)).limit(1);
     userId = user.id;
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(and(eq(products.tenantId, tenantId), eq(products.status, "ativo")))
-      .limit(1);
-    productId = product.id;
     const [warehouse] = await db
       .select()
       .from(warehouses)
@@ -90,6 +88,7 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     const [item] = await db.select().from(quoteItems).limit(1);
     if (!item) throw new Error("Precisa de ao menos 1 item de orçamento no banco como modelo.");
     templateItem = item;
+    productId = item.productId;
     const [quote] = await db.select().from(quotes).where(eq(quotes.id, item.quoteId)).limit(1);
     templateQuote = quote;
   });
@@ -111,6 +110,17 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
       : [];
     const entityIds = [...quoteIds, ...remnantIds, ...orders.map((o) => o.id)];
     if (entityIds.length) await db.delete(auditLog).where(inArray(auditLog.entityId, entityIds));
+    const orderIds = orders.map((o) => o.id);
+    if (orderIds.length) {
+      await db
+        .delete(stockReservations)
+        .where(
+          and(
+            eq(stockReservations.tenantId, tenantId),
+            inArray(stockReservations.sourceId, orderIds)
+          )
+        );
+    }
     if (orders.length)
       await db.delete(salesOrders).where(
         inArray(
@@ -121,6 +131,7 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     if (quoteIds.length) await db.delete(quoteItems).where(inArray(quoteItems.quoteId, quoteIds));
     if (remnantIds.length)
       await db.delete(stockRemnants).where(inArray(stockRemnants.id, remnantIds));
+    if (lotIds.length) await db.delete(stockLots).where(inArray(stockLots.id, lotIds));
     if (quoteIds.length) await db.delete(quotes).where(inArray(quotes.id, quoteIds));
   });
 
@@ -189,5 +200,92 @@ describe.skipIf(!enabled)("fluxo orçamento → reserva → pedido (Postgres rea
     const final = await remnantStatus(remnant.id);
     expect(final.status).toBe("reservado");
     expect([quoteA.id, quoteB.id]).toContain(final.reservedForQuoteId);
+  }, 60_000);
+
+  it("corrida entre reserva e cancelamento nunca deixa reserva ativa órfã", async () => {
+    const quote = await newQuote("em_negociacao", null);
+    await changeQuoteStatus(tenantId, userId, quote.id, "aprovado");
+    const order = await convertQuoteToOrder(tenantId, userId, quote.id);
+    const [lot] = await db
+      .insert(stockLots)
+      .values({
+        tenantId,
+        productId,
+        warehouseId,
+        lotNumber: `TESTE-${TAG}`,
+        quantityInitial: "5",
+        quantityCurrent: "5",
+        unitCost: "1",
+        locationAddress: "TESTE LAC-03",
+        status: "ativo",
+      })
+      .returning();
+    lotIds.push(lot.id);
+
+    const existingReservation = await reserveStock({
+      tenantId,
+      sourceType: "pedido_venda",
+      sourceId: order.id,
+      lotId: lot.id,
+      quantity: 1,
+      userId,
+    });
+
+    const [reservationAttempt, cancellation] = await Promise.allSettled([
+      reserveStock({
+        tenantId,
+        sourceType: "pedido_venda",
+        sourceId: order.id,
+        lotId: lot.id,
+        quantity: 3,
+        userId,
+      }),
+      cancelSalesOrder({
+        tenantId,
+        orderId: order.id,
+        userId,
+        reason: `Teste concorrente ${TAG}`,
+      }),
+    ]);
+
+    expect(cancellation.status).toBe("fulfilled");
+    const [finalOrder] = await db.select().from(salesOrders).where(eq(salesOrders.id, order.id));
+    expect(finalOrder.orderStatus).toBe("cancelado");
+    const reservations = await db
+      .select()
+      .from(stockReservations)
+      .where(
+        and(eq(stockReservations.tenantId, tenantId), eq(stockReservations.sourceId, order.id))
+      );
+    expect(reservations.some((reservation) => reservation.id === existingReservation.id)).toBe(
+      true
+    );
+    expect(reservations.every((reservation) => reservation.status === "liberada")).toBe(true);
+    if (reservationAttempt.status === "rejected") {
+      expect(String(reservationAttempt.reason)).toMatch(/Pedido confirmado não encontrado/);
+    }
+    const orderAudit = await db
+      .select()
+      .from(auditLog)
+      .where(and(eq(auditLog.entity, "sales_orders"), eq(auditLog.entityId, order.id)));
+    expect(
+      orderAudit.some((entry) =>
+        (entry.after as { cancellationReason?: string })?.cancellationReason?.includes(TAG)
+      )
+    ).toBe(true);
+    const releaseAudits = await db
+      .select()
+      .from(auditLog)
+      .where(
+        and(
+          eq(auditLog.entity, "stock_reservations"),
+          eq(auditLog.entityId, existingReservation.id)
+        )
+      );
+    expect(
+      releaseAudits.some(
+        (entry) => (entry.after as { releaseReason?: string })?.releaseReason === "pedido_cancelado"
+      )
+    ).toBe(true);
   }, 60_000);
 });

@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, AlertTriangle, ShieldCheck, Clock, Zap } from "lucide-react";
+import { LEAD_TIME_SOURCE_LABEL, type LeadTimeSource } from "@/lib/suppliers/types";
+import { Search, Clock, Zap, Settings2 } from "lucide-react";
 
 export interface PredictiveMatrixItem {
   productId: string;
@@ -16,16 +16,35 @@ export interface PredictiveMatrixItem {
   unit: string;
   thicknessMm?: string | null;
   currentStockQty: string | number;
+  physicalStockQty?: string | number;
+  reservedStockQty?: string | number;
+  availableStockQty?: string | number;
   avgDailyConsumption30d: string | number;
-  leadTimeDays: number;
+  /** Nulo = lead time não definido (LAC-02). Nunca preenchido por default de código. */
+  leadTimeDays: number | null;
+  /** Origem do lead time resolvido (LAC-02). Nula quando `leadTimeDays` é nulo. */
+  leadTimeSource?: LeadTimeSource | string | null;
   coverageDays: string | number;
   safetyStockQty?: string | number;
   reorderPointQty?: string | number;
-  predictiveStatus: "CRITICAL_RUPTURE" | "WARNING" | "HEALTHY" | "EXCESS" | string;
+  predictiveStatus:
+    "CRITICAL_RUPTURE" | "WARNING" | "HEALTHY" | "EXCESS" | "SEM_LEAD_TIME" | string;
   suggestedPurchaseQty?: string | number;
   suggestedPurchaseDate?: string | Date | null;
   curveAbc?: string;
   curveXyz?: string;
+}
+
+/** Converte valores do banco (numeric → string) sem transformar ausência em 0. */
+function parseLeadTimeDays(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const days = Number(value);
+  return Number.isFinite(days) && days > 0 ? days : null;
+}
+
+function leadTimeSourceLabel(source: string | null | undefined): string | null {
+  if (!source) return null;
+  return LEAD_TIME_SOURCE_LABEL[source as LeadTimeSource] ?? source;
 }
 
 export interface PredictiveMatrixTableProps {
@@ -45,6 +64,8 @@ export function PredictiveMatrixTable({
   const [search, setSearch] = React.useState("");
 
   const criticalCount = items.filter((i) => i.predictiveStatus === "CRITICAL_RUPTURE").length;
+  // Ausência de lead time não é ruptura: contada à parte, nunca somada aos críticos.
+  const missingLeadTimeCount = items.filter((i) => i.predictiveStatus === "SEM_LEAD_TIME").length;
 
   const filteredItems = React.useMemo(() => {
     const urgencyRank: Record<string, number> = {
@@ -52,8 +73,16 @@ export function PredictiveMatrixTable({
       WARNING: 1,
       HEALTHY: 2,
       EXCESS: 3,
+      // Sem lead time não dá para medir urgência: fica no fim, ordenado por SKU.
+      SEM_LEAD_TIME: 4,
     };
-    const margin = (i: PredictiveMatrixItem) => Number(i.coverageDays) - Number(i.leadTimeDays);
+    // Margem cobertura − lead time; null (sem lead time) vai para o fim, sem virar NaN.
+    const margin = (i: PredictiveMatrixItem): number | null => {
+      const leadTime = parseLeadTimeDays(i.leadTimeDays);
+      const coverage = Number(i.coverageDays);
+      if (leadTime === null || !Number.isFinite(coverage)) return null;
+      return coverage - leadTime;
+    };
 
     const visible = items.filter((item) => {
       const matchSearch =
@@ -69,11 +98,17 @@ export function PredictiveMatrixTable({
       return true;
     });
 
-    return visible.sort(
-      (a, b) =>
-        (urgencyRank[a.predictiveStatus] ?? 9) - (urgencyRank[b.predictiveStatus] ?? 9) ||
-        margin(a) - margin(b)
-    );
+    return visible.sort((a, b) => {
+      const rankDiff =
+        (urgencyRank[a.predictiveStatus] ?? 9) - (urgencyRank[b.predictiveStatus] ?? 9);
+      if (rankDiff !== 0) return rankDiff;
+
+      const marginA = margin(a);
+      const marginB = margin(b);
+      if (marginA !== null && marginB !== null) return marginA - marginB;
+      if (marginA === null && marginB === null) return a.sku.localeCompare(b.sku);
+      return marginA === null ? 1 : -1;
+    });
   }, [items, filter, search]);
 
   return (
@@ -136,7 +171,7 @@ export function PredictiveMatrixTable({
             <thead>
               <tr className="bg-carbon-950 font-mono text-label-caps text-titanium-muted uppercase border-b border-carbon-800">
                 <th className="py-2.5 px-3 font-semibold">SKU / Especificação Técnica</th>
-                <th className="py-2.5 px-3 font-semibold text-right">Estoque</th>
+                <th className="py-2.5 px-3 font-semibold text-right">Disponível (consolidado)</th>
                 <th className="py-2.5 px-3 font-semibold text-right">Consumo Médio</th>
                 <th className="py-2.5 px-3 font-semibold text-center">Cobertura</th>
                 <th className="py-2.5 px-3 font-semibold text-center">Lead Time</th>
@@ -156,7 +191,9 @@ export function PredictiveMatrixTable({
                 </tr>
               ) : (
                 filteredItems.map((item) => {
-                  const currentStock = Number(item.currentStockQty) || 0;
+                  const currentStock = Number(item.availableStockQty ?? item.currentStockQty) || 0;
+                  const physicalStock = Number(item.physicalStockQty ?? item.currentStockQty) || 0;
+                  const reservedStock = Number(item.reservedStockQty) || 0;
                   const avgDaily = Number(item.avgDailyConsumption30d) || 0;
                   const coverage = Number(item.coverageDays) || 0;
                   const leadTime = Number(item.leadTimeDays) || 15;
@@ -192,8 +229,16 @@ export function PredictiveMatrixTable({
 
                       {/* Saldo Físico */}
                       <td className="py-2.5 px-3 text-right font-mono text-metric-regular text-ice-white">
-                        {currentStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}{" "}
-                        {item.unit || "t"}
+                        <div>
+                          {currentStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}{" "}
+                          {item.unit || "t"}
+                        </div>
+                        <div className="text-[10px] text-titanium-muted">
+                          Físico{" "}
+                          {physicalStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ·
+                          Reservado{" "}
+                          {reservedStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                        </div>
                       </td>
 
                       {/* Consumo Diário */}

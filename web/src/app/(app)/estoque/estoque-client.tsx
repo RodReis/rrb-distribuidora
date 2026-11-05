@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Tabs } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
@@ -79,18 +81,188 @@ export function EstoqueClient({
 }: EstoqueClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState(initialTab);
+  const [selectedWarehouseId, setSelectedWarehouseId] = React.useState("");
+  const [reservations, setReservations] = React.useState<any[]>([]);
+  const [salesOrders, setSalesOrders] = React.useState<any[]>([]);
+  const [selectedSalesOrderId, setSelectedSalesOrderId] = React.useState("");
+  const [transferFrom, setTransferFrom] = React.useState("");
+  const [transferTo, setTransferTo] = React.useState("");
+  const [transferLotId, setTransferLotId] = React.useState("");
+  const [transferQuantity, setTransferQuantity] = React.useState("");
+  const [transferRequestKey, setTransferRequestKey] = React.useState("");
+  const [seasonalityRun, setSeasonalityRun] = React.useState<any | null>(null);
+  const [seasonalityLoading, setSeasonalityLoading] = React.useState(false);
+  const [reservationLoading, setReservationLoading] = React.useState(false);
+  const [reservationLot, setReservationLot] = React.useState<any | null>(null);
+  const [reservationQuantity, setReservationQuantity] = React.useState("");
 
   // Selected item for forecast chart
   const [selectedProduct, setSelectedProduct] = React.useState<any | null>(
     matrixItems.find((i) => i.predictiveStatus === "CRITICAL_RUPTURE") || matrixItems[0] || null
   );
+  const reservationAvailable = reservationLot
+    ? Math.max(
+        0,
+        Number(reservationLot.quantityCurrent) -
+          reservations
+            .filter((item) => item.lotId === reservationLot.id && item.status === "ativa")
+            .reduce((total, item) => total + Number(item.quantity), 0)
+      )
+    : 0;
 
   // Drawers and Modals
   const [movementDrawerOpen, setMovementDrawerOpen] = React.useState(false);
   const [remnantDrawerOpen, setRemnantDrawerOpen] = React.useState(false);
   const [poModalItem, setPoModalItem] = React.useState<any | null>(null);
   const [labelModalRemnant, setLabelModalRemnant] = React.useState<any | null>(null);
+  const [labelObjectType, setLabelObjectType] = React.useState<"lote" | "retalho">("retalho");
   const [recalculating, setRecalculating] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    fetch("/api/stock/reservations")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Falha ao carregar reservas.");
+        return response.json();
+      })
+      .then((result) => {
+        if (active) {
+          setReservations(result.data ?? []);
+          setSalesOrders(result.orders ?? []);
+        }
+      })
+      .catch(() => {
+        if (active) setReservations([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function releaseReservation(reservationId: string) {
+    setReservationLoading(true);
+    try {
+      const response = await fetch("/api/stock/reservations", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reservationId }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Falha ao liberar reserva.");
+      setReservations((current) =>
+        current.map((item) => (item.id === reservationId ? result.data : item))
+      );
+      toast.success("Reserva liberada.");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setReservationLoading(false);
+    }
+  }
+
+  function createReservation(lot: any) {
+    if (!selectedSalesOrderId) {
+      toast.error("Selecione pedido de venda confirmado.");
+      return;
+    }
+    setReservationLot(lot);
+    setReservationQuantity("");
+  }
+
+  async function submitReservation(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const lot = reservationLot;
+    const quantity = Number(reservationQuantity);
+    if (!lot || !selectedSalesOrderId) return;
+    const alreadyReserved = reservations
+      .filter((item) => item.lotId === lot.id && item.status === "ativa")
+      .reduce((total, item) => total + Number(item.quantity), 0);
+    const available = Math.max(0, Number(lot.quantityCurrent) - alreadyReserved);
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > available) {
+      toast.error(`Informe quantidade positiva até ${available.toLocaleString("pt-BR")}.`);
+      return;
+    }
+    setReservationLoading(true);
+    try {
+      const response = await fetch("/api/stock/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceType: "pedido_venda",
+          sourceId: selectedSalesOrderId,
+          lotId: lot.id,
+          quantity,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Falha ao reservar lote.");
+      setReservations((current) => [result.data, ...current]);
+      setReservationLot(null);
+      setReservationQuantity("");
+      toast.success("Estoque reservado.");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setReservationLoading(false);
+    }
+  }
+
+  React.useEffect(() => {
+    if (!reservationLot) return;
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape" && !reservationLoading) setReservationLot(null);
+    }
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [reservationLot, reservationLoading]);
+
+  async function submitTransfer(event: React.FormEvent) {
+    event.preventDefault();
+    const requestKey = transferRequestKey || crypto.randomUUID();
+    setTransferRequestKey(requestKey);
+    setReservationLoading(true);
+    try {
+      const response = await fetch("/api/stock/transfers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestKey,
+          fromWarehouseId: transferFrom,
+          toWarehouseId: transferTo,
+          items: [{ lotId: transferLotId, quantity: Number(transferQuantity) }],
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Falha na transferência.");
+      toast.success(`Transferência #${result.data.number} concluída.`);
+      setTransferQuantity("");
+      setTransferRequestKey("");
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setReservationLoading(false);
+    }
+  }
+
+  async function calculateSeasonality() {
+    if (!selectedProduct?.productId) return;
+    setSeasonalityLoading(true);
+    try {
+      const response = await fetch("/api/stock/seasonality", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: selectedProduct.productId }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Falha ao calcular sazonalidade.");
+      setSeasonalityRun(result.data);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setSeasonalityLoading(false);
+    }
+  }
 
   async function handleRecalculate() {
     setRecalculating(true);
@@ -107,6 +279,13 @@ export function EstoqueClient({
 
   const tabItems = [
     { key: "matriz", label: "Matriz & Previsão", href: "/estoque?tab=matriz" },
+    {
+      key: "reservas",
+      label: "Reservas",
+      href: "/estoque?tab=reservas",
+      count: reservations.filter((r) => r.status === "ativa").length,
+    },
+    { key: "transferencias", label: "Transferências", href: "/estoque?tab=transferencias" },
     {
       key: "retalhos",
       label: "Catálogo de Retalhos (Offcuts)",
@@ -155,9 +334,13 @@ export function EstoqueClient({
                     ? "Trilha de Movimentações"
                     : activeTab === "inventario"
                       ? "Inventário Cíclico"
-                      : activeTab === "importar"
-                        ? "Carga Inicial CSV"
-                        : "Matriz Preditiva de Ruptura",
+                      : activeTab === "reservas"
+                        ? "Reservas Comerciais"
+                        : activeTab === "transferencias"
+                          ? "Transferências entre Depósitos"
+                          : activeTab === "importar"
+                            ? "Carga Inicial CSV"
+                            : "Matriz Preditiva de Ruptura",
           },
         ]}
       />
@@ -418,18 +601,350 @@ export function EstoqueClient({
 
       {/* 6. Active Tab Content */}
       {activeTab === "matriz" && (
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-stretch">
-          <div className="xl:col-span-8">
-            <PredictiveMatrixTable
-              items={matrixItems}
-              selectedProductId={selectedProduct?.productId}
-              onSelectProduct={(item) => setSelectedProduct(item)}
-              onOpenPurchaseSuggestion={(item) => setPoModalItem(item)}
-            />
+        <div className="space-y-3">
+          <div className="max-w-sm">
+            <label className="block text-label-caps text-titanium-muted uppercase mb-1">
+              Depósito para saldo e cobertura
+            </label>
+            <Select
+              value={selectedWarehouseId}
+              onChange={(event) => setSelectedWarehouseId(event.target.value)}
+            >
+              <option value="">Consolidado (todos os depósitos)</option>
+              {warehouses.map((warehouse) => (
+                <option key={warehouse.id} value={warehouse.id}>
+                  {warehouse.name}
+                </option>
+              ))}
+            </Select>
+            <p className="mt-1 text-xs text-titanium-muted">
+              Cobertura local é calculada com disponível neste depósito. Status preditivo permanece
+              consolidado; estoque de outro depósito não é tratado como transferível imediatamente.
+            </p>
           </div>
-          <div className="xl:col-span-4">
-            <ForecastChart selectedItem={selectedProduct} />
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-stretch">
+            <div className="xl:col-span-8">
+              <PredictiveMatrixTable
+                items={matrixItems}
+                selectedProductId={selectedProduct?.productId}
+                onSelectProduct={(item) => setSelectedProduct(item)}
+                onOpenPurchaseSuggestion={(item) => setPoModalItem(item)}
+              />
+            </div>
+            <div className="xl:col-span-4">
+              <ForecastChart selectedItem={selectedProduct} />
+            </div>
           </div>
+          <div className="rounded border border-carbon-800 bg-carbon-900 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-headline-sm font-semibold text-ice-white">
+                  Perfil sazonal mensal · {selectedProduct?.sku ?? "Selecione SKU"}
+                </h2>
+                <p className="text-xs text-titanium-muted">
+                  Método monthly-average-v1 · 2 ciclos anuais · informativo, sem alterar sugestão de
+                  compra.
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                disabled={!selectedProduct || seasonalityLoading}
+                onClick={calculateSeasonality}
+              >
+                {seasonalityLoading ? "Calculando…" : "Calcular perfil sazonal"}
+              </Button>
+            </div>
+            {seasonalityRun && (
+              <div className="mt-3 text-sm">
+                <p
+                  className={
+                    seasonalityRun.result.status === "ready"
+                      ? "text-signal-buy"
+                      : "text-signal-hold"
+                  }
+                >
+                  {seasonalityRun.result.status === "ready"
+                    ? "Previsão disponível"
+                    : `Dados insuficientes: ${seasonalityRun.result.reason}`}
+                </p>
+                <p className="mt-1 text-titanium-muted">
+                  Cobertura: {seasonalityRun.coverage.observedMonths}/
+                  {seasonalityRun.coverage.requiredMonths} meses completos · janela{" "}
+                  {seasonalityRun.window.start} a {seasonalityRun.window.end}
+                </p>
+                {seasonalityRun.result.monthlyForecast && (
+                  <div className="mt-2 grid grid-cols-3 gap-2 md:grid-cols-6">
+                    {seasonalityRun.result.monthlyForecast.map((value: number, index: number) => (
+                      <div key={index} className="rounded bg-carbon-950 p-2">
+                        <div className="text-titanium-muted">
+                          {
+                            [
+                              "Jan",
+                              "Fev",
+                              "Mar",
+                              "Abr",
+                              "Mai",
+                              "Jun",
+                              "Jul",
+                              "Ago",
+                              "Set",
+                              "Out",
+                              "Nov",
+                              "Dez",
+                            ][index]
+                          }
+                        </div>
+                        <strong>{value.toLocaleString("pt-BR")}</strong>
+                        <div className="text-[10px] text-titanium-muted">
+                          índice {seasonalityRun.result.seasonalIndex[index].toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="bg-carbon-900 border border-carbon-800 rounded p-4">
+            <h2 className="text-headline-sm text-ice-white font-semibold mb-3">
+              Saldo por depósito
+            </h2>
+            <div className="max-w-md mb-3">
+              <label className="block text-label-caps text-titanium-muted uppercase mb-1">
+                Pedido confirmado para reserva
+              </label>
+              <Select
+                value={selectedSalesOrderId}
+                onChange={(event) => setSelectedSalesOrderId(event.target.value)}
+              >
+                <option value="">Selecione pedido</option>
+                {salesOrders.map((order) => (
+                  <option key={order.id} value={order.id}>
+                    #{order.orderNumber} · {order.customerName}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-titanium-muted text-left">
+                    <th className="p-2">SKU</th>
+                    <th className="p-2">Depósito</th>
+                    <th className="p-2 text-right">Físico</th>
+                    <th className="p-2 text-right">Reservado</th>
+                    <th className="p-2 text-right">Disponível</th>
+                    <th className="p-2 text-right">Cobertura local</th>
+                    <th className="p-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matrixItems.flatMap((item) =>
+                    (item.stockByDepot ?? [])
+                      .filter(
+                        (row: any) =>
+                          !selectedWarehouseId || row.warehouseId === selectedWarehouseId
+                      )
+                      .map((row: any) => {
+                        const lot = lots.find(
+                          (candidate) =>
+                            candidate.productId === item.productId &&
+                            candidate.warehouseId === row.warehouseId &&
+                            candidate.status === "ativo"
+                        );
+                        const avgDaily = Number(item.avgDailyConsumption30d) || 0;
+                        const localCoverage =
+                          avgDaily > 0 ? Number(row.available) / avgDaily : null;
+                        return (
+                          <tr
+                            key={`${item.productId}:${row.warehouseId}`}
+                            className="border-t border-carbon-800"
+                          >
+                            <td className="p-2 text-ice-white">{item.sku}</td>
+                            <td className="p-2">
+                              {warehouses.find((w) => w.id === row.warehouseId)?.name ?? "—"}
+                            </td>
+                            <td className="p-2 text-right">
+                              {Number(row.physical).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="p-2 text-right">
+                              {Number(row.reserved).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="p-2 text-right font-semibold text-signal-buy">
+                              {Number(row.available).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="p-2 text-right">
+                              {localCoverage === null
+                                ? "Sem consumo"
+                                : `${localCoverage.toFixed(1)} dias`}
+                            </td>
+                            <td className="p-2 text-right">
+                              {canWrite && lot && (
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={reservationLoading}
+                                  onClick={() => createReservation(lot)}
+                                >
+                                  Reservar lote
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "reservas" && (
+        <div className="bg-carbon-900 border border-carbon-800 rounded p-4">
+          <h2 className="text-headline-sm text-ice-white font-semibold mb-3">
+            Reservas registradas
+          </h2>
+          {reservations.length === 0 ? (
+            <p className="text-titanium-muted">Nenhuma reserva registrada.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-titanium-muted text-left">
+                    <th className="p-2">SKU</th>
+                    <th className="p-2">Depósito</th>
+                    <th className="p-2">Lote</th>
+                    <th className="p-2">Origem</th>
+                    <th className="p-2 text-right">Qtd.</th>
+                    <th className="p-2">Status</th>
+                    <th className="p-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reservations.map((reservation) => (
+                    <tr key={reservation.id} className="border-t border-carbon-800">
+                      <td className="p-2">{reservation.sku ?? reservation.productId}</td>
+                      <td className="p-2">{reservation.warehouseName}</td>
+                      <td className="p-2 font-mono">
+                        {lots.find((lot) => lot.id === reservation.lotId)?.lotNumber ??
+                          reservation.lotId}
+                      </td>
+                      <td className="p-2">
+                        {reservation.sourceType} · {reservation.sourceId.slice(0, 8)}
+                      </td>
+                      <td className="p-2 text-right">
+                        {Number(reservation.quantity).toLocaleString("pt-BR")}
+                      </td>
+                      <td className="p-2">{reservation.status}</td>
+                      <td className="p-2 text-right">
+                        {canWrite && reservation.status === "ativa" && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={reservationLoading}
+                            onClick={() => releaseReservation(reservation.id)}
+                          >
+                            Liberar
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "transferencias" && (
+        <div className="max-w-3xl rounded border border-carbon-800 bg-carbon-900 p-4">
+          <h2 className="mb-2 text-headline-sm font-semibold text-ice-white">
+            Transferência atômica
+          </h2>
+          <p className="mb-4 text-sm text-titanium-muted">
+            Saída e entrada são registradas na mesma transação. Estoque reservado não pode ser
+            transferido.
+          </p>
+          {!canWrite ? (
+            <ReadOnlyNotice />
+          ) : (
+            <form className="grid gap-3 md:grid-cols-2" onSubmit={submitTransfer}>
+              <label className="text-sm text-titanium-muted">
+                Origem
+                <Select
+                  required
+                  value={transferFrom}
+                  onChange={(event) => {
+                    setTransferFrom(event.target.value);
+                    setTransferLotId("");
+                  }}
+                >
+                  <option value="">Selecione</option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+              <label className="text-sm text-titanium-muted">
+                Destino
+                <Select
+                  required
+                  value={transferTo}
+                  onChange={(event) => setTransferTo(event.target.value)}
+                >
+                  <option value="">Selecione</option>
+                  {warehouses
+                    .filter((warehouse) => warehouse.id !== transferFrom)
+                    .map((warehouse) => (
+                      <option key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name}
+                      </option>
+                    ))}
+                </Select>
+              </label>
+              <label className="text-sm text-titanium-muted">
+                Lote de origem
+                <Select
+                  required
+                  value={transferLotId}
+                  onChange={(event) => setTransferLotId(event.target.value)}
+                >
+                  <option value="">Selecione</option>
+                  {lots
+                    .filter((lot) => lot.warehouseId === transferFrom && lot.status === "ativo")
+                    .map((lot) => (
+                      <option key={lot.id} value={lot.id}>
+                        {lot.lotNumber} · {lot.productSku} · saldo {lot.quantityCurrent}
+                      </option>
+                    ))}
+                </Select>
+              </label>
+              <label className="text-sm text-titanium-muted">
+                Quantidade
+                <Input
+                  required
+                  type="number"
+                  min="0.0001"
+                  step="0.0001"
+                  value={transferQuantity}
+                  onChange={(event) => setTransferQuantity(event.target.value)}
+                />
+              </label>
+              <div className="md:col-span-2">
+                <Button
+                  variant="primary"
+                  disabled={reservationLoading || !transferLotId || !transferTo}
+                >
+                  Transferir atomicamente
+                </Button>
+              </div>
+            </form>
+          )}
         </div>
       )}
 
@@ -438,7 +953,10 @@ export function EstoqueClient({
           remnants={remnants}
           canWrite={canWrite}
           onNewRemnant={() => setRemnantDrawerOpen(true)}
-          onPrintLabel={(rem) => setLabelModalRemnant(rem)}
+          onPrintLabel={(rem) => {
+            setLabelObjectType("retalho");
+            setLabelModalRemnant(rem);
+          }}
           onChanged={() => router.refresh()}
         />
       )}
@@ -447,6 +965,14 @@ export function EstoqueClient({
         <LotsTable
           lots={lots}
           onNewMovement={canWrite ? () => setMovementDrawerOpen(true) : undefined}
+          onPrintLabel={
+            canWrite
+              ? (lot) => {
+                  setLabelObjectType("lote");
+                  setLabelModalRemnant(lot);
+                }
+              : undefined
+          }
         />
       )}
 
@@ -498,7 +1024,90 @@ export function EstoqueClient({
         isOpen={Boolean(labelModalRemnant)}
         onClose={() => setLabelModalRemnant(null)}
         remnant={labelModalRemnant}
+        objectType={labelObjectType}
       />
+
+      {reservationLot && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !reservationLoading) {
+              setReservationLot(null);
+            }
+          }}
+        >
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="stock-reservation-title"
+            onSubmit={submitReservation}
+            className="w-full max-w-md overflow-hidden rounded border border-carbon-700 bg-carbon-900 shadow-2xl animate-in zoom-in-95 duration-150"
+          >
+            <div className="border-b border-carbon-800 bg-carbon-950/60 p-5">
+              <h2
+                id="stock-reservation-title"
+                className="text-headline-sm font-semibold text-ice-white"
+              >
+                Reservar estoque
+              </h2>
+              <p className="mt-1 text-body-sm text-titanium-muted">
+                Lote {reservationLot.lotNumber} · {reservationLot.productSku}
+              </p>
+            </div>
+            <div className="space-y-4 p-5">
+              <div className="rounded border border-carbon-800 bg-carbon-950/60 px-3 py-2 text-body-sm text-titanium-light">
+                Pedido:{" "}
+                <span className="font-medium text-ice-white">
+                  {salesOrders.find((order) => order.id === selectedSalesOrderId)?.orderNumber
+                    ? `#${salesOrders.find((order) => order.id === selectedSalesOrderId)?.orderNumber}`
+                    : "selecionado"}
+                </span>
+              </div>
+              <div>
+                <label
+                  htmlFor="stock-reservation-quantity"
+                  className="mb-1.5 block text-label-caps uppercase text-titanium-muted"
+                >
+                  Quantidade a reservar
+                </label>
+                <Input
+                  id="stock-reservation-quantity"
+                  type="number"
+                  inputMode="decimal"
+                  min="0.0001"
+                  step="any"
+                  max={reservationAvailable}
+                  value={reservationQuantity}
+                  onChange={(event) => setReservationQuantity(event.target.value)}
+                  placeholder="Ex.: 2,5"
+                  autoFocus
+                  required
+                />
+                <p className="mt-1.5 text-label-code text-titanium-muted">
+                  Saldo disponível: {reservationAvailable.toLocaleString("pt-BR")}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-carbon-800 bg-carbon-950/60 p-4">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={reservationLoading}
+                onClick={() => setReservationLot(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={reservationLoading || !reservationQuantity}
+              >
+                {reservationLoading ? "Reservando…" : "Confirmar reserva"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

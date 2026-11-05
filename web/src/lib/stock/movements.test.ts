@@ -2,17 +2,27 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const state = vi.hoisted(() => ({
   lot: null as any,
+  reservationTotal: "0",
   updates: [] as any[],
   inserts: [] as any[],
 }));
 
 vi.mock("@/lib/db", () => {
   const tx = {
-    select: () => ({
-      from: () => ({
-        where: () => ({ limit: async () => (state.lot ? [state.lot] : []) }),
-      }),
-    }),
+    select: (selection?: any) => {
+      const query: any = {
+        from: () => query,
+        where: () => query,
+        limit: () => query,
+        for: async () =>
+          selection ? [{ quantity: state.reservationTotal }] : state.lot ? [state.lot] : [],
+        then: (resolve: (value: any) => void) =>
+          resolve(
+            selection ? [{ quantity: state.reservationTotal }] : state.lot ? [state.lot] : []
+          ),
+      };
+      return query;
+    },
     update: () => ({
       set: (values: any) => {
         state.updates.push(values);
@@ -55,13 +65,14 @@ const outInput = {
 describe("recordStockOut - bloqueio de saldo negativo", () => {
   beforeEach(() => {
     state.lot = { ...baseLot };
+    state.reservationTotal = "0";
     state.updates = [];
     state.inserts = [];
   });
 
   it("recusa saída maior que o saldo do lote e não grava nada", async () => {
     await expect(recordStockOut({ ...outInput, quantity: 100.0001 })).rejects.toThrow(
-      /Saldo insuficiente/
+      /Saldo (disponível )?insuficiente/
     );
     expect(state.updates).toHaveLength(0);
     expect(state.inserts).toHaveLength(0);
@@ -101,6 +112,7 @@ describe("recordStockOut - bloqueio de saldo negativo", () => {
 describe("recordStockAdjustment", () => {
   beforeEach(() => {
     state.lot = { ...baseLot };
+    state.reservationTotal = "0";
     state.updates = [];
     state.inserts = [];
   });
@@ -151,6 +163,21 @@ describe("recordStockAdjustment", () => {
       userId: "u-1",
     });
     expect(res.diff).toBe(0);
+    expect(state.inserts).toHaveLength(0);
+  });
+
+  it("recusa ajuste que deixa o saldo abaixo do reservado", async () => {
+    state.reservationTotal = "20";
+    await expect(
+      recordStockAdjustment({
+        tenantId: "t-1",
+        lotId: "lot-1",
+        newQuantity: 19,
+        justification: "contagem física",
+        userId: "u-1",
+      })
+    ).rejects.toThrow(/abaixo da quantidade reservada/);
+    expect(state.updates).toHaveLength(0);
     expect(state.inserts).toHaveLength(0);
   });
 });

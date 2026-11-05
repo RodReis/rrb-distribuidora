@@ -206,6 +206,8 @@ export const products = pgTable(
     tenantFamilyIdx: index("products_tenant_family_idx").on(t.tenantId, t.family),
     tenantStatusIdx: index("products_tenant_status_idx").on(t.tenantId, t.status),
     normIdx: index("products_norm_idx").on(t.norm),
+    // Chave-alvo das FKs compostas tenant-safe de condições e eventos LAC-02.
+    productsTenantIdUq: unique("uq_products_tenant_id").on(t.id, t.tenantId),
   })
 );
 
@@ -243,6 +245,9 @@ export const suppliers = pgTable(
   },
   (t) => ({
     tenantSupplierIdx: index("suppliers_tenant_idx").on(t.tenantId),
+    // Chave-alvo da FK composta de condições produto × fornecedor.
+    suppliersTenantIdUq: unique("uq_suppliers_tenant_id").on(t.id, t.tenantId),
+    // Alvo das FKs compostas da LAC-02 (impede termo/histórico de fornecedor de outro tenant).
   })
 );
 
@@ -524,6 +529,150 @@ export const stockLots = pgTable(
   })
 );
 
+// Reservas comerciais (LAC-03). Append-only de estado: liberar altera status
+// e registra releasedAt; exclusão mútua concorrente é protegida no serviço.
+export const stockReservations = pgTable(
+  "stock_reservations",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    sourceType: varchar("source_type", { length: 30 }).notNull(),
+    sourceId: uuid("source_id").notNull(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    lotId: uuid("lot_id")
+      .notNull()
+      .references(() => stockLots.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("ativa"),
+    reservedBy: uuid("reserved_by")
+      .notNull()
+      .references(() => users.id),
+    releasedAt: timestamp("released_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantSourceIdx: index("stock_reservations_tenant_source_idx").on(
+      t.tenantId,
+      t.sourceType,
+      t.sourceId
+    ),
+    lotStatusIdx: index("stock_reservations_lot_status_idx").on(t.lotId, t.status),
+  })
+);
+
+export const stockTransfers = pgTable(
+  "stock_transfers",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    number: serial("number").notNull().unique(),
+    requestKey: uuid("request_key").notNull(),
+    fromWarehouseId: uuid("from_warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    toWarehouseId: uuid("to_warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    status: varchar("status", { length: 20 }).notNull().default("concluida"),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    requestKeyUnique: uniqueIndex("stock_transfers_tenant_request_key_uq").on(
+      t.tenantId,
+      t.requestKey
+    ),
+  })
+);
+
+export const stockTransferItems = pgTable("stock_transfer_items", {
+  id: uuid("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
+  transferId: uuid("transfer_id")
+    .notNull()
+    .references(() => stockTransfers.id, { onDelete: "cascade" }),
+  sourceLotId: uuid("source_lot_id")
+    .notNull()
+    .references(() => stockLots.id),
+  destinationLotId: uuid("destination_lot_id")
+    .notNull()
+    .references(() => stockLots.id),
+  quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+});
+
+export const stockLabels = pgTable(
+  "stock_labels",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    objectType: varchar("object_type", { length: 20 }).notNull(),
+    objectId: uuid("object_id").notNull(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+    status: varchar("status", { length: 20 }).notNull().default("ativa"),
+    issuedAt: timestamp("issued_at", { withTimezone: true }).defaultNow().notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (t) => ({
+    objectIdx: index("stock_labels_tenant_object_idx").on(t.tenantId, t.objectType, t.objectId),
+  })
+);
+
+export const seasonalityRuns = pgTable(
+  "seasonality_runs",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    methodVersion: varchar("method_version", { length: 40 }).notNull(),
+    window: jsonb("window").$type<{ start: string; end: string; months: number }>().notNull(),
+    coverage: jsonb("coverage")
+      .$type<{ observedMonths: number; requiredMonths: number; missingMonths: string[] }>()
+      .notNull(),
+    result: jsonb("result")
+      .$type<{
+        status: "ready" | "insufficient";
+        monthlyForecast?: number[];
+        seasonalIndex?: number[];
+        reason?: string;
+      }>()
+      .notNull(),
+    calculatedAt: timestamp("calculated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    tenantProductCalculatedIdx: index("seasonality_runs_tenant_product_idx").on(
+      t.tenantId,
+      t.productId,
+      t.calculatedAt
+    ),
+  })
+);
+
 // Movimentações de Estoque
 export const stockMovements = pgTable(
   "stock_movements",
@@ -618,7 +767,14 @@ export const stockPredictiveMetrics = pgTable(
       precision: 10,
       scale: 4,
     }).notNull(),
-    leadTimeDays: integer("lead_time_days").default(15).notNull(),
+    /**
+     * Lead time usado no cálculo. Nulo = lead time não definido (não existe termo
+     * produto×fornecedor nem cadastro de fornecedor aplicável). A LAC-02 proíbe
+     * substituir a ausência por um default numérico do código.
+     */
+    leadTimeDays: integer("lead_time_days"),
+    /** Origem do lead time acima; nula quando `leadTimeDays` é nulo. Ver `lib/suppliers/lead-time.ts`. */
+    leadTimeSource: varchar("lead_time_source", { length: 40 }),
     coverageDays: numeric("coverage_days", { precision: 8, scale: 1 }).notNull(),
     safetyStockQty: numeric("safety_stock_qty", { precision: 12, scale: 4 }).notNull(),
     reorderPointQty: numeric("reorder_point_qty", { precision: 12, scale: 4 }).notNull(),
@@ -1060,6 +1216,8 @@ export const purchaseOrderItems = pgTable(
   (t) => ({
     poiOrderIdx: index("idx_purchase_order_items_order").on(t.purchaseOrderId),
     poiProductIdx: index("idx_purchase_order_items_product").on(t.productId),
+    // Chave-alvo da FK composta dos eventos tenant-safe.
+    poiTenantIdUq: unique("uq_purchase_order_items_tenant_id").on(t.id, t.tenantId),
     poiOrderFk: foreignKey({
       name: "purchase_order_items_order_tenant_fk",
       columns: [t.purchaseOrderId, t.tenantId],
@@ -1246,5 +1404,142 @@ export const purchaseReceipts = pgTable(
       columns: [t.purchaseOrderId, t.tenantId],
       foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
     }).onDelete("cascade"),
+  })
+);
+
+// ==========================================
+// 16. FORNECEDORES: CONDIÇÕES E DESEMPENHO (LAC-02)
+//
+// Preferência e lead time são por produto × fornecedor, versionados por vigência
+// (linha vigente = `valid_until` nulo). Nenhum campo preenche ausência com default
+// de negócio: lead time, lote mínimo e unidade nulos significam "não definido".
+// O histórico de entrega é append-only; correção só por evento compensatório.
+// ==========================================
+
+/** Origem/tipo do evento de entrega da LAC-02 (alimentado pela emissão, follow-up e recebimento da LAC-01). */
+export const supplierDeliveryEventTypeEnum = pgEnum("supplier_delivery_event_type", [
+  "issued",
+  "promise_confirmed",
+  "promise_revised",
+  "received",
+  "receipt_reversed",
+  "cancelled",
+]);
+
+export const productSupplierTerms = pgTable(
+  "product_supplier_terms",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    productId: uuid("product_id").notNull(),
+    supplierId: uuid("supplier_id").notNull(),
+    /** No máximo uma preferência vigente por produto (índice parcial abaixo). */
+    preferred: boolean("preferred").default(false).notNull(),
+    /** Nulo = lead time específico não definido (não herda o default do código). */
+    leadTimeDays: integer("lead_time_days"),
+    /** Nulo = lote mínimo desconhecido; nunca arredonda quantidade. */
+    minimumOrderQty: numeric("minimum_order_qty", { precision: 12, scale: 4 }),
+    /** Unidade do lote mínimo; obrigatória apenas quando há lote mínimo. */
+    unit: productUnitEnum("unit"),
+    validFrom: timestamp("valid_from", { withTimezone: true }).defaultNow().notNull(),
+    /** Nulo = condição vigente. Fechar preserva o histórico; nunca é apagado. */
+    validUntil: timestamp("valid_until", { withTimezone: true }),
+    changedBy: uuid("changed_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    pstTenantProductIdx: index("idx_product_supplier_terms_tenant_product").on(
+      t.tenantId,
+      t.productId
+    ),
+    pstTenantSupplierIdx: index("idx_product_supplier_terms_tenant_supplier").on(
+      t.tenantId,
+      t.supplierId
+    ),
+    // Histórico: um par produto×fornecedor tem no máximo uma condição vigente.
+    pstProductFk: foreignKey({
+      name: "product_supplier_terms_product_tenant_fk",
+      columns: [t.productId, t.tenantId],
+      foreignColumns: [products.id, products.tenantId],
+    }),
+    pstSupplierFk: foreignKey({
+      name: "product_supplier_terms_supplier_tenant_fk",
+      columns: [t.supplierId, t.tenantId],
+      foreignColumns: [suppliers.id, suppliers.tenantId],
+    }),
+  })
+);
+
+export const supplierDeliveryEvents = pgTable(
+  "supplier_delivery_events",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    purchaseOrderId: uuid("purchase_order_id").notNull(),
+    /** Nulo = evento de nível de entrega (emissão, promessa, cancelamento). */
+    itemId: uuid("item_id"),
+    eventType: supplierDeliveryEventTypeEnum("event_type").notNull(),
+    /** Data prometida informada no evento (`promise_confirmed`/`promise_revised`). */
+    promisedAt: timestamp("promised_at", { withTimezone: true }),
+    /** Instante do evento: emissão, confirmação, recebimento, estorno ou cancelamento. */
+    eventAt: timestamp("event_at", { withTimezone: true }).notNull(),
+    /** Quantidade recebida/estornada; nula nos eventos de nível de entrega. */
+    quantity: numeric("quantity", { precision: 12, scale: 4 }),
+    /** Nulo = ação automática do sistema. */
+    actorId: uuid("actor_id").references(() => users.id),
+    /** Origem do registro: `purchase_issue`, `follow_up_manual`, `receipt`, etc. */
+    source: varchar("source", { length: 30 }).notNull(),
+    /** Justificativa/observação do evento (ex.: motivo da reprogramação). */
+    note: text("note"),
+    /** Correção append-only aponta para o evento substituído. */
+    compensatesEventId: uuid("compensates_event_id"),
+    /** Motivo obrigatório quando este evento compensa outro. */
+    correctionReason: text("correction_reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    sdeOrderIdx: index("idx_supplier_delivery_events_order").on(
+      t.tenantId,
+      t.purchaseOrderId,
+      t.eventAt
+    ),
+    sdeTenantTypeIdx: index("idx_supplier_delivery_events_tenant_type").on(
+      t.tenantId,
+      t.eventType,
+      t.eventAt
+    ),
+    sdeScopeUnique: unique("uq_supplier_delivery_events_scope").on(
+      t.id,
+      t.tenantId,
+      t.purchaseOrderId
+    ),
+    sdeCompensationUnique: uniqueIndex("uq_supplier_delivery_events_compensation")
+      .on(t.tenantId, t.compensatesEventId)
+      .where(sql`compensates_event_id is not null`),
+    sdeCompensatesFk: foreignKey({
+      name: "supplier_delivery_events_compensation_scope_fk",
+      columns: [t.compensatesEventId, t.tenantId, t.purchaseOrderId],
+      foreignColumns: [t.id, t.tenantId, t.purchaseOrderId],
+    }),
+    sdeOrderFk: foreignKey({
+      name: "supplier_delivery_events_order_tenant_fk",
+      columns: [t.purchaseOrderId, t.tenantId],
+      foreignColumns: [purchaseOrders.id, purchaseOrders.tenantId],
+    }).onDelete("cascade"),
+    sdeItemFk: foreignKey({
+      name: "supplier_delivery_events_item_tenant_fk",
+      columns: [t.itemId, t.tenantId],
+      foreignColumns: [purchaseOrderItems.id, purchaseOrderItems.tenantId],
+    }),
   })
 );
