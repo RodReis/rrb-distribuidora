@@ -1,7 +1,9 @@
 # SPEC LAC-09 — Financeiro, crédito e risco
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** fonte ERP/bancária a decidir, LAC-01, LAC-13, LAC-15
+**Status:** estrutura inativa implementada; ativação pendente · **Dependências:** fonte ERP/bancária a decidir, LAC-01, LAC-13, LAC-15
+
+**Decisão do PI (05/11/2026):** entregar estrutura inativa agora; regras depois. A migração prepara títulos, eventos, limites e importações. APIs de dados e escrita negam acesso; status e tela mostram indisponibilidade. Sem ingestão, cálculo de risco, consumo de limite ou projeção até decisão de produto.
 
 ## Objetivo
 

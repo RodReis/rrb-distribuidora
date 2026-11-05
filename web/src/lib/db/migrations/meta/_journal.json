@@ -169,6 +169,13 @@
       "when": 1793901600000,
       "tag": "0023_news_regulatory",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793905200000,
+      "tag": "0024_finance_foundation",
+      "breakpoints": true
     }
   ]
 }
