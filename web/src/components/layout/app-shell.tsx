@@ -29,6 +29,8 @@ import {
   Search,
   FileUp,
   Settings,
+  Menu,
+  X,
 } from "lucide-react";
 
 interface NavItem {
@@ -131,11 +133,25 @@ export interface AppShellProps {
 
 export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-carbon-950 text-ice-white">
+      {menuOpen && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          className="fixed inset-0 z-40 bg-black/70 md:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
       {/* SIDEBAR */}
-      <aside className="w-64 shrink-0 bg-carbon-900 border-r border-carbon-800 flex flex-col justify-between select-none">
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 shrink-0 bg-carbon-900 border-r border-carbon-800 flex flex-col justify-between select-none transition-transform md:static md:translate-x-0",
+          menuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
         {/* Brand Header */}
         <div>
           <div className="h-14 px-4 border-b border-carbon-800 flex items-center justify-between">
@@ -153,6 +169,14 @@ export function AppShell({ children, user }: AppShellProps) {
               </div>
             </Link>
             <span className="w-2 h-2 rounded-full bg-signal-buy animate-pulse" />
+            <button
+              type="button"
+              aria-label="Fechar navegação"
+              onClick={() => setMenuOpen(false)}
+              className="ml-2 text-titanium-muted md:hidden"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
           {/* Navigation Items */}
@@ -190,6 +214,7 @@ export function AppShell({ children, user }: AppShellProps) {
                       <Link
                         key={item.href}
                         href={item.href}
+                        onClick={() => setMenuOpen(false)}
                         className={cn(
                           "flex items-center justify-between px-2.5 py-1.5 rounded text-body-sm transition-colors cursor-pointer",
                           isActive
@@ -234,11 +259,21 @@ export function AppShell({ children, user }: AppShellProps) {
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* TOPBAR TICKER / USER BAR */}
-        <header className="h-14 shrink-0 bg-carbon-900 border-b border-carbon-800 px-4 flex items-center justify-between">
-          <LiveTicker />
+        <header className="h-14 shrink-0 bg-carbon-900 border-b border-carbon-800 px-4 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            aria-label="Abrir navegação"
+            onClick={() => setMenuOpen(true)}
+            className="rounded p-2 text-titanium-light hover:bg-carbon-800 md:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="hidden min-w-0 flex-1 md:block">
+            <LiveTicker />
+          </div>
 
           {/* Quick search input */}
-          <div className="relative w-64 max-w-xs">
+          <div className="relative hidden w-64 max-w-xs md:block">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-titanium-dark" />
             <input
               type="text"
@@ -253,7 +288,7 @@ export function AppShell({ children, user }: AppShellProps) {
 
           {/* User Profile & Actions */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-carbon-950 px-2.5 py-1 rounded border border-carbon-800">
+            <div className="hidden items-center gap-2 bg-carbon-950 px-2.5 py-1 rounded border border-carbon-800 sm:flex">
               <span className="w-2 h-2 rounded-full bg-carmine-core" />
               <span className="font-mono text-label-code text-titanium-light uppercase">
                 USINA MATRIZ

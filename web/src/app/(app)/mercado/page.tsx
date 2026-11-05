@@ -122,9 +122,10 @@ export default async function MercadoPage({
       {active === "sinais" && <MarketSignals />}
       {active === "noticias" && (
         <div className="rounded-lg border border-carbon-700 bg-carbon-900 p-6 text-sm text-carbon-300">
-          Notícias e regulação aguardam fontes e revisão.{" "}
+          Consulte notícias com fonte autorizada e atos revisados. Cadastro manual disponível para
+          administradores.{" "}
           <a className="text-amber-400 underline" href="/mercado/noticias">
-            Ver status
+            Abrir notícias e regulação
           </a>
         </div>
       )}

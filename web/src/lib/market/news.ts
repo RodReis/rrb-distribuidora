@@ -1,11 +1,9 @@
-export const NEWS_DISABLED_REASON =
-  "Feed indisponível até definição de fontes, licenças, jurisdições e revisores.";
-
 export type NewsRights = "none" | "metadata" | "full";
 
 export interface NewsDisplayInput {
   id: string;
   sourceName: string;
+  title: string;
   canonicalUrl: string;
   publishedAt: Date | null;
   body: string | null;
@@ -18,6 +16,7 @@ export function permittedNewsFields(item: NewsDisplayInput) {
   const metadata = {
     id: item.id,
     sourceName: item.sourceName,
+    title: item.title,
     canonicalUrl: item.canonicalUrl,
     publishedAt: item.publishedAt,
   };

@@ -5,6 +5,7 @@ describe("direitos de exibição de notícias", () => {
   const item = {
     id: "item-1",
     sourceName: "Fonte",
+    title: "Título",
     canonicalUrl: "https://example.com/item-1",
     publishedAt: null,
     body: "Conteúdo licenciado",
@@ -16,6 +17,7 @@ describe("direitos de exibição de notícias", () => {
     expect(permittedNewsFields(item)).toEqual({
       id: "item-1",
       sourceName: "Fonte",
+      title: "Título",
       canonicalUrl: "https://example.com/item-1",
       publishedAt: null,
     });
