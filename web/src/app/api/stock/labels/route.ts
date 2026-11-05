@@ -10,7 +10,11 @@ export async function POST(request: Request) {
   if (guard.error) return guard.error;
   try {
     const input = schema.parse(await request.json());
-    const label = await issueStockLabel({ ...input, tenantId: guard.user.tenantId, userId: guard.user.id });
+    const label = await issueStockLabel({
+      ...input,
+      tenantId: guard.user.tenantId,
+      userId: guard.user.id,
+    });
     return NextResponse.json({ data: label }, { status: 201 });
   } catch (error) {
     return stockErrorResponse(error);

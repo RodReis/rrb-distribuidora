@@ -32,9 +32,12 @@ export function evaluateRuptureFixture() {
   const eligibleCases = evaluated.filter((item) => item.eligible);
   const tieGroups = new Map<string, number[]>();
   for (const item of evaluated) {
-    if (item.tieGroup) tieGroups.set(item.tieGroup, [...(tieGroups.get(item.tieGroup) ?? []), item.coverageDays]);
+    if (item.tieGroup)
+      tieGroups.set(item.tieGroup, [...(tieGroups.get(item.tieGroup) ?? []), item.coverageDays]);
   }
-  const tieGroupsValid = [...tieGroups.values()].every((coverages) => new Set(coverages).size === 1);
+  const tieGroupsValid = [...tieGroups.values()].every(
+    (coverages) => new Set(coverages).size === 1
+  );
   const alertStatuses = new Set(["CRITICAL_RUPTURE", "WARNING"]);
   const correct = eligibleCases.filter((item) => item.correct).length;
   const falsePositives = eligibleCases.filter(

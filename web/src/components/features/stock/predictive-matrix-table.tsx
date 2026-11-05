@@ -28,12 +28,7 @@ export interface PredictiveMatrixItem {
   safetyStockQty?: string | number;
   reorderPointQty?: string | number;
   predictiveStatus:
-    | "CRITICAL_RUPTURE"
-    | "WARNING"
-    | "HEALTHY"
-    | "EXCESS"
-    | "SEM_LEAD_TIME"
-    | string;
+    "CRITICAL_RUPTURE" | "WARNING" | "HEALTHY" | "EXCESS" | "SEM_LEAD_TIME" | string;
   suggestedPurchaseQty?: string | number;
   suggestedPurchaseDate?: string | Date | null;
   curveAbc?: string;
@@ -104,7 +99,8 @@ export function PredictiveMatrixTable({
     });
 
     return visible.sort((a, b) => {
-      const rankDiff = (urgencyRank[a.predictiveStatus] ?? 9) - (urgencyRank[b.predictiveStatus] ?? 9);
+      const rankDiff =
+        (urgencyRank[a.predictiveStatus] ?? 9) - (urgencyRank[b.predictiveStatus] ?? 9);
       if (rankDiff !== 0) return rankDiff;
 
       const marginA = margin(a);
@@ -233,8 +229,16 @@ export function PredictiveMatrixTable({
 
                       {/* Saldo Físico */}
                       <td className="py-2.5 px-3 text-right font-mono text-metric-regular text-ice-white">
-                        <div>{currentStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} {item.unit || "t"}</div>
-                        <div className="text-[10px] text-titanium-muted">Físico {physicalStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} · Reservado {reservedStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}</div>
+                        <div>
+                          {currentStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}{" "}
+                          {item.unit || "t"}
+                        </div>
+                        <div className="text-[10px] text-titanium-muted">
+                          Físico{" "}
+                          {physicalStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ·
+                          Reservado{" "}
+                          {reservedStock.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                        </div>
                       </td>
 
                       {/* Consumo Diário */}
