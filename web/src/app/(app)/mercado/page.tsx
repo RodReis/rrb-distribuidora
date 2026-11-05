@@ -1,6 +1,12 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { importParityConfigs, marketAlertRules, marketAssets, products } from "@/lib/db/schema";
+import {
+  importParityConfigs,
+  marketAlertRules,
+  marketAssets,
+  products,
+  tenantMarketPriceSeries,
+} from "@/lib/db/schema";
 import { checkPermission, getCurrentUser } from "@/lib/auth/rbac";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Forbidden } from "@/components/shared/forbidden";
@@ -10,6 +16,7 @@ import { MarketTerminal } from "@/components/features/market/market-terminal";
 import { PaidPricePanel } from "@/components/features/market/paid-price-panel";
 import { ParitySimulator } from "@/components/features/market/parity-simulator";
 import { AlertsPanel } from "@/components/features/market/alerts-panel";
+import { MarketAnalyses } from "@/components/features/market/market-analyses";
 import { ASSET_SYMBOLS } from "@/lib/market/assets";
 import { getQuotes } from "@/lib/market/queries";
 import { hasMarketCapability } from "@/lib/market/capabilities";
@@ -21,6 +28,7 @@ const TABS = [
   { key: "paridade", label: "Paridade de Importação" },
   { key: "alertas", label: "Alertas" },
   { key: "preco-pago", label: "Preço pago" },
+  { key: "analises", label: "Análises" },
 ] as const;
 
 export default async function MercadoPage({
@@ -37,7 +45,7 @@ export default async function MercadoPage({
   const { tab } = await searchParams;
   const active = TABS.find((t) => t.key === tab)?.key ?? "terminal";
 
-  const [quotes, configs, rules, assets, paidProducts] = await Promise.all([
+  const [quotes, configs, rules, assets, paidProducts, analysisAssets] = await Promise.all([
     getQuotes(user.tenantId),
     db
       .select()
@@ -70,6 +78,13 @@ export default async function MercadoPage({
       })
       .from(products)
       .where(eq(products.tenantId, user.tenantId)),
+    db
+      .selectDistinct({ symbol: marketAssets.symbol, name: marketAssets.name })
+      .from(tenantMarketPriceSeries)
+      .innerJoin(marketAssets, eq(marketAssets.id, tenantMarketPriceSeries.assetId))
+      .where(
+        and(eq(tenantMarketPriceSeries.tenantId, user.tenantId), eq(marketAssets.active, true))
+      ),
   ]);
 
   const last = (symbol: string) => quotes.find((q) => q.symbol === symbol)?.last ?? null;
@@ -100,6 +115,7 @@ export default async function MercadoPage({
 
       {active === "terminal" && <MarketTerminal initialQuotes={quotes} canWrite={canWrite} />}
       {active === "preco-pago" && <PaidPricePanel products={paidProducts} />}
+      {active === "analises" && <MarketAnalyses assets={analysisAssets} />}
       {active === "paridade" && (
         <ParitySimulator
           defaultPtax={last(ASSET_SYMBOLS.PTAX)}

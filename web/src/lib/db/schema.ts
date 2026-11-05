@@ -472,6 +472,27 @@ export const marketExports = pgTable(
   (t) => ({ tenantTimeIdx: index("idx_market_exports_tenant_time").on(t.tenantId, t.createdAt) })
 );
 
+export const analysisRuns = pgTable(
+  "analysis_runs",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    analysisType: varchar("analysis_type", { length: 20 }).notNull(),
+    inputSeries: jsonb("input_series").$type<string[]>().notNull(),
+    parameters: jsonb("parameters").$type<Record<string, unknown>>().notNull(),
+    methodVersion: varchar("method_version", { length: 40 }).notNull(),
+    coverage: jsonb("coverage").$type<Record<string, unknown>>().notNull(),
+    result: jsonb("result").$type<Record<string, unknown>>().notNull(),
+    sourceSnapshotHash: varchar("source_snapshot_hash", { length: 64 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({ tenantTimeIdx: index("idx_analysis_runs_tenant_time").on(t.tenantId, t.createdAt) })
+);
+
 export const marketManualPrices = pgTable(
   "market_manual_prices",
   {

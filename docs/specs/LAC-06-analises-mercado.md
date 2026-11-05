@@ -1,7 +1,7 @@
 # SPEC LAC-06 — Sazonalidade, correlações e spread histórico
 
 **Projeto:** MetalAgents · **Versão:** 1.0 · **Data:** 03/11/2026  
-**Status:** proposta de backlog, não implementada · **Dependências:** M1, LAC-05
+**Status:** implementação em PR #17 rascunho; aceite do PI pendente · **Dependências:** M1, LAC-05
 
 ## Objetivo
 
@@ -30,3 +30,24 @@ Executar consultas determinísticas sobre `serie_preco_mercado` e observações 
 ## UI, fora de escopo e decisões
 
 Abas de sazonalidade, correlação e spread com aviso metodológico, filtros, cobertura e export conforme LAC-05. Fora: recomendação de compra, causalidade, modelos preditivos do LAC-07 e fontes pagas sem licença. PI decide ciclos mínimos, defasagens disponíveis, fórmulas de spread landed e permissões/licenças. Sem aprovação, análise correspondente permanece indisponível.
+
+### Decisões do PI — 05/11/2026
+
+- Sazonalidade mensal exige 3 ciclos observados para cada mês; abaixo disso, exibir amostra insuficiente, sem média.
+- Correlação oferece defasagens de 0, 1, 5 e 20 dias úteis. Dia útil = segunda a sexta, sem excluir feriados.
+- Spread permanece indisponível até aprovação de fórmula e componentes de custo landed.
+- Análises consultam apenas séries importadas pelo próprio tenant. Dados globais de provedores seguem indisponíveis sem licença explícita.
+
+### Métodos desta implementação
+
+- `monthly-calendar-v1`: média dos fechamentos diários por mês e ano; para cada mês do calendário, média e desvio padrão populacional dessas médias anuais. Só divulga estatística com três anos observados no mesmo mês. Ausência fica fora da amostra.
+- `pearson-fisher-v1`: pares de fechamentos por data UTC; a segunda série é alinhada após defasagem aprovada. Correlação de Pearson com pelo menos três pares não constantes; intervalo de confiança de 95% pela transformação de Fisher quando há mais de três pares e `|r| < 1`. Não interpola datas.
+- O hash SHA-256 abrange pontos lidos, metadados da fonte e parâmetros; a mesma entrada ordenada produz o mesmo hash. Cada consulta grava `analysis_runs` para rastreabilidade.
+
+### Validação local — 05/11/2026
+
+- Migração 0021 aplicada no PostgreSQL local compartilhado; tabela `analysis_runs` e histórico Drizzle confirmados.
+- Smoke autenticado com fixture temporária: janeiro com 3 ciclos, média 20 e dispersão 8,16; correlação com defasagem de 1 dia útil, 4 pares e `r = 1`; fonte de provedor negada com HTTP 403 e auditada; spread indisponível com HTTP 422.
+- Fixture removida após teste; uma entrada de auditoria de negação foi preservada.
+- Aba, filtros e estado vazio renderizados. Modal de Termos de Uso da IA impediu clique na interface; não foi aceito pelo agente. API foi validada diretamente com sessão autenticada.
+- CI da PR #17 passou lint, formatação, testes e build. Testes locais: 394 passaram, 46 ignorados por configuração; TypeScript passou.
