@@ -29,9 +29,10 @@ export interface StockLotItem {
 export interface LotsTableProps {
   lots: StockLotItem[];
   onNewMovement?: () => void;
+  onPrintLabel?: (lot: StockLotItem) => void;
 }
 
-export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
+export function LotsTable({ lots, onNewMovement, onPrintLabel }: LotsTableProps) {
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("todos");
 
@@ -100,13 +101,14 @@ export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
               <th className="py-2.5 px-3 font-semibold text-right">Custo Unitário</th>
               <th className="py-2.5 px-3 font-semibold">Local / Endereço</th>
               <th className="py-2.5 px-3 font-semibold text-center">Status</th>
+              {onPrintLabel && <th className="py-2.5 px-3 font-semibold text-center">Etiqueta</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-carbon-800/40 text-body-sm font-sans">
             {filteredLots.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={onPrintLabel ? 9 : 8}
                   className="py-8 text-center text-titanium-muted font-mono text-body-sm"
                 >
                   Nenhum lote físico cadastrado ou localizado no filtro.
@@ -178,6 +180,13 @@ export function LotsTable({ lots, onNewMovement }: LotsTableProps) {
                         </span>
                       )}
                     </td>
+                    {onPrintLabel && (
+                      <td className="py-2.5 px-3 text-center">
+                        <Button variant="secondary" size="sm" onClick={() => onPrintLabel(lot)}>
+                          QR / Imprimir
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 );
               })

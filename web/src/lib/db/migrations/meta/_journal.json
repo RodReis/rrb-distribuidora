@@ -92,6 +92,48 @@
       "when": 1793726941533,
       "tag": "0012_slim_albert_cleary",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793731996631,
+      "tag": "0013_moaning_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793748438620,
+      "tag": "0014_supplier_event_corrections",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793808408361,
+      "tag": "0015_stock_reservations",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793809664128,
+      "tag": "0016_stock_transfers",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793810170710,
+      "tag": "0017_stock_labels",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793810640581,
+      "tag": "0018_seasonality_runs",
+      "breakpoints": true
     }
   ]
 }

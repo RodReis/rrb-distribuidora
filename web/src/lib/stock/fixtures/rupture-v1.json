@@ -1,0 +1,15 @@
+{
+  "fixtureId": "lac03-rupture-v1",
+  "methodVersion": "predictive-engine-v1",
+  "scope": "Corpus fechado de casos sintéticos; resultado não generaliza para produção.",
+  "cases": [
+    { "id": "sem-historico", "eligible": false, "reason": "Histórico ausente", "physical": 12, "reserved": 0, "avgDaily": 1, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": null },
+    { "id": "consumo-zero", "eligible": false, "reason": "Consumo observado igual a zero", "physical": 12, "reserved": 0, "avgDaily": 0, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": null },
+    { "id": "lead-time-ausente", "eligible": false, "reason": "Lead time ausente", "physical": 12, "reserved": 0, "avgDaily": 1, "stdDev": 0, "leadTimeDays": null, "expectedStatus": null },
+    { "id": "saldo-negativo", "eligible": true, "reason": null, "physical": -1, "reserved": 0, "avgDaily": 1, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": "CRITICAL_RUPTURE" },
+    { "id": "saldo-reservado", "eligible": true, "reason": null, "physical": 20, "reserved": 18, "avgDaily": 1, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": "CRITICAL_RUPTURE" },
+    { "id": "estoque-saudavel", "eligible": true, "reason": null, "physical": 100, "reserved": 0, "avgDaily": 1, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": "HEALTHY" },
+    { "id": "empate-cobertura-a", "eligible": true, "reason": null, "physical": 5, "reserved": 0, "avgDaily": 1, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": "WARNING", "tieGroup": "coverage-5d" },
+    { "id": "empate-cobertura-b", "eligible": true, "reason": null, "physical": 5, "reserved": 0, "avgDaily": 1, "stdDev": 0, "leadTimeDays": 5, "expectedStatus": "WARNING", "tieGroup": "coverage-5d" }
+  ]
+}

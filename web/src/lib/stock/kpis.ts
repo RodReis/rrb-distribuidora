@@ -19,7 +19,10 @@ export interface StockKpis {
   agedCapitalBrl: number;
   agedLotsCount: number;
   dioDays: number | null;
+  /** Média dos SKUs com lead time definido. Nula = nenhum SKU com lead time (não é 0). */
   avgLeadTimeDays: number | null;
+  /** SKUs sem lead time definido (LAC-02). Ausência não conta como ruptura. */
+  leadTimeUndefinedCount: number;
   remnantsTrackedCount: number;
   remnantsTrackedWeightKg: number;
   lastCycleCountAt: Date | null;
@@ -67,16 +70,24 @@ export async function getStockKpis(tenantId: string): Promise<StockKpis> {
     .innerJoin(products, eq(products.id, stockPredictiveMetrics.productId))
     .where(eq(stockPredictiveMetrics.tenantId, tenantId));
 
+  // SEM_LEAD_TIME fica fora: ausência de lead time não é ruptura (LAC-02).
   const critical = metrics.filter((m) => m.status === "CRITICAL_RUPTURE");
   // Quantidade sugerida (unidade de estoque) → kg × R$/kg. Sem conversão conhecida, não soma.
   const potentialDeficitBrl = critical.reduce(
     (acc, m) => acc + (valueAtCostPerKg(m.suggestedQty, m.cost, m) ?? 0),
     0
   );
+  // Média ignora lead times não definidos; sem nenhum valor, devolve null (nunca 0).
+  const definedLeadTimes = metrics
+    .map((m) => m.leadTimeDays)
+    .filter((days): days is number => days !== null);
   const avgLeadTimeDays =
-    metrics.length > 0
-      ? Number((metrics.reduce((a, m) => a + m.leadTimeDays, 0) / metrics.length).toFixed(1))
+    definedLeadTimes.length > 0
+      ? Number(
+          (definedLeadTimes.reduce((a, days) => a + days, 0) / definedLeadTimes.length).toFixed(1)
+        )
       : null;
+  const leadTimeUndefinedCount = metrics.length - definedLeadTimes.length;
 
   const activeLots = await db
     .select({
@@ -150,6 +161,7 @@ export async function getStockKpis(tenantId: string): Promise<StockKpis> {
     agedLotsCount,
     dioDays: calculateDio(stockValue, consumption90d),
     avgLeadTimeDays,
+    leadTimeUndefinedCount,
     remnantsTrackedCount: tracked.length,
     remnantsTrackedWeightKg: Number(sumWeight(tracked).toFixed(3)),
     lastCycleCountAt: lastCount?.countedAt ?? null,

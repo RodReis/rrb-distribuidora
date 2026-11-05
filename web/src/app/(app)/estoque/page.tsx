@@ -8,10 +8,11 @@ import {
   warehouses,
   suppliers,
   stockCycleCounts,
+  stockReservations,
 } from "@/lib/db/schema";
 import { checkPermission, getCurrentUser } from "@/lib/auth/rbac";
 import { Forbidden } from "@/components/shared/forbidden";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { EstoqueClient } from "./estoque-client";
 import { getStockKpis } from "@/lib/stock/kpis";
 import { getDailyCycleCountCandidates, getCycleInventoryAccuracy } from "@/lib/stock/cycle-count";
@@ -45,6 +46,7 @@ export default async function EstoquePage({
       currentStockQty: stockPredictiveMetrics.currentStockQty,
       avgDailyConsumption30d: stockPredictiveMetrics.avgDailyConsumption30d,
       leadTimeDays: stockPredictiveMetrics.leadTimeDays,
+      leadTimeSource: stockPredictiveMetrics.leadTimeSource,
       coverageDays: stockPredictiveMetrics.coverageDays,
       safetyStockQty: stockPredictiveMetrics.safetyStockQty,
       reorderPointQty: stockPredictiveMetrics.reorderPointQty,
@@ -57,6 +59,61 @@ export default async function EstoquePage({
     .from(products)
     .innerJoin(stockPredictiveMetrics, eq(products.id, stockPredictiveMetrics.productId))
     .where(and(eq(products.tenantId, user.tenantId), eq(products.status, "ativo")));
+
+  const physicalByDepot = await db
+    .select({
+      productId: stockLots.productId,
+      warehouseId: stockLots.warehouseId,
+      physical: sql<string>`coalesce(sum(${stockLots.quantityCurrent}), 0)`,
+    })
+    .from(stockLots)
+    .where(and(eq(stockLots.tenantId, user.tenantId), eq(stockLots.status, "ativo")))
+    .groupBy(stockLots.productId, stockLots.warehouseId);
+  const reservedByDepot = await db
+    .select({
+      productId: stockReservations.productId,
+      warehouseId: stockReservations.warehouseId,
+      reserved: sql<string>`coalesce(sum(${stockReservations.quantity}), 0)`,
+    })
+    .from(stockReservations)
+    .where(
+      and(eq(stockReservations.tenantId, user.tenantId), eq(stockReservations.status, "ativa"))
+    )
+    .groupBy(stockReservations.productId, stockReservations.warehouseId);
+  const reservedLookup = new Map(
+    reservedByDepot.map((row) => [`${row.productId}:${row.warehouseId}`, Number(row.reserved)])
+  );
+  const stockByProduct = new Map<
+    string,
+    {
+      physical: number;
+      reserved: number;
+      depots: Array<{ warehouseId: string; physical: number; reserved: number; available: number }>;
+    }
+  >();
+  for (const row of physicalByDepot) {
+    const physical = Number(row.physical);
+    const reserved = reservedLookup.get(`${row.productId}:${row.warehouseId}`) ?? 0;
+    const stock = stockByProduct.get(row.productId) ?? { physical: 0, reserved: 0, depots: [] };
+    stock.physical += physical;
+    stock.reserved += reserved;
+    stock.depots.push({
+      warehouseId: row.warehouseId,
+      physical,
+      reserved,
+      available: physical - reserved,
+    });
+    stockByProduct.set(row.productId, stock);
+  }
+  for (const item of matrixItems) {
+    const stock = stockByProduct.get(item.productId) ?? { physical: 0, reserved: 0, depots: [] };
+    Object.assign(item, {
+      physicalStockQty: stock.physical,
+      reservedStockQty: stock.reserved,
+      availableStockQty: stock.physical - stock.reserved,
+      stockByDepot: stock.depots,
+    });
+  }
 
   // 2. Fetch remnants
   const remnants = await db
@@ -98,6 +155,7 @@ export default async function EstoquePage({
       productId: stockLots.productId,
       productSku: products.sku,
       productDescription: products.commercialDescription,
+      unit: products.unit,
       productNorm: products.norm,
       supplierId: stockLots.supplierId,
       supplierName: suppliers.tradeName,

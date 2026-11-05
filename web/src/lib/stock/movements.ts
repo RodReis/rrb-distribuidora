@@ -1,5 +1,12 @@
 import { db } from "@/lib/db";
-import { products, stockLots, stockMovements, stockRemnants, auditLog } from "@/lib/db/schema";
+import {
+  products,
+  stockLots,
+  stockMovements,
+  stockRemnants,
+  stockReservations,
+  auditLog,
+} from "@/lib/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { calculateRemnantWeight } from "./remnants-engine";
 import { recalculatePredictiveMetricsForTenant } from "./predictive-engine";
@@ -174,7 +181,8 @@ export async function recordStockOut(input: StockOutInput) {
       .select()
       .from(stockLots)
       .where(and(eq(stockLots.id, input.lotId), eq(stockLots.tenantId, input.tenantId)))
-      .limit(1);
+      .limit(1)
+      .for("update");
 
     if (!lot) {
       throw new Error("Lote de estoque não encontrado.");
@@ -185,9 +193,20 @@ export async function recordStockOut(input: StockOutInput) {
     }
 
     const currentQty = Number(lot.quantityCurrent);
-    if (currentQty < input.quantity) {
+    const [reservationTotal] = await tx
+      .select({ quantity: sql<string>`coalesce(sum(${stockReservations.quantity}), 0)` })
+      .from(stockReservations)
+      .where(
+        and(
+          eq(stockReservations.tenantId, input.tenantId),
+          eq(stockReservations.lotId, lot.id),
+          eq(stockReservations.status, "ativa")
+        )
+      );
+    const availableQty = currentQty - Number(reservationTotal?.quantity ?? 0);
+    if (availableQty < input.quantity) {
       throw new Error(
-        `Saldo insuficiente no lote ${lot.lotNumber}. Disponível: ${currentQty}, Solicitado: ${input.quantity}. Bloqueio de saldo negativo ativo.`
+        `Saldo disponível insuficiente no lote ${lot.lotNumber}. Disponível: ${Math.max(0, availableQty)}, Solicitado: ${input.quantity}. Estoque reservado não pode ser consumido.`
       );
     }
 
@@ -262,11 +281,25 @@ export async function recordStockAdjustment(input: StockAdjustmentInput) {
       .select()
       .from(stockLots)
       .where(and(eq(stockLots.id, input.lotId), eq(stockLots.tenantId, input.tenantId)))
-      .limit(1);
+      .limit(1)
+      .for("update");
 
     if (!lot) throw new Error("Lote não encontrado.");
 
     const oldQty = Number(lot.quantityCurrent);
+    const [reservationTotal] = await tx
+      .select({ quantity: sql<string>`coalesce(sum(${stockReservations.quantity}), 0)` })
+      .from(stockReservations)
+      .where(
+        and(
+          eq(stockReservations.tenantId, input.tenantId),
+          eq(stockReservations.lotId, lot.id),
+          eq(stockReservations.status, "ativa")
+        )
+      );
+    if (input.newQuantity < Number(reservationTotal?.quantity ?? 0)) {
+      throw new Error("Ajuste recusado: saldo final ficaria abaixo da quantidade reservada.");
+    }
     const diff = Number((input.newQuantity - oldQty).toFixed(4));
 
     if (diff === 0) {

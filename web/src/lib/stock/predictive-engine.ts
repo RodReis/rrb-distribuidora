@@ -4,10 +4,12 @@ import {
   stockLots,
   stockMovements,
   stockPredictiveMetrics,
-  suppliers,
+  stockReservations,
 } from "@/lib/db/schema";
-import { and, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, eq, gte, inArray } from "drizzle-orm";
 import { valueAtCostPerKg } from "./units";
+import { buildLeadTimeResolver, loadLeadTimeSnapshotSources } from "@/lib/suppliers/lead-time";
+import type { LeadTimeSource, ResolvedLeadTime } from "@/lib/suppliers/types";
 
 export interface ConsumptionStats {
   avgDaily30d: number;
@@ -18,16 +20,27 @@ export interface ConsumptionStats {
   coefficientOfVariation: number;
 }
 
+export type PredictiveStatus =
+  | "CRITICAL_RUPTURE"
+  | "WARNING"
+  | "HEALTHY"
+  | "EXCESS"
+  /** Lead time não definido (LAC-02): não é ruptura, nem cobertura, nem zero dias. */
+  | "SEM_LEAD_TIME";
+
 export interface PredictiveEngineResult {
   productId: string;
   tenantId: string;
   currentStockQty: number;
   avgDailyConsumption30d: number;
-  leadTimeDays: number;
+  /** Nulo = lead time não definido. Nunca preenchido por default de código. */
+  leadTimeDays: number | null;
+  /** Origem do lead time resolvido (LAC-02). Nula quando `leadTimeDays` é nulo. */
+  leadTimeSource: LeadTimeSource | null;
   coverageDays: number;
   safetyStockQty: number;
   reorderPointQty: number;
-  predictiveStatus: "CRITICAL_RUPTURE" | "WARNING" | "HEALTHY" | "EXCESS";
+  predictiveStatus: PredictiveStatus;
   suggestedPurchaseQty: number;
   suggestedPurchaseDate: Date | null;
   curveAbc: "A" | "B" | "C";
@@ -121,6 +134,9 @@ export function calculateCoverageDays(currentStock: number, avgDaily: number): n
   return Number(Math.min(999.0, coverage).toFixed(1));
 }
 
+/** Status possível quando o lead time está definido. `SEM_LEAD_TIME` fica fora deste conjunto. */
+export type ResolvedPredictiveStatus = Exclude<PredictiveStatus, "SEM_LEAD_TIME">;
+
 /**
  * Determines predictive status based on Coverage vs Lead Time & ROP
  */
@@ -129,7 +145,7 @@ export function determinePredictiveStatus(
   coverageDays: number,
   leadTimeDays: number,
   reorderPoint: number
-): "CRITICAL_RUPTURE" | "WARNING" | "HEALTHY" | "EXCESS" {
+): ResolvedPredictiveStatus {
   if (currentStock <= 0 || coverageDays < leadTimeDays) {
     return "CRITICAL_RUPTURE";
   }
@@ -149,7 +165,7 @@ export function determinePredictiveStatus(
  * Calculates suggested purchase quantity and recommended purchase order date
  */
 export function calculateSuggestedPurchase(
-  status: "CRITICAL_RUPTURE" | "WARNING" | "HEALTHY" | "EXCESS",
+  status: ResolvedPredictiveStatus,
   currentStock: number,
   reorderPoint: number,
   avgDaily: number,
@@ -179,6 +195,83 @@ export function calculateSuggestedPurchase(
   }
 
   return { quantity, date };
+}
+
+export interface PredictiveDecisionInput {
+  /** Lead time já resolvido pela LAC-02 (ver `lib/suppliers/lead-time.ts`). */
+  resolvedLeadTime: Pick<ResolvedLeadTime, "days" | "source">;
+  currentStock: number;
+  avgDailyConsumption: number;
+  stdDevDaily: number;
+  coverageDays: number;
+  /** Data de referência da sugestão de compra; injetada nos testes. */
+  referenceDate?: Date;
+}
+
+export interface PredictiveDecision {
+  leadTimeDays: number | null;
+  leadTimeSource: LeadTimeSource | null;
+  safetyStockQty: number;
+  reorderPointQty: number;
+  predictiveStatus: PredictiveStatus;
+  suggestedPurchaseQty: number;
+  suggestedPurchaseDate: Date | null;
+}
+
+/**
+ * Consolida a decisão preditiva do produto a partir do lead time resolvido (LAC-02).
+ *
+ * Ausência de lead time (`days === null`) NÃO é ruptura e NÃO vira 0 dias nem default:
+ * - status próprio `SEM_LEAD_TIME`, fora das contagens de risco e da fila de compras;
+ * - SS, ROP e sugestão = 0 e data nula, porque as três fórmulas dependem de L;
+ * - consumo, cobertura e curvas ABC/XYZ continuam calculados e exibidos.
+ *
+ * Quando resolvido, a origem (`leadTimeSource`) é persistida junto com os dias; quando
+ * ausente, os dois campos vão nulos — o banco não guarda `unavailable` como se fosse fonte.
+ */
+export function calculatePredictiveDecision(input: PredictiveDecisionInput): PredictiveDecision {
+  const { days } = input.resolvedLeadTime;
+
+  if (days === null) {
+    return {
+      leadTimeDays: null,
+      leadTimeSource: null,
+      safetyStockQty: 0,
+      reorderPointQty: 0,
+      predictiveStatus: "SEM_LEAD_TIME",
+      suggestedPurchaseQty: 0,
+      suggestedPurchaseDate: null,
+    };
+  }
+
+  const safetyStockQty = calculateSafetyStock(input.stdDevDaily, days, input.avgDailyConsumption);
+  const reorderPointQty = calculateReorderPoint(input.avgDailyConsumption, days, safetyStockQty);
+  const predictiveStatus = determinePredictiveStatus(
+    input.currentStock,
+    input.coverageDays,
+    days,
+    reorderPointQty
+  );
+  const { quantity, date } = calculateSuggestedPurchase(
+    predictiveStatus,
+    input.currentStock,
+    reorderPointQty,
+    input.avgDailyConsumption,
+    input.coverageDays,
+    days,
+    input.referenceDate ?? new Date()
+  );
+
+  return {
+    leadTimeDays: days,
+    // Resolver só devolve `unavailable` com `days === null`; com dias preenchidos a origem é real.
+    leadTimeSource: input.resolvedLeadTime.source,
+    safetyStockQty,
+    reorderPointQty,
+    predictiveStatus,
+    suggestedPurchaseQty: quantity,
+    suggestedPurchaseDate: date,
+  };
 }
 
 /**
@@ -223,12 +316,12 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
       productId: stockLots.productId,
       quantityCurrent: stockLots.quantityCurrent,
       unitCost: stockLots.unitCost,
-      supplierId: stockLots.supplierId,
     })
     .from(stockLots)
     .where(and(eq(stockLots.tenantId, tenantId), eq(stockLots.status, "ativo")));
 
   const stockByProduct: Record<string, number> = {};
+  const reservedByProduct: Record<string, number> = {};
   const lotValueByProduct: Record<string, number> = {};
   lots.forEach((lot) => {
     const qty = Number(lot.quantityCurrent) || 0;
@@ -236,20 +329,21 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
     lotValueByProduct[lot.productId] =
       (lotValueByProduct[lot.productId] || 0) + qty * (Number(lot.unitCost) || 0);
   });
-
-  // 3. Fetch lead time from suppliers or default 15 days
-  const tenantSuppliers = await db
-    .select({
-      id: suppliers.id,
-      leadTimeDays: suppliers.leadTimeDays,
-    })
-    .from(suppliers)
-    .where(eq(suppliers.tenantId, tenantId));
-
-  const supplierLeadTimeMap: Record<string, number> = {};
-  tenantSuppliers.forEach((s) => {
-    supplierLeadTimeMap[s.id] = s.leadTimeDays || 15;
+  const activeReservations = await db
+    .select({ productId: stockReservations.productId, quantity: stockReservations.quantity })
+    .from(stockReservations)
+    .where(and(eq(stockReservations.tenantId, tenantId), eq(stockReservations.status, "ativa")));
+  activeReservations.forEach((reservation) => {
+    reservedByProduct[reservation.productId] =
+      (reservedByProduct[reservation.productId] || 0) + (Number(reservation.quantity) || 0);
   });
+
+  // 3. Preferência por produto (LAC-02) → lead time geral do fornecedor preferido.
+  //    Sem preferência/dado: unknown; estimativa do primeiro lote não vira padrão.
+  //    Sem default numérico: ausência volta `unknown` e o produto recebe SEM_LEAD_TIME.
+  const now = new Date();
+  const leadTimeSources = await loadLeadTimeSnapshotSources({ tenantId, productIds });
+  const resolveLeadTime = buildLeadTimeResolver(leadTimeSources, { now });
 
   // 4. Fetch movements over last 90 days for consumption
   const ninetyDaysAgo = new Date();
@@ -272,7 +366,6 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
     );
 
   // Group daily consumption per product
-  const now = new Date();
   const dailyConsumptionMap: Record<string, number[]> = {};
   productIds.forEach((pid) => {
     dailyConsumptionMap[pid] = new Array(90).fill(0);
@@ -322,32 +415,22 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
 
   for (const product of activeProducts) {
     const pid = product.id;
-    const currentStock = stockByProduct[pid] || 0;
+    // Cobertura/risco usam disponível. Valor de estoque e curva ABC preservam físico.
+    const currentStock = (stockByProduct[pid] || 0) - (reservedByProduct[pid] || 0);
     const consumptions = dailyConsumptionMap[pid] || new Array(90).fill(0);
 
     const stats = calculateConsumptionMetrics(consumptions);
-
-    // Find supplier lead time if lot has supplier or default 15
-    const productLots = lots.filter((l) => l.productId === pid && l.supplierId);
-    let leadTime = 15;
-    if (productLots.length > 0 && productLots[0].supplierId) {
-      leadTime = supplierLeadTimeMap[productLots[0].supplierId] || 15;
-    }
-
-    const safetyStock = calculateSafetyStock(stats.stdDevDaily, leadTime, stats.weightedAvgDaily);
-    const reorderPoint = calculateReorderPoint(stats.weightedAvgDaily, leadTime, safetyStock);
     const coverageDays = calculateCoverageDays(currentStock, stats.weightedAvgDaily);
 
-    const status = determinePredictiveStatus(currentStock, coverageDays, leadTime, reorderPoint);
-    const { quantity: suggestedQty, date: suggestedDate } = calculateSuggestedPurchase(
-      status,
+    // Lead time resolvido pela LAC-02; ausência não recebe default nem vira ruptura.
+    const decision = calculatePredictiveDecision({
+      resolvedLeadTime: resolveLeadTime(pid),
       currentStock,
-      reorderPoint,
-      stats.weightedAvgDaily,
+      avgDailyConsumption: stats.weightedAvgDaily,
+      stdDevDaily: stats.stdDevDaily,
       coverageDays,
-      leadTime,
-      now
-    );
+      referenceDate: now,
+    });
 
     const curveAbc = abcMap[pid] || "B";
     const curveXyz = classifyCurveXyz(stats.coefficientOfVariation);
@@ -357,13 +440,14 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
       tenantId,
       currentStockQty: currentStock,
       avgDailyConsumption30d: stats.avgDaily30d,
-      leadTimeDays: leadTime,
+      leadTimeDays: decision.leadTimeDays,
+      leadTimeSource: decision.leadTimeSource,
       coverageDays,
-      safetyStockQty: safetyStock,
-      reorderPointQty: reorderPoint,
-      predictiveStatus: status,
-      suggestedPurchaseQty: suggestedQty,
-      suggestedPurchaseDate: suggestedDate,
+      safetyStockQty: decision.safetyStockQty,
+      reorderPointQty: decision.reorderPointQty,
+      predictiveStatus: decision.predictiveStatus,
+      suggestedPurchaseQty: decision.suggestedPurchaseQty,
+      suggestedPurchaseDate: decision.suggestedPurchaseDate,
       curveAbc,
       curveXyz,
     };
@@ -378,13 +462,14 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
         tenantId,
         currentStockQty: String(currentStock),
         avgDailyConsumption30d: String(stats.avgDaily30d),
-        leadTimeDays: leadTime,
+        leadTimeDays: decision.leadTimeDays,
+        leadTimeSource: decision.leadTimeSource,
         coverageDays: String(coverageDays),
-        safetyStockQty: String(safetyStock),
-        reorderPointQty: String(reorderPoint),
-        predictiveStatus: status,
-        suggestedPurchaseQty: String(suggestedQty),
-        suggestedPurchaseDate: suggestedDate,
+        safetyStockQty: String(decision.safetyStockQty),
+        reorderPointQty: String(decision.reorderPointQty),
+        predictiveStatus: decision.predictiveStatus,
+        suggestedPurchaseQty: String(decision.suggestedPurchaseQty),
+        suggestedPurchaseDate: decision.suggestedPurchaseDate,
         curveAbc,
         curveXyz,
         calculatedAt: now,
@@ -394,13 +479,14 @@ export async function recalculatePredictiveMetricsForTenant(tenantId: string) {
         set: {
           currentStockQty: String(currentStock),
           avgDailyConsumption30d: String(stats.avgDaily30d),
-          leadTimeDays: leadTime,
+          leadTimeDays: decision.leadTimeDays,
+          leadTimeSource: decision.leadTimeSource,
           coverageDays: String(coverageDays),
-          safetyStockQty: String(safetyStock),
-          reorderPointQty: String(reorderPoint),
-          predictiveStatus: status,
-          suggestedPurchaseQty: String(suggestedQty),
-          suggestedPurchaseDate: suggestedDate,
+          safetyStockQty: String(decision.safetyStockQty),
+          reorderPointQty: String(decision.reorderPointQty),
+          predictiveStatus: decision.predictiveStatus,
+          suggestedPurchaseQty: String(decision.suggestedPurchaseQty),
+          suggestedPurchaseDate: decision.suggestedPurchaseDate,
           curveAbc,
           curveXyz,
           calculatedAt: now,

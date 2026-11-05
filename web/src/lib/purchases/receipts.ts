@@ -9,6 +9,7 @@ import {
   purchaseReceipts,
   stockLots,
   stockMovements,
+  supplierDeliveryEvents,
   warehouses,
 } from "@/lib/db/schema";
 import { recalculatePredictiveMetricsForTenant } from "@/lib/stock/predictive-engine";
@@ -554,6 +555,17 @@ export async function registerPurchaseReceipt(
           notes,
         },
       });
+      await tx.insert(supplierDeliveryEvents).values({
+        tenantId: params.tenantId,
+        purchaseOrderId: order.id,
+        itemId: item.id,
+        eventType: "received",
+        eventAt: receivedAt,
+        quantity: quantity.toFixed(4),
+        actorId: params.userId,
+        source: "purchase_receipt",
+        note: `Recebimento ${receipt.id} · ${supplierDocumentReference || "sem documento"}`,
+      });
 
       await tx.insert(auditLog).values([
         {
@@ -826,6 +838,17 @@ export async function reversePurchaseReceipt(
           status: nextStatus,
           lotQuantityCurrent: nextQuantity,
         },
+      });
+      await tx.insert(supplierDeliveryEvents).values({
+        tenantId: params.tenantId,
+        purchaseOrderId: order.id,
+        itemId: item.id,
+        eventType: "receipt_reversed",
+        eventAt: reversedAt,
+        quantity: quantity.toFixed(4),
+        actorId: params.userId,
+        source: "purchase_receipt_reversal",
+        note: `Recebimento ${receipt.id} · estornado: ${reason}`,
       });
 
       await tx.insert(auditLog).values([

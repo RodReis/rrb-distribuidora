@@ -183,6 +183,8 @@ export function QuoteDetailClient({
   const [lostOpen, setLostOpen] = React.useState(false);
   const [lossReason, setLossReason] = React.useState<string>(LOSS_REASONS[0]);
   const [lossNote, setLossNote] = React.useState("");
+  const [cancelOpen, setCancelOpen] = React.useState(false);
+  const [cancelReason, setCancelReason] = React.useState("");
 
   const status = data.status;
   const closed = ["aprovado", "perdido", "expirado"].includes(status);
@@ -251,6 +253,31 @@ export function QuoteDetailClient({
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro inesperado.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitOrderCancellation() {
+    if (cancelReason.trim().length < 5) {
+      toast.error("Informe justificativa com ao menos 5 caracteres.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/stock/orders/${data.salesOrder?.id}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: cancelReason }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Falha ao cancelar pedido.");
+      toast.success(`Pedido cancelado; ${result.releasedReservations} reserva(s) liberada(s).`);
+      setCancelOpen(false);
+      setCancelReason("");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha ao cancelar pedido.");
     } finally {
       setBusy(false);
     }
@@ -691,6 +718,18 @@ export function QuoteDetailClient({
                   {formatCurrencyBRL(data.salesOrder.totalAmount)} ·{" "}
                   {formatDateTime(data.salesOrder.createdAt)}
                 </p>
+                {canWrite &&
+                  ["aguardando_producao", "em_corte"].includes(data.salesOrder.orderStatus) && (
+                    <Button
+                      className="mt-3"
+                      variant="secondary"
+                      size="sm"
+                      disabled={busy}
+                      onClick={() => setCancelOpen(true)}
+                    >
+                      <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
+                    </Button>
+                  )}
               </div>
             )}
           </div>
@@ -731,6 +770,45 @@ export function QuoteDetailClient({
         onCancel={() => setPending(null)}
         onConfirm={() => pending && confirmAction(pending)}
       />
+
+      <FormDrawer
+        isOpen={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        title="Cancelar pedido de venda"
+        subtitle="Reservas ativas serão liberadas. Histórico do pedido permanece auditável."
+        width="max-w-lg"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setCancelOpen(false)} disabled={busy}>
+              Voltar
+            </Button>
+            <Button
+              variant="danger"
+              onClick={submitOrderCancellation}
+              disabled={busy || cancelReason.trim().length < 5}
+            >
+              {busy ? "Cancelando…" : "Confirmar cancelamento"}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-2">
+          <label
+            className="font-label-caps text-label-caps uppercase text-titanium-muted"
+            htmlFor="order-cancel-reason"
+          >
+            Justificativa obrigatória
+          </label>
+          <textarea
+            id="order-cancel-reason"
+            className="min-h-28 rounded border border-carbon-700 bg-carbon-950 p-3 text-ice-white"
+            maxLength={1000}
+            value={cancelReason}
+            onChange={(event) => setCancelReason(event.target.value)}
+            placeholder="Descreva o motivo do cancelamento (mínimo 5 caracteres)…"
+          />
+        </div>
+      </FormDrawer>
 
       <FormDrawer
         isOpen={lostOpen}
